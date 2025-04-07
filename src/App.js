@@ -478,7 +478,7 @@ function App() {
   const [turnBet, setTurnBet] = useState(0);
   const [riverBet, setRiverBet] = useState(0);
 
-  const [gamePhase, setGamePhase] = useState('preflop');
+  const [gamePhase, setGamePhase] = useState('initial');
   const [flopBetPlaced, setFlopBetPlaced] = useState(false);
   const [turnBetPlaced, setTurnBetPlaced] = useState(false);
   const [riverBetPlaced, setRiverBetPlaced] = useState(false);
@@ -487,6 +487,46 @@ function App() {
   const [resultText, setResultText] = useState('');
 
   const chipValues = [5, 25, 50, 100, 500, 1000, 5000, 10000];
+
+  const resetGame = () => {
+    const newDeck = shuffleDeck();
+    setDeck(newDeck);
+    setPlayerCards([newDeck[0], newDeck[2]]);
+    setDealerCards([newDeck[1], newDeck[3]]);
+    setCommunityCards([]);
+    setGamePhase('initial');
+    setFolded(false);
+    setFlopBetPlaced(false);
+    setTurnBetPlaced(false);
+    setRiverBetPlaced(false);
+    setShowdown(false);
+    setResultText('');
+    setAnteBet(0);
+    setBonusBet(0);
+    setJackpotBet(0);
+  };
+  const restartRound = () => {
+    const newDeck = shuffleDeck();
+    setDeck(newDeck);
+    setPlayerCards([]);
+    setDealerCards([]);
+    setCommunityCards([]);
+    setGamePhase('initial'); // BET選択フェーズに戻す（フロント側も対応）
+    setFolded(false);
+    setFlopBetPlaced(false);
+    setTurnBetPlaced(false);
+    setRiverBetPlaced(false);
+    setShowdown(false);
+    setResultText('');
+
+    // 👇 BETだけ0に戻す
+    setAnteBet(0);
+    setBonusBet(0);
+    setJackpotBet(0);
+
+    // 💰 チップ（所持金）はリセットしない！
+    setHasStarted(false); // BET選択UIが表示されるようにする
+  };
 
   const bonusPayouts = {
     'Royal Flush': 500,
@@ -563,46 +603,52 @@ function App() {
       } else if (playerResult.score < dealerResult.score) {
         winnerText = '→ ディーラーの勝ち！';
       } else {
-        // 役が同じ → 数値で詳細比較（キッカーやペアの強さ）
+        // スコアが同じ → 数値で詳細比較（キッカーやペアの強さ）
 
-        const ranksOrder = [
-          '2',
-          '3',
-          '4',
-          '5',
-          '6',
-          '7',
-          '8',
-          '9',
-          '10',
-          'J',
-          'Q',
-          'K',
-          'A',
-        ];
+        const pRanks = playerResult.compareRanks;
+        const dRanks = dealerResult.compareRanks;
 
-        const rankValue = (card) =>
-          ranksOrder.indexOf(card.slice(0, card.length - 1));
-        const pRanks = playerResult.hand.map(rankValue).sort((a, b) => b - a);
-        const dRanks = dealerResult.hand.map(rankValue).sort((a, b) => b - a);
+        let compared = false;
+        let kickerUsed = false;
 
-        for (let i = 0; i < 5; i++) {
+        // キッカー開始インデックスを役によって決定
+        let kickerStartIndex = 0;
+        if (['High Card'].includes(playerRank)) kickerStartIndex = 0;
+        else if (['One Pair'].includes(playerRank)) kickerStartIndex = 1;
+        else if (['Two Pair'].includes(playerRank)) kickerStartIndex = 2;
+        else if (['Three of a Kind'].includes(playerRank)) kickerStartIndex = 1;
+        else if (['Four of a Kind'].includes(playerRank)) kickerStartIndex = 1;
+
+        for (let i = 0; i < pRanks.length; i++) {
           if (pRanks[i] > dRanks[i]) {
             playerWins = true;
-            winnerText = '→ キッカー勝負！あなたの勝ち！';
+            kickerUsed = i >= kickerStartIndex;
+            compared = true;
             break;
           }
           if (dRanks[i] > pRanks[i]) {
-            winnerText = '→ キッカー勝負！ディーラーの勝ち！';
+            kickerUsed = i >= kickerStartIndex;
+            compared = true;
             break;
           }
         }
 
-        if (winnerText === '') {
+        if (compared) {
+          if (playerWins) {
+            winnerText = kickerUsed
+              ? '→ キッカー勝負！あなたの勝ち！'
+              : '→ あなたの勝ち！';
+          } else {
+            winnerText = kickerUsed
+              ? '→ キッカー勝負！ディーラーの勝ち！'
+              : '→ ディーラーの勝ち！';
+          }
+        } else {
           tie = true;
           winnerText = '→ 完全に引き分け！';
         }
       }
+
       const rankOrder = [
         'High Card',
         'One Pair',
@@ -704,7 +750,7 @@ function App() {
         FLOP: ${flopBet} / TURN: ${turnBet} / RIVER: ${riverBet}
       </div>
 
-      {!hasStarted && (
+      {gamePhase === 'initial' && (
         <div>
           <h3>チップ残高：${chips}</h3>
 
@@ -716,7 +762,6 @@ function App() {
                 onClick={() => {
                   const newBet = anteBet + val;
                   if (chips >= val) {
-                    const newBet = anteBet + val;
                     setAnteBet(newBet);
                     setChips((prev) => prev - val);
                   }
@@ -762,6 +807,7 @@ function App() {
               </button>
             ))}
           </div>
+
           <div style={{ marginTop: '1em' }}>
             <button
               onClick={() => {
@@ -770,8 +816,7 @@ function App() {
                   return;
                 }
 
-                // ステート初期化してゲーム開始
-                const newDeck = shuffleDeck(); // ← 既存のシャッフル関数
+                const newDeck = shuffleDeck();
                 setDeck(newDeck);
                 setPlayerCards([newDeck[0], newDeck[2]]);
                 setDealerCards([newDeck[1], newDeck[3]]);
@@ -783,8 +828,6 @@ function App() {
                 setRiverBetPlaced(false);
                 setShowdown(false);
                 setResultText('');
-
-                setHasStarted(true);
               }}
             >
               ゲーム開始！
@@ -793,7 +836,7 @@ function App() {
         </div>
       )}
 
-      {hasStarted && (
+      {gamePhase !== 'initial' && (
         <>
           <h2>🎴 Player</h2>
           {playerCards.map((card) => (
@@ -924,6 +967,24 @@ function App() {
               Showdown！勝負！
               <br />
               {resultText}
+            </div>
+          )}
+          {showdown && (
+            <div style={{ marginTop: '2em' }}>
+              <button
+                onClick={restartRound}
+                style={{
+                  padding: '0.5em 1em',
+                  fontSize: '1.2em',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                🔄 もう一度プレイ！
+              </button>
             </div>
           )}
         </>
