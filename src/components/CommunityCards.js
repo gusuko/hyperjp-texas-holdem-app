@@ -1,4 +1,3 @@
-// components/CommunityCards.js
 import React from 'react';
 
 /**
@@ -7,11 +6,13 @@ import React from 'react';
  */
 const CommunityCards = ({ communityCards }) => {
   return (
-    <div>
-      <h2>🃍 Community Cards</h2>
-      {communityCards.map((card) => (
-        <img key={card} src={`/cards/${card}.png`} alt={card} width="100" />
-      ))}
+    <div className="community-cards">
+      <h2 style={{ textAlign: 'center', width: '100%' }}>🃍 Community Cards</h2>
+      <div className="card-row">
+        {communityCards.map((card) => (
+          <img key={card} src={`/cards/${card}.png`} alt={card} width="100" />
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// components/DealerHand.js
 import React from 'react';
 
 /**
@@ -8,16 +7,19 @@ import React from 'react';
  */
 const DealerHand = ({ dealerCards, showdown }) => {
   return (
-    <div>
-      <h2>🎲 Dealer</h2>
-      {dealerCards.map((card, index) => (
-        <img
-          key={index}
-          src={showdown ? `/cards/${card}.png` : `/cards/back.png`}
-          alt={card}
-          width="100"
-        />
-      ))}
+    <div className="dealer-hand">
+      <h2 style={{ textAlign: 'center', width: '100%' }}>🎲 Dealer</h2>
+
+      <div className="card-row">
+        {dealerCards.map((card, index) => (
+          <img
+            key={index}
+            src={showdown ? `/cards/${card}.png` : `/cards/back.png`}
+            alt={card}
+            width="100"
+          />
+        ))}
+      </div>
     </div>
   );
 };

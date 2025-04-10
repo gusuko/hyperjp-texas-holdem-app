@@ -67,13 +67,17 @@ const useShowdownLogic = ({
     const playerHandText = `あなたの手：${playerRank}（${playerUsedCards}）`;
     const dealerHandText = `ディーラーの手：${dealerRank}（${dealerUsedCards}）`;
 
-    // --- 勝敗判定 ---
+    // --- 勝敗とキッカー勝負の判定 ---
     const pRanks = playerResult.compareRanks;
     const dRanks = dealerResult.compareRanks;
+
+    let winnerText = '';
     let playerWins = false;
     let tie = false;
+    let compared = false;
+    let kickerUsed = false;
 
-    // キッカー勝負の位置を役に応じて調整
+    // 🎯 キッカーが関係しそうな役に応じて、比較インデックスを調整
     let kickerStartIndex = 0;
     if (['High Card'].includes(playerRank)) kickerStartIndex = 0;
     else if (['One Pair'].includes(playerRank)) kickerStartIndex = 1;
@@ -84,25 +88,30 @@ const useShowdownLogic = ({
     for (let i = 0; i < pRanks.length; i++) {
       if (pRanks[i] > dRanks[i]) {
         playerWins = true;
+        kickerUsed = i >= kickerStartIndex;
+        compared = true;
         break;
       }
       if (dRanks[i] > pRanks[i]) {
+        kickerUsed = i >= kickerStartIndex;
+        compared = true;
         break;
       }
     }
 
-    if (pRanks.join(',') === dRanks.join(',')) tie = true;
-
-    // --- 結果メッセージ ---
-    let winnerText = '';
-    if (folded) {
-      winnerText = '→ 降りたため負け';
-    } else if (playerWins) {
-      winnerText = '→ あなたの勝ち！';
-    } else if (tie) {
-      winnerText = '→ 完全に引き分け！';
+    if (compared) {
+      if (playerWins) {
+        winnerText = kickerUsed
+          ? '→ キッカー勝負！あなたの勝ち！'
+          : '→ あなたの勝ち！';
+      } else {
+        winnerText = kickerUsed
+          ? '→ キッカー勝負！ディーラーの勝ち！'
+          : '→ ディーラーの勝ち！';
+      }
     } else {
-      winnerText = '→ ディーラーの勝ち！';
+      tie = true;
+      winnerText = '→ 完全に引き分け！';
     }
 
     // --- 払い戻し計算 ---
