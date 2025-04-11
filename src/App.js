@@ -87,36 +87,42 @@ function App() {
   };
 
   return (
-    <div className="game-container">
+    <div className="table-and-game">
       <h1>🃏 Megalink Texas Hold'em</h1>
-      {/* 🎯 TableLayoutは常に表示しておく（ゲーム前・中） */}
-      <TableLayout
-        chips={chips}
-        setChips={setChips}
-        placedChips={placedChips}
-        setPlacedChips={setPlacedChips}
-        gamePhase={gamePhase}
-      />
 
-      {/* 💰 現在の賭け情報と残高表示 */}
-      <ChipSummary
-        chips={chips}
-        anteBet={anteBet}
-        bonusBet={bonusBet}
-        jackpotBet={jackpotBet}
-        flopBet={flopBet}
-        turnBet={turnBet}
-        riverBet={riverBet}
-      />
-      {/* 🔄 ゲーム進行中（カード表示＋進行） */}
+      {gamePhase === 'initial' && (
+        <>
+          <ChipSummary
+            chips={chips}
+            anteBet={anteBet}
+            bonusBet={bonusBet}
+            jackpotBet={jackpotBet}
+            flopBet={flopBet}
+            turnBet={turnBet}
+            riverBet={riverBet}
+          />
+          <div className="start-button-wrapper">
+            <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
+          </div>
+        </>
+      )}
+
+      {/* ✅ 横並びエリア：TableLayout + カード表示 */}
+      <div className="play-area-row">
+        <TableLayout
+          chips={chips}
+          setChips={setChips}
+          placedChips={placedChips}
+          setPlacedChips={setPlacedChips}
+          gamePhase={gamePhase}
+        />
+
+        <ShowdownResult showdown={showdown} resultText={resultText} />
+      </div>
+
+      {/* 🔄 ベットボタンや勝敗、再プレイ */}
       {gamePhase !== 'initial' && (
         <>
-          <DealerHand dealerCards={dealerCards} showdown={showdown} />
-          <CommunityCards communityCards={communityCards} />
-          {/* ✅ ゲーム中：チップ置きはできないが、置いた状態は表示する */}
-          <PlayerHand playerCards={playerCards} />
-
-          {/* Flop ベット or フォールド */}
           {gamePhase === 'preflop' && !folded && (
             <div style={{ marginTop: '1em' }}>
               <button
@@ -145,14 +151,12 @@ function App() {
             </div>
           )}
 
-          {/* 降りたときの表示 */}
           {folded && (
             <div style={{ marginTop: '2em', color: 'red' }}>
               降りました！AnteとBonusは没収されます。
             </div>
           )}
 
-          {/* Turn ベット or チェック */}
           {gamePhase === 'flop' && !folded && (
             <div style={{ marginTop: '1em' }}>
               <button
@@ -185,7 +189,6 @@ function App() {
             </div>
           )}
 
-          {/* River ベット or チェック */}
           {gamePhase === 'turn' && !folded && (
             <div style={{ marginTop: '1em' }}>
               <button
@@ -224,10 +227,6 @@ function App() {
             </div>
           )}
 
-          {/* 勝敗表示 */}
-          <ShowdownResult showdown={showdown} resultText={resultText} />
-
-          {/* 再プレイ */}
           <PlayAgainButton
             showdown={showdown}
             restartRound={() => {
@@ -245,7 +244,6 @@ function App() {
               setFlopBet(0);
               setTurnBet(0);
               setRiverBet(0);
-
               setPlacedChips({
                 ante: [],
                 bonus: [],
@@ -256,20 +254,6 @@ function App() {
               });
             }}
           />
-        </>
-      )}
-      {/* 🎯 初期ベットフェーズ */}
-      {gamePhase === 'initial' && (
-        <>
-          <h3>チップ残高：${chips}</h3>
-
-          {/* 🎲 チップ置き場とボタンの縦並び */}
-          <div className="bet-phase-vertical">
-            {/* 🎮 ゲーム開始ボタンは下に */}
-            <div className="start-button-wrapper">
-              <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
-            </div>
-          </div>
         </>
       )}
     </div>

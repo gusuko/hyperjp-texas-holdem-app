@@ -1,7 +1,7 @@
 // src/components/ChipSummary.js
 import React from 'react';
+import '../styles/App.css'; // もしここで読み込んでない場合は明示的に読み込み
 
-// 所持チップと現在のベット額を表示するシンプルなUI
 const ChipSummary = ({
   chips,
   anteBet,
@@ -12,19 +12,15 @@ const ChipSummary = ({
   riverBet,
 }) => {
   return (
-    <>
-      <div
-        style={{ marginBottom: '1em', fontWeight: 'bold', fontSize: '1.2em' }}
-      >
-        💵 所持チップ：${chips}
-      </div>
+    <div className="chip-summary">
+      <div className="chip-summary-title">💵 所持チップ：${chips}</div>
 
-      <div style={{ fontSize: '0.9em', marginBottom: '1em' }}>
+      <div className="chip-summary-values">
         ANTE: ${anteBet} / BONUS: ${bonusBet} / JACKPOT: ${jackpotBet}
         <br />
         FLOP: ${flopBet} / TURN: ${turnBet} / RIVER: ${riverBet}
       </div>
-    </>
+    </div>
   );
 };
 

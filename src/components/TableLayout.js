@@ -70,7 +70,7 @@ const TableLayout = ({
   };
 
   return (
-    <div className="table-container">
+    <div className="table-layout-root">
       <div className="table">
         {betAreas.map((area) => (
           <div

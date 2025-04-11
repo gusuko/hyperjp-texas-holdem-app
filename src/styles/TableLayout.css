@@ -1,14 +1,14 @@
-.table-container {
+.table-layout-root {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .table {
   background-color: #07472b;
   width: 600px;
   height: 400px;
-  margin: 0 auto;
+  margin: 0; /* ← 中央寄せを無効化！ */
   border-radius: 20px;
   position: relative;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
