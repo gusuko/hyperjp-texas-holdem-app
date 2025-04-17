@@ -87,7 +87,7 @@
 
 .chip-selector {
   margin-top: 20px;
-  display: flex;
+  display: inline-block; /* ✅ コンテンツに合わせた幅にする */
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
@@ -115,4 +115,39 @@
 }
 .reset-button:hover {
   background-color: darkred;
+}
+
+.circle {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+  cursor: default;
+}
+
+.circle.active {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.circle.inactive {
+  pointer-events: none;
+}
+/* => src/styles/App.css などに追加 */
+.table-wrapper {
+  position: relative;
+  width: 100%;
+  height: 1000px;
+}
+
+.table-wrapper svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* ← クリックを通過させる */
+}
+
+/* ボタンや ChipSummary が下に潜る場合は z-index を上げる */
+.start-button-wrapper,
+.chip-summary {
+  position: relative;
+  z-index: 10;
 }

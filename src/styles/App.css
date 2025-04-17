@@ -1,10 +1,19 @@
-.dealer-hand,
-.community-cards,
+.dealer-hand {
+  position: absolute; /* SVG 座標系で配置 */
+  top: 280px;
+  left: 680px;
+}
+
+.community-cards {
+  position: absolute;
+  top: 480px;
+  left: 500px;
+}
+
 .player-hand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 16px;
+  position: absolute;
+  top: 830px; /* プレイヤー席付近 */
+  left: 680px;
 }
 
 .card-row {
@@ -69,6 +78,8 @@
   max-width: none; /* ✅ 幅制限を解除 */
   margin: 0; /* ✅ 中央寄せを完全解除 */
   padding: 1rem;
+  position: relative;
+  min-height: 800px; /* 👈 ここ重要！縦に広げてくれる */
 }
 
 .chip-summary {
@@ -102,4 +113,15 @@
   flex-direction: column;
   gap: 1rem;
   align-items: flex-start;
+}
+
+.card-table {
+  background-color: #006400; /* 深緑：カジノ風 */
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  outline: 2px solid red;
 }

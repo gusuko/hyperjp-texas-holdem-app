@@ -1,16 +1,21 @@
 import React from 'react';
+import '../styles/CommunityCards.css';
 
-/**
- * コミュニティカード（場に出る最大5枚）を表示するコンポーネント
- * @param {Array} communityCards - 場に出ているカードの配列
- */
-const CommunityCards = ({ communityCards }) => {
+const CommunityCards = ({ communityCards = [] }) => {
   return (
     <div className="community-cards">
-      <h2 style={{ textAlign: 'center', width: '100%' }}>🃍 Community Cards</h2>
+      <h2>🃍 Community Cards</h2>
       <div className="card-row">
-        {communityCards.map((card) => (
-          <img key={card} src={`/cards/${card}.png`} alt={card} width="100" />
+        {[0, 1, 2, 3, 4].map((index) => (
+          <div key={index} className="card-slot">
+            {communityCards[index] && (
+              <img
+                src={`/cards/${communityCards[index]}.png`}
+                alt={communityCards[index]}
+                width="100"
+              />
+            )}
+          </div>
         ))}
       </div>
     </div>

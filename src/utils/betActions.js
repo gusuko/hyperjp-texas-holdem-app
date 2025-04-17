@@ -7,12 +7,10 @@
 export const handleFlopBet = ({
   betAmount,
   deck,
-  setChips,
   setFlopBet,
   setCommunityCards,
   setGamePhase,
 }) => {
-  setChips((prev) => prev - betAmount);
   setFlopBet(betAmount);
   setCommunityCards(deck.slice(4, 7)); // Flopカード3枚
   setGamePhase('flop');
@@ -27,13 +25,11 @@ export const handleFlopBet = ({
 export const handleTurnBet = ({
   betAmount,
   deck,
-  setChips,
   setTurnBet,
   setTurnBetPlaced,
   setCommunityCards,
   setGamePhase,
 }) => {
-  setChips((prev) => prev - betAmount);
   setTurnBet(betAmount);
   setCommunityCards((prev) => [...prev, deck[7]]); // Turnカード1枚追加
   setGamePhase('turn');
@@ -48,14 +44,12 @@ export const handleTurnBet = ({
 export const handleRiverBet = ({
   betAmount,
   deck,
-  setChips,
   setRiverBet,
   setRiverBetPlaced,
   setCommunityCards,
   setGamePhase,
   setShowdown,
 }) => {
-  setChips((prev) => prev - betAmount);
   setRiverBet(betAmount);
   setCommunityCards((prev) => [...prev, deck[8]]); // Riverカードは9枚目（index 8）
   setGamePhase('showdown'); // 最終フェーズへ
@@ -97,7 +91,24 @@ export const handleCheckRiver = ({
  * - フォールド状態にする
  * - フェーズを "folded" に変更する
  */
-export const handleFold = ({ setFolded, setGamePhase }) => {
-  setFolded(true); // フォールド状態にする
-  setGamePhase('folded'); // フェーズも "folded" に切り替える
+export const handleFold = ({
+  setFolded,
+  setGamePhase,
+  setShowdown,
+  setCommunityCards,
+  deck,
+}) => {
+  setFolded(true);
+
+  // 💡 フォールドしても場カード（5枚）をすべて出す
+  setCommunityCards([
+    deck[4], // Flop1
+    deck[5], // Flop2
+    deck[6], // Flop3
+    deck[7], // Turn
+    deck[8], // River
+  ]);
+
+  setGamePhase('showdown');
+  setShowdown(true);
 };

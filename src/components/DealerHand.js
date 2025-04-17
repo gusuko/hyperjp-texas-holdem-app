@@ -5,7 +5,7 @@ import React from 'react';
  * @param {Array} dealerCards - ディーラーの2枚のカード
  * @param {boolean} showdown - 表示するか裏のままにするかのフラグ
  */
-const DealerHand = ({ dealerCards, showdown }) => {
+const DealerHand = ({ dealerCards = [], showdown }) => {
   return (
     <div className="dealer-hand">
       <h2 style={{ textAlign: 'center', width: '100%' }}>🎲 Dealer</h2>

@@ -9,6 +9,7 @@ import {
 } from '../utils/bonusUtils';
 import { formatCard, formatHandByCompareRanks } from '../utils/formatUtils';
 import { handRanks } from '../constants/rankorder';
+import { getJackpotPayout } from '../utils/jackpotUtils';
 
 const useShowdownLogic = ({
   showdown,
@@ -18,6 +19,7 @@ const useShowdownLogic = ({
   communityCards,
   anteBet,
   bonusBet,
+  jackpotBet,
   flopBet,
   turnBet,
   riverBet,
@@ -26,6 +28,17 @@ const useShowdownLogic = ({
 }) => {
   useEffect(() => {
     if (!showdown) return;
+
+    // --- JACKPOT 判定（2枚 + FLOP3枚）
+    const jackpotHand = [...playerCards, ...communityCards.slice(0, 3)];
+    const { rank: jackpotRank, payout: jackpotWin } = getJackpotPayout(
+      jackpotHand,
+      jackpotBet
+    );
+
+    if (jackpotWin > 0) {
+      payout += jackpotBet + jackpotWin; // ✅ 元金 + 配当
+    }
 
     // --- 初期化 ---
     let payout = 0;
@@ -48,10 +61,13 @@ const useShowdownLogic = ({
     // --- ボーナス払い戻し ---
     if (bonusRate > 0 && bonusBet > 0) {
       bonusWin = bonusBet * bonusRate;
-      payout += bonusWin;
+      payout += bonusBet + bonusWin; // ✅ 元金 + 配当
     }
+    // ✅ プレイヤーが実際に賭けた全ての合計（ANTE + BONUS + JACKPOT + FLOP〜RIVER）
+    const totalBetAmount =
+      anteBet + bonusBet + jackpotBet + flopBet + turnBet + riverBet;
 
-    // --- 役の構成と表示用カードを整形 ---
+    // --- 表示用カード整形 ---
     const playerSortedHand = formatHandByCompareRanks(
       playerResult.hand,
       playerResult.compareRanks
@@ -74,44 +90,39 @@ const useShowdownLogic = ({
     let winnerText = '';
     let playerWins = false;
     let tie = false;
-    let compared = false;
     let kickerUsed = false;
 
-    // 🎯 キッカーが関係しそうな役に応じて、比較インデックスを調整
-    let kickerStartIndex = 0;
-    if (['High Card'].includes(playerRank)) kickerStartIndex = 0;
-    else if (['One Pair'].includes(playerRank)) kickerStartIndex = 1;
-    else if (['Two Pair'].includes(playerRank)) kickerStartIndex = 2;
-    else if (['Three of a Kind', 'Four of a Kind'].includes(playerRank))
-      kickerStartIndex = 1;
-
-    for (let i = 0; i < pRanks.length; i++) {
-      if (pRanks[i] > dRanks[i]) {
-        playerWins = true;
-        kickerUsed = i >= kickerStartIndex;
-        compared = true;
-        break;
-      }
-      if (dRanks[i] > pRanks[i]) {
-        kickerUsed = i >= kickerStartIndex;
-        compared = true;
-        break;
-      }
-    }
-
-    if (compared) {
-      if (playerWins) {
-        winnerText = kickerUsed
-          ? '→ キッカー勝負！あなたの勝ち！'
-          : '→ あなたの勝ち！';
-      } else {
-        winnerText = kickerUsed
-          ? '→ キッカー勝負！ディーラーの勝ち！'
-          : '→ ディーラーの勝ち！';
-      }
+    // 🎯 まずは役の強さ（score）で比較！
+    if (playerResult.score > dealerResult.score) {
+      playerWins = true;
+      winnerText = '→ あなたの勝ち！';
+    } else if (playerResult.score < dealerResult.score) {
+      playerWins = false;
+      winnerText = '→ ディーラーの勝ち！';
     } else {
-      tie = true;
-      winnerText = '→ 完全に引き分け！';
+      // スコア同じならキッカー比較
+      for (let i = 0; i < pRanks.length; i++) {
+        if (pRanks[i] > dRanks[i]) {
+          playerWins = true;
+          kickerUsed = true;
+          break;
+        }
+        if (dRanks[i] > pRanks[i]) {
+          playerWins = false;
+          kickerUsed = true;
+          break;
+        }
+      }
+
+      if (!kickerUsed) {
+        tie = true;
+        winnerText = '→ 完全に引き分け！';
+      } else {
+        // ✅ スコア同点・キッカー勝負時だけキッカー文言にする！
+        winnerText = playerWins
+          ? '→ キッカー勝負！あなたの勝ち！'
+          : '→ キッカー勝負！ディーラーの勝ち！';
+      }
     }
 
     // --- 払い戻し計算 ---
@@ -143,7 +154,7 @@ const useShowdownLogic = ({
       anteText = `$0（敗北 → ANTE没収）`;
     }
 
-    // --- 結果の反映 ---
+    // --- チップと結果表示を反映 ---
     setChips((prev) => prev + payout);
 
     setResultText(
@@ -154,12 +165,17 @@ ${winnerText}
 
 💰 払い戻し詳細:
 ANTE: ${anteText}
-BET: $${playerWins || tie ? betWin * 2 : 0}
-BONUS: $${bonusWin > 0 ? bonusWin : 0}（${
+BET: $${totalBetAmount}
+BONUS: $${bonusWin > 0 ? bonusBet + bonusWin : 0}（${
         bonusWin > 0
           ? `倍率：x${bonusRate}${bonusRate === 1000 ? '（AA vs AA!）' : ''}`
           : '対象外'
       }）
+JACKPOT: $${jackpotWin > 0 ? jackpotBet + jackpotWin : 0}（${
+        jackpotWin > 0 ? `役：${jackpotRank}` : '対象外'
+      }）
+
+
 
 💰 合計：$${payout}`
     );

@@ -4,6 +4,7 @@ import '../styles/TableLayout.css';
 import Chip from './Chip';
 
 const chipOptions = [
+  { value: 5, src: '/chips/chip_5.png' },
   { value: 25, src: '/chips/chip_25.png' },
   { value: 100, src: '/chips/chip_100.png' },
   { value: 500, src: '/chips/chip_500.png' },
@@ -20,18 +21,28 @@ const TableLayout = ({
   setPlacedChips,
   onChipsChange,
   gamePhase,
+  onFlopClick,
+  onTurnClick,
+  onRiverClick,
+  isFlopActive,
+  isTurnActive,
+  isRiverActive,
 }) => {
   const [selectedArea, setSelectedArea] = useState('ante');
 
-  // 💡 チップ配置が変わったら App 側にも通知
   useEffect(() => {
     if (onChipsChange) {
       onChipsChange(placedChips);
     }
   }, [placedChips, onChipsChange]);
 
-  // 🧩 チップを選択したベットエリアに追加
   const handlePlaceChip = (area, chip) => {
+    // 🔒 ゲーム開始後は ante/bonus/jackpot に置けないようにする
+    const isInitialPhase = gamePhase === 'initial';
+    const restrictedAreas = ['ante', 'bonus', 'jackpot'];
+    if (!isInitialPhase && restrictedAreas.includes(area)) {
+      return;
+    }
     if (chips >= chip.value) {
       setPlacedChips((prev) => ({
         ...prev,
@@ -42,10 +53,8 @@ const TableLayout = ({
   };
 
   const handleResetBets = () => {
-    // 🎯 現在のゲーム進行中はリセットさせない
     if (gamePhase !== 'initial') return;
 
-    // 🌀 チップを戻す
     const refund = Object.values(placedChips)
       .flat()
       .reduce((sum, chip) => sum + chip.value, 0);
@@ -69,6 +78,26 @@ const TableLayout = ({
     return [...placedChips[area]].sort((a, b) => b.value - a.value).slice(0, 5);
   };
 
+  const isAreaActive = (area) => {
+    if (['flop', 'turn', 'river'].includes(area)) {
+      if (area === 'flop') return isFlopActive;
+      if (area === 'turn') return isTurnActive;
+      if (area === 'river') return isRiverActive;
+    }
+    // 💡 ゲーム前だけ ante/bonus/jackpot をアクティブに
+    if (['ante', 'bonus', 'jackpot'].includes(area)) {
+      return gamePhase === 'initial';
+    }
+    return true;
+  };
+
+  const getClickHandler = (area) => {
+    if (area === 'flop') return isFlopActive ? onFlopClick : undefined;
+    if (area === 'turn') return isTurnActive ? onTurnClick : undefined;
+    if (area === 'river') return isRiverActive ? onRiverClick : undefined;
+    return () => setSelectedArea(area);
+  };
+
   return (
     <div className="table-layout-root">
       <div className="table">
@@ -76,11 +105,13 @@ const TableLayout = ({
           <div
             key={area}
             className={`bet-area ${area} ${
-              selectedArea === area ? 'selected' : ''
+              gamePhase === 'initial' && selectedArea === area ? 'selected' : ''
             }`}
-            onClick={() => setSelectedArea(area)}
+            onClick={getClickHandler(area)}
           >
-            <div className="circle" />
+            <div
+              className={`circle ${isAreaActive(area) ? 'active' : 'inactive'}`}
+            />
             <div className="label">{area.toUpperCase()}</div>
             <div className="total">${getTotalBet(area)}</div>
 
@@ -104,10 +135,13 @@ const TableLayout = ({
         ))}
       </div>
 
-      {/* チップ選択とリセット */}
       <div className="chip-selector">
         <div className="chip-label">
-          置く場所：<strong>{selectedArea.toUpperCase()}</strong>
+          {gamePhase === 'initial' ? (
+            <strong>{selectedArea.toUpperCase()}</strong>
+          ) : (
+            <strong>🎮 ゲーム中</strong>
+          )}
         </div>
 
         {chipOptions.map((chip) => (

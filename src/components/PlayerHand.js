@@ -1,7 +1,7 @@
 import React from 'react';
 
 // プレイヤーのカード表示コンポーネント
-const PlayerHand = ({ playerCards }) => {
+const PlayerHand = ({ playerCards = [] }) => {
   return (
     <div className="player-hand">
       <h2 style={{ textAlign: 'center', width: '100%' }}>🎴 Player</h2>
