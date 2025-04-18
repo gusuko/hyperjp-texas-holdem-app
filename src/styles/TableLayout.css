@@ -1,153 +1,125 @@
-.table-layout-root {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+/*───────────────────────────────────────────────
+  01) テーブル全体ラッパー
+───────────────────────────────────────────────*/
+.table-wrapper {
+  position: relative; /* SVG と同じ座標系に子を配置 */
+  width: 1200px; /* SVG の viewBox 幅と合わせる */
+  height: 1000px; /* SVG の viewBox 高さと合わせる */
+  margin: 0 auto; /* 画面中央に寄せる */
+  /* outline: 1px solid red; */ /* ← 調整が終わったら消して OK */
 }
 
-.table {
-  background-color: #07472b;
-  width: 600px;
-  height: 400px;
-  margin: 0; /* ← 中央寄せを無効化！ */
-  border-radius: 20px;
-  position: relative;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
+/*───────────────────────────────────────────────
+  02) ベット円（BetCircle）共通スタイル  ─ 直径 70px
+───────────────────────────────────────────────*/
 .bet-area {
-  position: absolute;
-  width: 90px;
-  height: 90px;
+  position: absolute; /* 座標は inline style (top / left) で与える */
+  width: 70px;
+  height: 70px;
   text-align: center;
   cursor: pointer;
 }
 
 .circle {
-  width: 90px;
-  height: 90px;
-  border: 2px dashed white;
+  position: absolute;
+  inset: 0; /* = top:0; right:0; bottom:0; left:0 */
+  border: 2px dashed #fff;
   border-radius: 50%;
-  background-color: transparent;
-  position: relative;
-  z-index: 1;
+  background: transparent;
+  opacity: 0.5;
+  transition: opacity 0.3s;
 }
-
-.label {
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
+.circle.active {
+  opacity: 1;
+}
+.circle.inactive {
   pointer-events: none;
-  z-index: 3;
-}
-
-.total {
-  position: absolute;
-  bottom: -38px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: gold;
-  font-size: 13px;
-  font-weight: bold;
-  z-index: 2;
 }
 
 .bet-area.selected .circle {
-  box-shadow: 0 0 10px 3px yellow;
+  box-shadow: 0 0 10px 3px #ff0;
 }
 
-/* 各ベットエリアの位置 */
-.ante {
-  top: 60px;
-  left: 80px;
+/* ラベルと合計金額（円の下に表示）*/
+.label {
+  position: absolute;
+  bottom: -16px; /* 円サイズが 70→ 16px 下げる */
+  left: 50%;
+  transform: translateX(-50%);
+  font: 600 12px/1 'Inter', sans-serif;
+  color: #fff;
+  pointer-events: none;
 }
-.bonus {
-  top: 60px;
-  left: 250px;
-}
-.jackpot {
-  top: 60px;
-  left: 420px;
-}
-.flop {
-  top: 220px;
-  left: 80px;
-}
-.turn {
-  top: 220px;
-  left: 250px;
-}
-.river {
-  top: 220px;
-  left: 420px;
+.total {
+  position: absolute;
+  bottom: -30px; /* 円サイズが 70→ 30px 下げる */
+  left: 50%;
+  transform: translateX(-50%);
+  font: 700 11px/1 'Inter', sans-serif;
+  color: gold;
+  pointer-events: none;
 }
 
+/* チップ画像 70×70、中央揃え  */
+.bet-chip {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  top: 50%;
+  left: 50%;
+  transform: translate(
+    -50%,
+    -50%
+  ); /* 円の中心に合わせる＊重ねは inline でずらす */
+  pointer-events: none;
+}
+
+/*───────────────────────────────────────────────
+  03) チップセレクタ（画面下部の灰色パネル）
+───────────────────────────────────────────────*/
 .chip-selector {
   margin-top: 20px;
-  display: inline-block; /* ✅ コンテンツに合わせた幅にする */
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  display: inline-block;
   background: rgba(0, 0, 0, 0.3);
   padding: 10px 20px;
   border-radius: 10px;
 }
-
 .chip-label {
-  color: white;
+  color: #fff;
   font-size: 14px;
   margin-right: 10px;
 }
-
-/* リセットボタン */
 .reset-button {
   margin-left: 10px;
   padding: 6px 12px;
-  background-color: crimson;
-  color: white;
+  background: crimson;
+  color: #fff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
 }
 .reset-button:hover {
-  background-color: darkred;
+  background: darkred;
 }
 
-.circle {
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-  cursor: default;
+/*───────────────────────────────────────────────
+  04) カード絶対配置（デバッグ線は自由に外して OK）
+───────────────────────────────────────────────*/
+.card-abs {
+  position: absolute;
+  transform-origin: top left;
+  /* outline: 1px dashed cyan; */
 }
 
-.circle.active {
-  opacity: 1;
-  cursor: pointer;
-}
-
-.circle.inactive {
-  pointer-events: none;
-}
-/* => src/styles/App.css などに追加 */
-.table-wrapper {
-  position: relative;
-  width: 100%;
-  height: 1000px;
-}
-
-.table-wrapper svg {
+/* 中央ガイド：画面に赤い 1 本線を引くだけ */
+.center-guide {
   position: absolute;
   top: 0;
-  left: 0;
-  pointer-events: none; /* ← クリックを通過させる */
-}
-
-/* ボタンや ChipSummary が下に潜る場合は z-index を上げる */
-.start-button-wrapper,
-.chip-summary {
-  position: relative;
-  z-index: 10;
+  bottom: 0; /* ← 上から下まで伸ばす */
+  left: 50%; /* ← テーブル wrapper の中央 */
+  width: 2px;
+  background: rgba(255, 0, 0, 0.6); /* 半透明の赤 */
+  pointer-events: none; /* クリックを透過 */
+  z-index: 0; /* SVG より後ろなら 0 で OK */
 }

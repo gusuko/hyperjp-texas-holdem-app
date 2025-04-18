@@ -1,25 +1,24 @@
+// components/CommunityCards.jsx
 import React from 'react';
-import '../styles/CommunityCards.css';
 
-const CommunityCards = ({ communityCards = [] }) => {
+/**
+ * CommunityCards  ‑ 1 枚～5 枚をそのまま並べるだけの軽量コンポーネント
+ *
+ * @param {string[]} cards  - コミュニティカード配列（0‑5 枚）
+ * @param {number}   scale  - 拡大率（親でまとめて指定できるようにオプション化）
+ */
+export default function CommunityCards({ cards = [], scale = 1 }) {
   return (
-    <div className="community-cards">
-      <h2>🃍 Community Cards</h2>
-      <div className="card-row">
-        {[0, 1, 2, 3, 4].map((index) => (
-          <div key={index} className="card-slot">
-            {communityCards[index] && (
-              <img
-                src={`/cards/${communityCards[index]}.png`}
-                alt={communityCards[index]}
-                width="100"
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
+    <>
+      {cards.map((card) => (
+        <img
+          key={card}
+          src={`/cards/${card}.png`}
+          alt={card}
+          width={100}
+          style={{ transform: `scale(${scale})` }}
+        />
+      ))}
+    </>
   );
-};
-
-export default CommunityCards;
+}

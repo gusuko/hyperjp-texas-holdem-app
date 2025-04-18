@@ -27,9 +27,9 @@ const TableLayout = ({
   isFlopActive,
   isTurnActive,
   isRiverActive,
+  selectedArea,
+  setSelectedArea,
 }) => {
-  const [selectedArea, setSelectedArea] = useState('ante');
-
   useEffect(() => {
     if (onChipsChange) {
       onChipsChange(placedChips);
@@ -100,41 +100,6 @@ const TableLayout = ({
 
   return (
     <div className="table-layout-root">
-      <div className="table">
-        {betAreas.map((area) => (
-          <div
-            key={area}
-            className={`bet-area ${area} ${
-              gamePhase === 'initial' && selectedArea === area ? 'selected' : ''
-            }`}
-            onClick={getClickHandler(area)}
-          >
-            <div
-              className={`circle ${isAreaActive(area) ? 'active' : 'inactive'}`}
-            />
-            <div className="label">{area.toUpperCase()}</div>
-            <div className="total">${getTotalBet(area)}</div>
-
-            {getSortedVisibleChips(area).map((chip, i) => (
-              <img
-                key={i}
-                src={chip.src}
-                alt={`$${chip.value} chip`}
-                style={{
-                  position: 'absolute',
-                  width: '95px',
-                  height: '95px',
-                  top: i * -3,
-                  left: i * 3,
-                  zIndex: i + 1,
-                  pointerEvents: 'none',
-                }}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-
       <div className="chip-selector">
         <div className="chip-label">
           {gamePhase === 'initial' ? (
