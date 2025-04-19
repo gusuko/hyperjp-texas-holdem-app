@@ -21,12 +21,12 @@ import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロ�
 
 import TableLayout from './components/TableLayout';
 import './styles/App.css';
-import CasinoTableSVG from './components/CasinoTableSVG';
+// import CasinoTableSVG from './components/CasinoTableSVG';
 import BetCircle from './components/BetCircle';
 import {
+  TABLE_SCALE,
   betPositions,
   cardSlotPositions,
-  TABLE_SCALE,
 } from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
 
@@ -141,6 +141,8 @@ function App() {
 
     if (gamePhase === 'preflop' && flopBet === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
+      chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
+      console.log('FLOP chipsToPlace (after sort):', chipsToPlace);
 
       setPlacedChips((prev) => ({
         ...prev,
@@ -166,6 +168,7 @@ function App() {
 
     if (gamePhase === 'flop' && turnBet === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
+      chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
       setPlacedChips((prev) => ({
         ...prev,
@@ -191,6 +194,7 @@ function App() {
 
     if (gamePhase === 'turn' && riverBet === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
+      chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
       setPlacedChips((prev) => ({
         ...prev,
@@ -224,8 +228,8 @@ function App() {
       key={key}
       className="card-abs"
       style={{
-        top: pos.top * TABLE_SCALE,
-        left: pos.left * TABLE_SCALE,
+        left: `calc(50% + ${pos.left * TABLE_SCALE}px)`,
+        top: `calc(50vh + ${pos.top * TABLE_SCALE}px)`,
         width: 100 * TABLE_SCALE,
         height: 140 * TABLE_SCALE,
       }}
@@ -233,10 +237,7 @@ function App() {
       <img
         src={`/cards/${faceDown ? 'back' : card}.png`}
         alt={card}
-        style={{
-          width: '100%', // 枠と同時に縮む
-          height: '100%',
-        }}
+        style={{ width: '100%', height: '100%' }}
       />
     </div>
   );
@@ -244,6 +245,15 @@ function App() {
   return (
     <div className="table-and-game">
       <h1>🃏 Megalink Texas Hold'em</h1>
+      <ChipSummary
+        chips={chips}
+        anteBet={anteBet}
+        bonusBet={bonusBet}
+        jackpotBet={jackpotBet}
+        flopBet={flopBet}
+        turnBet={turnBet}
+        riverBet={riverBet}
+      />
 
       <div className="table-wrapper">
         {/* ===== 中央ガイド（デバッグ用）===== */}
@@ -253,7 +263,7 @@ function App() {
      テーブル上レイヤー : ①枠 → ②カード の順で描画
 ========================================================= */}
         {/* SVG テーブル本体 */}
-        <CasinoTableSVG />
+        {/* <CasinoTableSVG /> */}
 
         {/* ---------- ① 枠を先に描画（CardSlot） ---------- */}
         {/* Dealer 2 枠 */}
@@ -389,15 +399,6 @@ function App() {
           <PlayerHand playerCards={playerCards} />
         </div>
 
-        <ChipSummary
-          chips={chips}
-          anteBet={anteBet}
-          bonusBet={bonusBet}
-          jackpotBet={jackpotBet}
-          flopBet={flopBet}
-          turnBet={turnBet}
-          riverBet={riverBet}
-        />
         {gamePhase === 'initial' && (
           <>
             <div className="start-button-wrapper">

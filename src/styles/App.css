@@ -1,3 +1,25 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* styles/App.css などグローバルに 1 回 */
+body {
+  margin: 0;
+  padding: 0;
+  /* 好みで単色 or ラジアルグラデーション */
+  /* background: #085e35; 深い緑１色 */
+  /* ふわっとさせたい場合↓ */
+  background: radial-gradient(#0c753e 0%, #064d2c 100%);
+  font-family: 'Inter', sans-serif;
+}
+
+/* 3) タイトル見出しにだけ “任意” の余白を付け直す */
+h1 {
+  margin: 0 0 0.5rem 0; /* 下だけ 8px、左右 0 にする例 */
+}
+
 .start-button-wrapper {
   display: flex;
   justify-content: flex-start; /* ← 中央から左へ変更！ */
@@ -38,7 +60,7 @@
   width: 100%; /* ✅ 全体を使う */
   max-width: none; /* ✅ 幅制限を解除 */
   margin: 0; /* ✅ 中央寄せを完全解除 */
-  padding: 1rem;
+  padding: 0;
   position: relative;
   min-height: 800px; /* 👈 ここ重要！縦に広げてくれる */
 }

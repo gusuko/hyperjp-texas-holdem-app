@@ -1,4 +1,6 @@
 // src/components/ChipSummary.js
+//所持チップ、賭け額を表示するためのコンポーネント
+
 import React from 'react';
 import '../styles/App.css'; // もしここで読み込んでない場合は明示的に読み込み
 

@@ -2,20 +2,19 @@
   01) テーブル全体ラッパー
 ───────────────────────────────────────────────*/
 .table-wrapper {
-  position: relative; /* SVG と同じ座標系に子を配置 */
-  width: 1200px; /* SVG の viewBox 幅と合わせる */
-  height: 1000px; /* SVG の viewBox 高さと合わせる */
-  margin: 0 auto; /* 画面中央に寄せる */
-  /* outline: 1px solid red; */ /* ← 調整が終わったら消して OK */
+  position: relative;
+  width: 100%; /* ← 固定幅を外して 100% に */
+  height: 100vh; /* ← 画面いっぱいを基準に */
+  margin: 0; /* 余白ゼロ */
 }
 
 /*───────────────────────────────────────────────
   02) ベット円（BetCircle）共通スタイル  ─ 直径 70px
 ───────────────────────────────────────────────*/
 .bet-area {
-  position: absolute; /* 座標は inline style (top / left) で与える */
+  position: absolute;
   width: 70px;
-  height: 70px;
+  height: 70px; /* 座標は inline style (top / left) で与える */
   text-align: center;
   cursor: pointer;
 }
@@ -122,4 +121,11 @@
   background: rgba(255, 0, 0, 0.6); /* 半透明の赤 */
   pointer-events: none; /* クリックを透過 */
   z-index: 0; /* SVG より後ろなら 0 で OK */
+}
+
+.chip-stack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

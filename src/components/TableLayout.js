@@ -12,8 +12,6 @@ const chipOptions = [
   { value: 10000, src: '/chips/chip_10000.png' },
 ];
 
-const betAreas = ['ante', 'bonus', 'jackpot', 'flop', 'turn', 'river'];
-
 const TableLayout = ({
   chips,
   setChips,
@@ -43,11 +41,19 @@ const TableLayout = ({
     if (!isInitialPhase && restrictedAreas.includes(area)) {
       return;
     }
+
     if (chips >= chip.value) {
-      setPlacedChips((prev) => ({
-        ...prev,
-        [area]: [...prev[area], chip],
-      }));
+      setPlacedChips((prev) => {
+        // ✅ チップを追加して、ソート（小さい順）！
+        const updated = [...prev[area], chip];
+        updated.sort((a, b) => a.value - b.value); // 小さい順！
+
+        return {
+          ...prev,
+          [area]: updated,
+        };
+      });
+
       setChips((prev) => prev - chip.value);
     }
   };
