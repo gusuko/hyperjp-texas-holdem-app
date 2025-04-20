@@ -1,5 +1,6 @@
 // components/PlayerHand.jsx
 export default function PlayerHand({ cards = [] }) {
+  console.log('cards:', cards);
   return (
     <>
       {cards.map((c, i) => (
