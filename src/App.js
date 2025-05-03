@@ -23,8 +23,7 @@ import BetCircle from './components/BetCircle';
 import { betPositions, cardSlotPositions } from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
 import { chipValues } from './constants/chips';
-import RenderCard from './components/RenderCard';
-
+import CardGroup from './components/CardGroup';
 function App() {
   // 🎯 状態（ステート）管理
   const [chips, setChips] = useState(1000);
@@ -219,34 +218,19 @@ function App() {
         {cardSlotPositions.community.map((pos, idx) => (
           <CardSlot key={`slot-c${idx}`} style={pos} />
         ))}
-
-        {/* Dealer 2 枚 ─ showdown 前は裏向き */}
-        {dealerCards.map((c, i) => (
-          <RenderCard
-            card={c}
-            pos={cardSlotPositions.dealer[i]}
-            faceDown={!showdown}
-            keyProp={`d-${i}`}
-          />
-        ))}
-        {/* Player 2 枚 */}
-        {playerCards.map((c, i) => (
-          <RenderCard
-            card={c}
-            pos={cardSlotPositions.player[i]}
-            faceDown={false}
-            keyProp={`p-${i}`}
-          />
-        ))}
+        {/* Dealer 2 枚 */}
+        <CardGroup
+          cards={dealerCards}
+          positions={cardSlotPositions.dealer}
+          facedown={!showdown}
+        />
         {/* Community 5 枚 */}
-        {communityCards.map((c, i) => (
-          <RenderCard
-            card={c}
-            pos={cardSlotPositions.community[i]}
-            faceDown={false}
-            keyProp={`c-${i}`}
-          />
-        ))}
+        <CardGroup
+          cards={communityCards}
+          positions={cardSlotPositions.community}
+        />
+        {/* Player 2 枚 */}
+        <CardGroup cards={playerCards} positions={cardSlotPositions.player} />
 
         {/* ---------- ベット円（6個） ---------- */}
         {/* ANTE */}
