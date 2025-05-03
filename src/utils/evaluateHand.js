@@ -1,5 +1,6 @@
 // 5枚の役判定用関数をインポート（evaluate5CardHandは別ファイル）
 import { evaluate5CardHand } from './evaluate5CardHand';
+import { cardRanks } from '../constants/cards';
 
 /**
  * 7枚のカード（プレイヤーの手札＋場のカード）から
@@ -66,21 +67,7 @@ export const evaluateBestHand = (cards) => {
   // 結果として選ばれた5枚の手札をランク順に並べ直す
   bestHand.sort((a, b) => {
     const getRank = (card) => card.slice(0, card.length - 1); // ランクだけ取り出す
-    const ranksOrder = [
-      '2',
-      '3',
-      '4',
-      '5',
-      '6',
-      '7',
-      '8',
-      '9',
-      '10',
-      'J',
-      'Q',
-      'K',
-      'A',
-    ];
+    const ranksOrder = cardRanks;
     return ranksOrder.indexOf(getRank(b)) - ranksOrder.indexOf(getRank(a));
   });
 

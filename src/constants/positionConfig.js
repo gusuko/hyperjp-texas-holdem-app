@@ -13,9 +13,9 @@ export const betPositions = {
   bonus: { top: -480, left: -35 },
   jackpot: { top: -480, left: 40 },
 
-  flop: { top: -410, left: -110 },
-  turn: { top: -410, left: -35 },
-  river: { top: -410, left: 40 },
+  flop: { top: -350, left: -110 },
+  turn: { top: -350, left: -35 },
+  river: { top: -350, left: 40 },
 };
 
 /* ===== ② カード枠 2 + 5 + 2 ===== */
@@ -28,8 +28,8 @@ export const cardSlotPositions = {
 
   /* Player 2 枚 */
   player: [
-    { top: -300, left: -105 },
-    { top: -300, left: +5 },
+    { top: -200, left: -105 },
+    { top: -200, left: +5 },
   ],
 
   /* Community 5 枚 */

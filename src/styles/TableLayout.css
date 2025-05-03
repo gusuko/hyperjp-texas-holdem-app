@@ -76,13 +76,13 @@
 /*───────────────────────────────────────────────
   03) チップセレクタ（画面下部の灰色パネル）
 ───────────────────────────────────────────────*/
-.chip-selector {
+/* .chip-selector {
   margin-top: 20px;
   display: inline-block;
   background: rgba(0, 0, 0, 0.3);
   padding: 10px 20px;
   border-radius: 10px;
-}
+} */
 .chip-label {
   color: #fff;
   font-size: 14px;
@@ -112,20 +112,28 @@
 }
 
 /* 中央ガイド：画面に赤い 1 本線を引くだけ */
-.center-guide {
+
+/* .center-guide {
   position: absolute;
   top: 0;
-  bottom: 0; /* ← 上から下まで伸ばす */
-  left: 50%; /* ← テーブル wrapper の中央 */
+  bottom: 0; 
+  left: 50%;
   width: 2px;
-  background: rgba(255, 0, 0, 0.6); /* 半透明の赤 */
-  pointer-events: none; /* クリックを透過 */
-  z-index: 0; /* SVG より後ろなら 0 で OK */
-}
+  background: rgba(255, 0, 0, 0.6);/
+  pointer-events: none; 
+  z-index: 0; 
+} */
 
 .chip-stack {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+.play-again-wrapper {
+  position: absolute;
+  top: 50%; /* 台の下の方だけど押しやすい場所 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
 }

@@ -28,6 +28,11 @@ const useShowdownLogic = ({
 }) => {
   useEffect(() => {
     if (!showdown) return;
+    // --- 初期化 ---
+    let payout = 0;
+    let anteWin = 0;
+    let betWin = 0;
+    let bonusWin = 0;
 
     // --- JACKPOT 判定（2枚 + FLOP3枚）
     const jackpotHand = [...playerCards, ...communityCards.slice(0, 3)];
@@ -39,12 +44,6 @@ const useShowdownLogic = ({
     if (jackpotWin > 0) {
       payout += jackpotBet + jackpotWin; // ✅ 元金 + 配当
     }
-
-    // --- 初期化 ---
-    let payout = 0;
-    let anteWin = 0;
-    let betWin = 0;
-    let bonusWin = 0;
 
     // --- プレイヤー・ディーラーの役を評価 ---
     const playerResult = evaluateBestHand([...playerCards, ...communityCards]);
@@ -100,28 +99,34 @@ const useShowdownLogic = ({
       playerWins = false;
       winnerText = '→ ディーラーの勝ち！';
     } else {
-      // スコア同じならキッカー比較
+      // スコアが同じ → compareRanks を順に比較
+      let winnerDecided = false;
+
       for (let i = 0; i < pRanks.length; i++) {
         if (pRanks[i] > dRanks[i]) {
           playerWins = true;
-          kickerUsed = true;
+          kickerUsed = i >= 1; // 0番目なら役の中身で勝敗、キッカーではない
+          winnerDecided = true;
           break;
-        }
-        if (dRanks[i] > pRanks[i]) {
+        } else if (pRanks[i] < dRanks[i]) {
           playerWins = false;
-          kickerUsed = true;
+          kickerUsed = i >= 1;
+          winnerDecided = true;
           break;
         }
       }
 
-      if (!kickerUsed) {
+      if (!winnerDecided) {
         tie = true;
         winnerText = '→ 完全に引き分け！';
       } else {
-        // ✅ スコア同点・キッカー勝負時だけキッカー文言にする！
-        winnerText = playerWins
-          ? '→ キッカー勝負！あなたの勝ち！'
-          : '→ キッカー勝負！ディーラーの勝ち！';
+        winnerText = kickerUsed
+          ? playerWins
+            ? '→ キッカー勝負！あなたの勝ち！'
+            : '→ キッカー勝負！ディーラーの勝ち！'
+          : playerWins
+          ? '→ あなたの勝ち！'
+          : '→ ディーラーの勝ち！';
       }
     }
 
@@ -179,20 +184,7 @@ JACKPOT: $${jackpotWin > 0 ? jackpotBet + jackpotWin : 0}（${
 
 💰 合計：$${payout}`
     );
-  }, [
-    showdown,
-    folded,
-    playerCards,
-    dealerCards,
-    communityCards,
-    anteBet,
-    bonusBet,
-    flopBet,
-    turnBet,
-    riverBet,
-    setChips,
-    setResultText,
-  ]);
+  }, [showdown]);
 };
 
 export default useShowdownLogic;

@@ -13,12 +13,8 @@ export default function CardSlot({ style }) {
         /* 画面中央を原点に計算 */
         left: `calc(50% + ${left * TABLE_SCALE}px)`,
         top: `calc(50vh + ${top * TABLE_SCALE}px)`,
-
         width: 100 * TABLE_SCALE,
         height: 140 * TABLE_SCALE,
-        position: 'absolute',
-        border: '1px solid rgba(255,255,255,.7)',
-        borderRadius: 6,
         zIndex: 0,
       }}
     />

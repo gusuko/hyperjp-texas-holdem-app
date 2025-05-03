@@ -10,22 +10,20 @@ const PlayAgainButton = ({ showdown, restartRound }) => {
   if (!showdown) return null;
 
   return (
-    <div style={{ marginTop: '2em' }}>
-      <button
-        onClick={restartRound}
-        style={{
-          padding: '0.5em 1em',
-          fontSize: '1.2em',
-          backgroundColor: '#4CAF50',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-        }}
-      >
-        🔄 もう一度プレイ！
-      </button>
-    </div>
+    <button
+      onClick={restartRound}
+      style={{
+        padding: '0.5em 1em',
+        fontSize: '1.2em',
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+      }}
+    >
+      🔄 もう一度プレイ！
+    </button>
   );
 };
 

@@ -16,13 +16,13 @@ export default function BetCircle({
   return (
     <div
       className={`bet-area ${isSelected ? 'selected' : ''}`}
-      onClick={onClick}
+      onClick={isActive ? onClick : undefined} // ← inactive のとき無効化
+      role="button"
+      tabIndex={isActive ? 0 : -1}
+      aria-pressed={isSelected}
       style={{
-        /* 中央基準 ＝ 画面幅50% / 高さ50vh から差分を足す */
         left: `calc(50%  + ${left * TABLE_SCALE}px)`,
         top: `calc(50vh + ${top * TABLE_SCALE}px)`,
-
-        /* 円そのものを一括スケールしたい場合はここだけ触る */
         transform: `scale(${TABLE_SCALE})`,
       }}
     >

@@ -1,7 +1,7 @@
 // App.js
 // 👉 アプリ全体の中枢コンポーネント。表示の切り替えやロジックの接着を担う
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { handleStartGameWithChecks } from './utils/gameStart';
 import {
   handleFlopBet,
@@ -12,9 +12,6 @@ import {
   handleFold,
 } from './utils/betActions';
 import ChipSummary from './components/ChipSummary';
-import PlayerHand from './components/PlayerHand';
-import DealerHand from './components/DealerHand';
-import CommunityCards from './components/CommunityCards';
 import ShowdownResult from './components/ShowdownResult';
 import PlayAgainButton from './components/PlayAgainButton';
 import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロジックのHook
@@ -23,12 +20,10 @@ import ChipSelector from './components/ChipSelector';
 import './styles/App.css';
 // import CasinoTableSVG from './components/CasinoTableSVG';
 import BetCircle from './components/BetCircle';
-import {
-  TABLE_SCALE,
-  betPositions,
-  cardSlotPositions,
-} from './constants/positionConfig';
+import { betPositions, cardSlotPositions } from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
+import { chipValues } from './constants/chips';
+import RenderCard from './components/RenderCard';
 
 function App() {
   // 🎯 状態（ステート）管理
@@ -47,8 +42,6 @@ function App() {
   const [playerCards, setPlayerCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([]);
   const [communityCards, setCommunityCards] = useState([]);
-
-  // 🎯 状態（ステート）管理  …… の直後あたりに ↓ を追加
   const [selectedArea, setSelectedArea] = useState('ante');
 
   const getTotalBet = (area) =>
@@ -62,21 +55,6 @@ function App() {
     turn: [],
     river: [],
   });
-
-  const [cards, setCards] = useState({
-    player: [,],
-    dealer: ['back', 'back'],
-    community: [],
-  });
-
-  // 🧠 cardsの見た目用状態を他の状態から作る
-  useEffect(() => {
-    setCards({
-      player: playerCards.length ? playerCards : [,],
-      dealer: dealerCards.length ? dealerCards : ['back', 'back'],
-      community: communityCards,
-    });
-  }, [playerCards, dealerCards, communityCards]);
 
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
@@ -115,14 +93,11 @@ function App() {
     });
   };
 
-  // ✅ 任意の金額を最適なチップ構成に変換する関数（$5チップ対応）
-  const chipDenominations = [10000, 5000, 1000, 500, 100, 25, 5];
-
   const convertToChips = (amount) => {
     const result = [];
     let remaining = amount;
 
-    for (const value of chipDenominations) {
+    for (const value of chipValues) {
       while (remaining >= value) {
         result.push({
           value,
@@ -142,7 +117,6 @@ function App() {
     if (gamePhase === 'preflop' && flopBet === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
-      console.log('FLOP chipsToPlace (after sort):', chipsToPlace);
 
       setPlacedChips((prev) => ({
         ...prev,
@@ -215,33 +189,6 @@ function App() {
     }
   };
 
-  /** -----------------------------------------------------------
-   *  renderCard  ― どの枠(pos)にも “ピッタリ” 合わせて描画する共通関数
-   *
-   * @param {string} card      例: 'AH', '7C' … 画像ファイル名のランク+スート
-   * @param {object} pos       { top, left, scale } ― positionConfig で定義
-   * @param {string} key       React の key
-   * @param {boolean} faceDown true なら裏向き(back.png)で表示
-   * ---------------------------------------------------------- */
-  const renderCard = (card, pos, key, faceDown = false) => (
-    <div
-      key={key}
-      className="card-abs"
-      style={{
-        left: `calc(50% + ${pos.left * TABLE_SCALE}px)`,
-        top: `calc(50vh + ${pos.top * TABLE_SCALE}px)`,
-        width: 100 * TABLE_SCALE,
-        height: 140 * TABLE_SCALE,
-      }}
-    >
-      <img
-        src={`/cards/${faceDown ? 'back' : card}.png`}
-        alt={card}
-        style={{ width: '100%', height: '100%' }}
-      />
-    </div>
-  );
-  console.log('playerCards:', playerCards);
   return (
     <div className="table-and-game">
       <h1>🃏 Megalink Texas Hold'em</h1>
@@ -256,13 +203,9 @@ function App() {
       />
 
       <div className="table-wrapper">
-        {/* ===== 中央ガイド（デバッグ用）===== */}
-        <div className="center-guide" />
         {/* =========================================================
      テーブル上レイヤー : ①枠 → ②カード の順で描画
 ========================================================= */}
-        {/* SVG テーブル本体 */}
-        {/* <CasinoTableSVG /> */}
         {/* ---------- ① 枠を先に描画（CardSlot） ---------- */}
         {/* Dealer 2 枠 */}
         {cardSlotPositions.dealer.map((pos, idx) => (
@@ -276,18 +219,35 @@ function App() {
         {cardSlotPositions.community.map((pos, idx) => (
           <CardSlot key={`slot-c${idx}`} style={pos} />
         ))}
+
         {/* Dealer 2 枚 ─ showdown 前は裏向き */}
-        {dealerCards.map((c, i) =>
-          renderCard(c, cardSlotPositions.dealer[i], `d-${i}`, !showdown)
-        )}
+        {dealerCards.map((c, i) => (
+          <RenderCard
+            card={c}
+            pos={cardSlotPositions.dealer[i]}
+            faceDown={!showdown}
+            keyProp={`d-${i}`}
+          />
+        ))}
         {/* Player 2 枚 */}
-        {playerCards.map((c, i) =>
-          renderCard(c, cardSlotPositions.player[i], `p-${i}`)
-        )}
+        {playerCards.map((c, i) => (
+          <RenderCard
+            card={c}
+            pos={cardSlotPositions.player[i]}
+            faceDown={false}
+            keyProp={`p-${i}`}
+          />
+        ))}
         {/* Community 5 枚 */}
-        {communityCards.map((c, i) =>
-          renderCard(c, cardSlotPositions.community[i], `c-${i}`)
-        )}
+        {communityCards.map((c, i) => (
+          <RenderCard
+            card={c}
+            pos={cardSlotPositions.community[i]}
+            faceDown={false}
+            keyProp={`c-${i}`}
+          />
+        ))}
+
         {/* ---------- ベット円（6個） ---------- */}
         {/* ANTE */}
         <BetCircle
@@ -349,40 +309,6 @@ function App() {
           onClick={handleRiverCircleClick}
           style={betPositions.river}
         />
-        Dealer のカード（枠の上に重ねる）
-        {/* <div
-          className="card-abs"
-          style={{
-            top: cardSlotPositions.dealer.top,
-            left: cardSlotPositions.dealer.left,
-            transform: `scale(${cardSlotPositions.dealer.scale})`,
-          }}
-        >
-          <DealerHand dealerCards={dealerCards} showdown={showdown} />
-        </div> */}
-        {/* ─────── Community 5 枚まとめて ─────── */}
-        <div
-          className="card-abs"
-          style={{
-            top: cardSlotPositions.community[0].top, // １枚目の枠と同じ Y
-            left: cardSlotPositions.community[0].left, // １枚目の枠と同じ X
-            /* ５枚横並びなので scale を少し小さくすると収まりやすい */
-            transform: `scale(${cardSlotPositions.community[0].scale})`,
-          }}
-        >
-          <CommunityCards communityCards={communityCards} />
-        </div>
-        {/* ─────── Player のカード ─────── */}
-        <div
-          className="card-abs"
-          style={{
-            top: cardSlotPositions.player.top,
-            left: cardSlotPositions.player.left,
-            transform: `scale(${cardSlotPositions.player.scale})`,
-          }}
-        >
-          <PlayerHand playerCards={playerCards} />
-        </div>
         {gamePhase === 'initial' && (
           <>
             <div className="start-button-wrapper">
@@ -508,33 +434,35 @@ function App() {
           )}
 
           {gamePhase === 'showdown' && (
-            <PlayAgainButton
-              showdown={showdown}
-              restartRound={() => {
-                setDeck([]);
-                setPlayerCards([]);
-                setDealerCards([]);
-                setCommunityCards([]);
-                setGamePhase('initial');
-                setFolded(false);
-                setShowdown(false);
-                setResultText('');
-                setAnteBet(0);
-                setBonusBet(0);
-                setJackpotBet(0);
-                setFlopBet(0);
-                setTurnBet(0);
-                setRiverBet(0);
-                setPlacedChips({
-                  ante: [],
-                  bonus: [],
-                  jackpot: [],
-                  flop: [],
-                  turn: [],
-                  river: [],
-                });
-              }}
-            />
+            <div className="play-again-wrapper">
+              <PlayAgainButton
+                showdown={showdown}
+                restartRound={() => {
+                  setDeck([]);
+                  setPlayerCards([]);
+                  setDealerCards([]);
+                  setCommunityCards([]);
+                  setGamePhase('initial');
+                  setFolded(false);
+                  setShowdown(false);
+                  setResultText('');
+                  setAnteBet(0);
+                  setBonusBet(0);
+                  setJackpotBet(0);
+                  setFlopBet(0);
+                  setTurnBet(0);
+                  setRiverBet(0);
+                  setPlacedChips({
+                    ante: [],
+                    bonus: [],
+                    jackpot: [],
+                    flop: [],
+                    turn: [],
+                    river: [],
+                  });
+                }}
+              />
+            </div>
           )}
         </>
       )}

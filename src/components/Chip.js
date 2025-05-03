@@ -3,7 +3,7 @@ const Chip = ({ value, imageSrc, onClick }) => {
     <img
       src={imageSrc}
       alt={`$${value} chip`}
-      onClick={() => onClick(value)}
+      onClick={onClick}
       style={{
         width: '70px', // ←大きく！
         height: '70px',

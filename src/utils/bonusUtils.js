@@ -1,6 +1,6 @@
 /**
  * プレイヤーの2枚のカードに応じたボーナス倍率を返す関数
- * → MBS（マリーナベイ・サンズ）ルールに基づく
+ * → MBSルール
  */
 export const getBonusMultiplierForPlayer = (playerCards) => {
   // プレイヤーの2枚のカードを分解

@@ -26,7 +26,6 @@ export const handleTurnBet = ({
   betAmount,
   deck,
   setTurnBet,
-  setTurnBetPlaced,
   setCommunityCards,
   setGamePhase,
 }) => {
@@ -45,7 +44,6 @@ export const handleRiverBet = ({
   betAmount,
   deck,
   setRiverBet,
-  setRiverBetPlaced,
   setCommunityCards,
   setGamePhase,
   setShowdown,
@@ -60,12 +58,7 @@ export const handleRiverBet = ({
  * - Turnカードを1枚追加
  * - フェーズを "turn" に進める
  */
-export const handleCheckTurn = ({
-  deck,
-  setTurnBetPlaced,
-  setCommunityCards,
-  setGamePhase,
-}) => {
+export const handleCheckTurn = ({ deck, setCommunityCards, setGamePhase }) => {
   setCommunityCards((prev) => [...prev, deck[7]]); // Turnカードを追加
   setGamePhase('turn');
 };
@@ -77,7 +70,6 @@ export const handleCheckTurn = ({
  */
 export const handleCheckRiver = ({
   deck,
-  setRiverBetPlaced,
   setCommunityCards,
   setGamePhase,
   setShowdown,
