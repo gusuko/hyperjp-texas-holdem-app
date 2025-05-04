@@ -1,7 +1,8 @@
 // App.js
 // 👉 アプリ全体の中枢コンポーネント。表示の切り替えやロジックの接着を担う
 
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
+import { initialState, reducer } from './state';
 import { handleStartGameWithChecks } from './utils/gameStart';
 import {
   handleFlopBet,
@@ -26,7 +27,8 @@ import { chipValues } from './constants/chips';
 import CardGroup from './components/CardGroup';
 function App() {
   // 🎯 状態（ステート）管理
-  const [chips, setChips] = useState(1000);
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { chips } = state;
   const [anteBet, setAnteBet] = useState(0);
   const [bonusBet, setBonusBet] = useState(0);
   const [jackpotBet, setJackpotBet] = useState(0);
@@ -68,7 +70,7 @@ function App() {
     flopBet,
     turnBet,
     riverBet,
-    setChips,
+    dispatch,
     setResultText,
   });
 
@@ -122,12 +124,11 @@ function App() {
         flop: chipsToPlace,
       }));
 
-      setChips((prev) => prev - betAmount);
-
+      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
       handleFlopBet({
         betAmount,
         deck,
-        setChips,
+        dispatch,
         setFlopBet,
         setCommunityCards,
         setGamePhase,
@@ -148,12 +149,12 @@ function App() {
         turn: chipsToPlace,
       }));
 
-      setChips((prev) => prev - betAmount);
+      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
 
       handleTurnBet({
         betAmount,
         deck,
-        setChips,
+        dispatch,
         setTurnBet,
         setCommunityCards,
         setGamePhase,
@@ -174,12 +175,12 @@ function App() {
         river: chipsToPlace,
       }));
 
-      setChips((prev) => prev - betAmount);
+      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
 
       handleRiverBet({
         betAmount,
         deck,
-        setChips,
+        dispatch,
         setRiverBet,
         setCommunityCards,
         setGamePhase,
@@ -304,7 +305,7 @@ function App() {
         <div className="play-area-row">
           <ChipSelector
             chips={chips}
-            setChips={setChips}
+            dispatch={dispatch}
             placedChips={placedChips}
             setPlacedChips={setPlacedChips}
             gamePhase={gamePhase}
@@ -356,7 +357,7 @@ function App() {
                     handleTurnBet({
                       betAmount,
                       deck,
-                      setChips,
+                      dispatch,
                       setTurnBet,
                       setCommunityCards,
                       setGamePhase,
@@ -388,7 +389,7 @@ function App() {
                     handleRiverBet({
                       betAmount,
                       deck,
-                      setChips,
+                      dispatch,
                       setRiverBet,
                       setCommunityCards,
                       setGamePhase,

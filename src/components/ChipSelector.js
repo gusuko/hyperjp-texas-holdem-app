@@ -14,7 +14,7 @@ const chipOptions = [
 
 const ChipSelector = ({
   chips,
-  setChips,
+  dispatch,
   placedChips,
   setPlacedChips,
   gamePhase,
@@ -40,7 +40,7 @@ const ChipSelector = ({
         };
       });
 
-      setChips((prev) => prev - chip.value);
+      dispatch({ type: 'SUB_CHIPS', amount: chip.value });
     }
   };
 
@@ -51,7 +51,8 @@ const ChipSelector = ({
       .flat()
       .reduce((sum, chip) => sum + chip.value, 0);
 
-    setChips((prev) => prev + refund);
+    dispatch({ type: 'ADD_CHIPS', amount: refund });
+
     setPlacedChips({
       ante: [],
       bonus: [],

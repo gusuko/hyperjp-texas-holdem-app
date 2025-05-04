@@ -23,7 +23,7 @@ const useShowdownLogic = ({
   flopBet,
   turnBet,
   riverBet,
-  setChips,
+  dispatch,
   setResultText,
 }) => {
   useEffect(() => {
@@ -160,7 +160,7 @@ const useShowdownLogic = ({
     }
 
     // --- チップと結果表示を反映 ---
-    setChips((prev) => prev + payout);
+    dispatch({ type: 'ADD_CHIPS', amount: payout });
 
     setResultText(
       `${playerHandText}

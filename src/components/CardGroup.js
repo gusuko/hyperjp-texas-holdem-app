@@ -4,6 +4,6 @@ import RenderCard from './RenderCard'; // パスは既存 RenderCard に合わ�
 
 export default function CardGroup({ cards, positions, facedown = false }) {
   return cards.map((card, i) => (
-    <RenderCard key={i} card={card} pos={positions[i]} facedown={facedown} />
+    <RenderCard key={i} card={card} pos={positions[i]} faceDown={facedown} />
   ));
 }
