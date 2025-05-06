@@ -6,31 +6,24 @@ import { shuffleDeck } from './deckUtils';
  * - プレイヤー／ディーラーにカード配布
  * - 状態を初期化（BET含む）
  */
-export const resetGame = ({
-  setDeck,
-  setPlayerCards,
-  setDealerCards,
-  setCommunityCards,
-  setGamePhase,
-  setFolded,
-  setShowdown,
-  setResultText,
-  setAnteBet,
-  setBonusBet,
-  setJackpotBet,
-}) => {
+export const resetGame = ({ dispatch, setResultText }) => {
   const newDeck = shuffleDeck();
-  setDeck(newDeck);
-  setPlayerCards([newDeck[0], newDeck[2]]);
-  setDealerCards([newDeck[1], newDeck[3]]);
-  setCommunityCards([]);
-  setGamePhase('initial');
-  setFolded(false);
-  setShowdown(false);
+  dispatch({ type: 'SET_DECK', deck: newDeck });
+  dispatch({
+    type: 'SET_CARDS',
+    who: 'player',
+    cards: [newDeck[0], newDeck[2]],
+  });
+  dispatch({
+    type: 'SET_CARDS',
+    who: 'dealer',
+    cards: [newDeck[1], newDeck[3]],
+  });
+  dispatch({ type: 'SET_CARDS', who: 'board', cards: [] });
+  dispatch({ type: 'SET_FOLDED', value: false });
+  dispatch({ type: 'SET_SHOWDOWN', value: false });
+  dispatch({ type: 'RESET_BETS' });
   setResultText('');
-  setAnteBet(0);
-  setBonusBet(0);
-  setJackpotBet(0);
 };
 
 /**
@@ -38,29 +31,15 @@ export const resetGame = ({
  * - プレイヤー／ディーラーの手札や状態だけ初期化
  * - チップ所持金はそのまま
  */
-export const restartRound = ({
-  setDeck,
-  setPlayerCards,
-  setDealerCards,
-  setCommunityCards,
-  setGamePhase,
-  setFolded,
-  setShowdown,
-  setResultText,
-  setAnteBet,
-  setBonusBet,
-  setJackpotBet,
-}) => {
-  const newDeck = shuffleDeck();
-  setDeck(newDeck);
-  setPlayerCards([]);
-  setDealerCards([]);
-  setCommunityCards([]);
-  setGamePhase('initial');
-  setFolded(false);
-  setShowdown(false);
+export const restartRound = ({ dispatch, setResultText }) => {
+  dispatch({ type: 'SET_DECK', deck: [] });
+  dispatch({ type: 'RESET_CARDS' });
+  /* 🂢 ③ フェーズ & フラグを初期化 */
+  dispatch({ type: 'SET_PHASE', phase: 'initial' });
+  dispatch({ type: 'SET_FOLDED', value: false });
+  dispatch({ type: 'SET_SHOWDOWN', value: false });
+  /* 🂣 ④ ベット額をゼロに */
+  dispatch({ type: 'RESET_BETS' });
+  dispatch({ type: 'RESET_PLACED_CHIPS' });
   setResultText('');
-  setAnteBet(0);
-  setBonusBet(0);
-  setJackpotBet(0);
 };

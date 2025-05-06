@@ -14,18 +14,16 @@ import { getJackpotPayout } from '../utils/jackpotUtils';
 const useShowdownLogic = ({
   showdown,
   folded,
-  playerCards,
-  dealerCards,
-  communityCards,
-  anteBet,
-  bonusBet,
-  jackpotBet,
-  flopBet,
-  turnBet,
-  riverBet,
+  cards,
+  bets,
   dispatch,
   setResultText,
 }) => {
+  const {
+    player: playerCards,
+    dealer: dealerCards,
+    board: communityCards,
+  } = cards;
   useEffect(() => {
     if (!showdown) return;
     // --- 初期化 ---
@@ -38,11 +36,11 @@ const useShowdownLogic = ({
     const jackpotHand = [...playerCards, ...communityCards.slice(0, 3)];
     const { rank: jackpotRank, payout: jackpotWin } = getJackpotPayout(
       jackpotHand,
-      jackpotBet
+      bets.jackpot
     );
 
     if (jackpotWin > 0) {
-      payout += jackpotBet + jackpotWin; // ✅ 元金 + 配当
+      payout += bets.jackpot + jackpotWin; // ✅ 元金 + 配当
     }
 
     // --- プレイヤー・ディーラーの役を評価 ---
@@ -58,13 +56,18 @@ const useShowdownLogic = ({
     const bonusRate = Math.max(normalBonusRate, aaBonusRate);
 
     // --- ボーナス払い戻し ---
-    if (bonusRate > 0 && bonusBet > 0) {
-      bonusWin = bonusBet * bonusRate;
-      payout += bonusBet + bonusWin; // ✅ 元金 + 配当
+    if (bonusRate > 0 && bets.bonus > 0) {
+      bonusWin = bets.bonus * bonusRate;
+      payout += bets.bonus + bonusWin; // ✅ 元金 + 配当
     }
     // ✅ プレイヤーが実際に賭けた全ての合計（ANTE + BONUS + JACKPOT + FLOP〜RIVER）
     const totalBetAmount =
-      anteBet + bonusBet + jackpotBet + flopBet + turnBet + riverBet;
+      bets.ante +
+      bets.bonus +
+      bets.jackpot +
+      bets.flop +
+      bets.turn +
+      bets.river;
 
     // --- 表示用カード整形 ---
     const playerSortedHand = formatHandByCompareRanks(
@@ -138,23 +141,23 @@ const useShowdownLogic = ({
       payout = 0;
       anteText = `$0（降りたため没収）`;
     } else if (playerWins) {
-      anteWin = anteBet;
-      betWin = flopBet + turnBet + riverBet;
+      anteWin = bets.ante;
+      betWin = bets.flop + bets.turn + bets.river;
 
       if (handStrengthIndex >= 4) {
         payout += anteWin * 2;
-        anteText = `$${anteBet * 2}（勝利＋ストレート以上の役）`;
+        anteText = `$${bets.ante * 2}（勝利＋ストレート以上の役）`;
       } else {
         payout += anteWin;
-        anteText = `$${anteBet}（勝利だがストレート未満 → ANTE同額返却）`;
+        anteText = `$${bets.ante}（勝利だがストレート未満 → ANTE同額返却）`;
       }
 
       payout += betWin * 2;
     } else if (tie) {
-      anteWin = anteBet;
-      betWin = flopBet + turnBet + riverBet;
+      anteWin = bets.ante;
+      betWin = bets.flop + bets.turn + bets.river;
       payout += anteWin + betWin;
-      anteText = `$${anteBet}（引き分け → ANTE同額返却）`;
+      anteText = `$${bets.ante}（引き分け → ANTE同額返却）`;
     } else {
       anteText = `$0（敗北 → ANTE没収）`;
     }
@@ -171,12 +174,12 @@ ${winnerText}
 💰 払い戻し詳細:
 ANTE: ${anteText}
 BET: $${totalBetAmount}
-BONUS: $${bonusWin > 0 ? bonusBet + bonusWin : 0}（${
+BONUS: $${bonusWin > 0 ? bets.bonus + bonusWin : 0}（${
         bonusWin > 0
           ? `倍率：x${bonusRate}${bonusRate === 1000 ? '（AA vs AA!）' : ''}`
           : '対象外'
       }）
-JACKPOT: $${jackpotWin > 0 ? jackpotBet + jackpotWin : 0}（${
+JACKPOT: $${jackpotWin > 0 ? bets.jackpot + jackpotWin : 0}（${
         jackpotWin > 0 ? `役：${jackpotRank}` : '対象外'
       }）
 

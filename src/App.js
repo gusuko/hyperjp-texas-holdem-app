@@ -23,168 +23,101 @@ import './styles/App.css';
 import BetCircle from './components/BetCircle';
 import { betPositions, cardSlotPositions } from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
-import { chipValues } from './constants/chips';
+import { convertToChips, getTotalBet } from './utils/chipHelpers';
 import CardGroup from './components/CardGroup';
+import { restartRound } from './utils/gameReset';
+
 function App() {
   // 🎯 状態（ステート）管理
   const [state, dispatch] = useReducer(reducer, initialState);
   const { chips } = state;
-  const [anteBet, setAnteBet] = useState(0);
-  const [bonusBet, setBonusBet] = useState(0);
-  const [jackpotBet, setJackpotBet] = useState(0);
-  const [flopBet, setFlopBet] = useState(0);
-  const [turnBet, setTurnBet] = useState(0);
-  const [riverBet, setRiverBet] = useState(0);
-  const [gamePhase, setGamePhase] = useState('initial');
-  const [folded, setFolded] = useState(false);
-  const [showdown, setShowdown] = useState(false);
+  const { deck, cards, bets, phase: gamePhase, folded, showdown } = state;
   const [resultText, setResultText] = useState('');
-  const [deck, setDeck] = useState([]);
-  const [playerCards, setPlayerCards] = useState([]);
-  const [dealerCards, setDealerCards] = useState([]);
-  const [communityCards, setCommunityCards] = useState([]);
   const [selectedArea, setSelectedArea] = useState('ante');
-
-  const getTotalBet = (area) =>
-    placedChips[area].reduce((sum, chip) => sum + chip.value, 0);
-
-  const [placedChips, setPlacedChips] = useState({
-    ante: [],
-    bonus: [],
-    jackpot: [],
-    flop: [],
-    turn: [],
-    river: [],
-  });
+  const { placedChips } = state;
 
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
     showdown,
     folded,
-    playerCards,
-    dealerCards,
-    communityCards,
-    anteBet,
-    bonusBet,
-    jackpotBet,
-    flopBet,
-    turnBet,
-    riverBet,
+    cards,
+    bets,
     dispatch,
     setResultText,
   });
 
   const handleGameStart = () => {
-    const sum = (chips) => chips.reduce((total, chip) => total + chip.value, 0);
-
-    setAnteBet(sum(placedChips.ante));
-    setBonusBet(sum(placedChips.bonus));
-    setJackpotBet(sum(placedChips.jackpot));
-
     handleStartGameWithChecks({
-      anteBet: sum(placedChips.ante), // 直接渡す値も更新
-      setDeck,
-      setPlayerCards,
-      setDealerCards,
-      setCommunityCards,
-      setGamePhase,
-      setFolded,
-      setShowdown,
+      placedChips: state.placedChips,
+      dispatch,
       setResultText,
     });
   };
 
-  const convertToChips = (amount) => {
-    const result = [];
-    let remaining = amount;
-
-    for (const value of chipValues) {
-      while (remaining >= value) {
-        result.push({
-          value,
-          src: `/chips/chip_${value}.png`, // ✅ public/chips に保存されている画像パス
-        });
-        remaining -= value;
-      }
-    }
-
-    return result;
-  };
-
   // ✅ FLOP 円クリックで ANTE × 2 の自動ベット
   const handleFlopCircleClick = () => {
-    const betAmount = anteBet * 2;
+    const betAmount = bets.ante * 2;
 
-    if (gamePhase === 'preflop' && flopBet === 0 && chips >= betAmount) {
+    if (gamePhase === 'preflop' && bets.flop === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
-      setPlacedChips((prev) => ({
-        ...prev,
-        flop: chipsToPlace,
-      }));
-
-      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
+      dispatch({
+        type: 'SET_PLACED_CHIPS',
+        area: 'flop',
+        chips: chipsToPlace,
+      });
+      dispatch({ type: 'PLACE_BET', area: 'flop', amount: betAmount });
       handleFlopBet({
         betAmount,
         deck,
         dispatch,
-        setFlopBet,
-        setCommunityCards,
-        setGamePhase,
       });
     }
   };
 
   // ✅ TURN 円クリックで ANTE × 1 の自動ベット
   const handleTurnCircleClick = () => {
-    const betAmount = anteBet;
+    const betAmount = bets.ante;
 
-    if (gamePhase === 'flop' && turnBet === 0 && chips >= betAmount) {
+    if (gamePhase === 'flop' && bets.turn === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
-      setPlacedChips((prev) => ({
-        ...prev,
-        turn: chipsToPlace,
-      }));
-
-      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
+      dispatch({
+        type: 'SET_PLACED_CHIPS',
+        area: 'turn',
+        chips: chipsToPlace,
+      });
+      dispatch({ type: 'PLACE_BET', area: 'turn', amount: betAmount });
 
       handleTurnBet({
         betAmount,
         deck,
         dispatch,
-        setTurnBet,
-        setCommunityCards,
-        setGamePhase,
       });
     }
   };
 
   // ✅ RIVER 円クリックで ANTE × 1 の自動ベット
   const handleRiverCircleClick = () => {
-    const betAmount = anteBet;
+    const betAmount = bets.ante;
 
-    if (gamePhase === 'turn' && riverBet === 0 && chips >= betAmount) {
+    if (gamePhase === 'turn' && bets.river === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
-      setPlacedChips((prev) => ({
-        ...prev,
-        river: chipsToPlace,
-      }));
-
-      dispatch({ type: 'SUB_CHIPS', amount: betAmount });
+      dispatch({
+        type: 'SET_PLACED_CHIPS',
+        area: 'river',
+        chips: chipsToPlace,
+      });
+      dispatch({ type: 'PLACE_BET', area: 'river', amount: betAmount });
 
       handleRiverBet({
         betAmount,
         deck,
         dispatch,
-        setRiverBet,
-        setCommunityCards,
-        setGamePhase,
-        setShowdown,
       });
     }
   };
@@ -194,12 +127,12 @@ function App() {
       <h1>🃏 Megalink Texas Hold'em</h1>
       <ChipSummary
         chips={chips}
-        anteBet={anteBet}
-        bonusBet={bonusBet}
-        jackpotBet={jackpotBet}
-        flopBet={flopBet}
-        turnBet={turnBet}
-        riverBet={riverBet}
+        anteBet={bets.ante}
+        bonusBet={bets.bonus}
+        jackpotBet={bets.jackpot}
+        flopBet={bets.flop}
+        turnBet={bets.turn}
+        riverBet={bets.river}
       />
 
       <div className="table-wrapper">
@@ -221,23 +154,23 @@ function App() {
         ))}
         {/* Dealer 2 枚 */}
         <CardGroup
-          cards={dealerCards}
+          cards={cards.dealer}
           positions={cardSlotPositions.dealer}
           facedown={!showdown}
         />
         {/* Community 5 枚 */}
         <CardGroup
-          cards={communityCards}
+          cards={cards.board}
           positions={cardSlotPositions.community}
         />
         {/* Player 2 枚 */}
-        <CardGroup cards={playerCards} positions={cardSlotPositions.player} />
+        <CardGroup cards={cards.player} positions={cardSlotPositions.player} />
 
         {/* ---------- ベット円（6個） ---------- */}
         {/* ANTE */}
         <BetCircle
           area="ante"
-          total={getTotalBet('ante')}
+          total={getTotalBet(placedChips, 'ante')}
           chips={placedChips.ante}
           isActive={gamePhase === 'initial'}
           isSelected={selectedArea === 'ante'}
@@ -247,7 +180,7 @@ function App() {
         {/* BONUS */}
         <BetCircle
           area="bonus"
-          total={getTotalBet('bonus')}
+          total={getTotalBet(placedChips, 'bonus')}
           chips={placedChips.bonus}
           isActive={gamePhase === 'initial'}
           isSelected={selectedArea === 'bonus'}
@@ -257,7 +190,7 @@ function App() {
         {/* JACKPOT */}
         <BetCircle
           area="jackpot"
-          total={getTotalBet('jackpot')}
+          total={getTotalBet(placedChips, 'jackpot')}
           chips={placedChips.jackpot}
           isActive={gamePhase === 'initial'}
           isSelected={selectedArea === 'jackpot'}
@@ -267,7 +200,7 @@ function App() {
         {/* FLOP */}
         <BetCircle
           area="flop"
-          total={getTotalBet('flop')}
+          total={getTotalBet(placedChips, 'flop')}
           chips={placedChips.flop}
           isActive={gamePhase === 'preflop'}
           isSelected={false}
@@ -277,7 +210,7 @@ function App() {
         {/* TURN */}
         <BetCircle
           area="turn"
-          total={getTotalBet('turn')}
+          total={getTotalBet(placedChips, 'turn')}
           chips={placedChips.turn}
           isActive={gamePhase === 'flop'}
           isSelected={false}
@@ -287,7 +220,7 @@ function App() {
         {/* RIVER */}
         <BetCircle
           area="river"
-          total={getTotalBet('river')}
+          total={getTotalBet(placedChips, 'river')}
           chips={placedChips.river}
           isActive={gamePhase === 'turn'}
           isSelected={false}
@@ -307,7 +240,6 @@ function App() {
             chips={chips}
             dispatch={dispatch}
             placedChips={placedChips}
-            setPlacedChips={setPlacedChips}
             gamePhase={gamePhase}
             onFlopClick={handleFlopCircleClick}
             onTurnClick={handleTurnCircleClick}
@@ -329,10 +261,7 @@ function App() {
               <button
                 onClick={() =>
                   handleFold({
-                    setFolded,
-                    setGamePhase,
-                    setShowdown,
-                    setCommunityCards,
+                    dispatch,
                     deck,
                   })
                 }
@@ -352,29 +281,22 @@ function App() {
             <div style={{ marginTop: '1em' }}>
               <button
                 onClick={() => {
-                  const betAmount = anteBet;
+                  const betAmount = bets.ante;
                   if (chips >= betAmount) {
                     handleTurnBet({
                       betAmount,
                       deck,
                       dispatch,
-                      setTurnBet,
-                      setCommunityCards,
-                      setGamePhase,
                     });
                   } else {
                     alert('チップが足りません！');
                   }
                 }}
               >
-                Turn ベット（${anteBet}）
+                Turn ベット（${bets.ante}）
               </button>
 
-              <button
-                onClick={() =>
-                  handleCheckTurn({ deck, setCommunityCards, setGamePhase })
-                }
-              >
+              <button onClick={() => handleCheckTurn({ deck, dispatch })}>
                 チェック
               </button>
             </div>
@@ -384,32 +306,26 @@ function App() {
             <div style={{ marginTop: '1em' }}>
               <button
                 onClick={() => {
-                  const betAmount = anteBet;
+                  const betAmount = bets.ante;
                   if (chips >= betAmount) {
                     handleRiverBet({
                       betAmount,
                       deck,
                       dispatch,
-                      setRiverBet,
-                      setCommunityCards,
-                      setGamePhase,
-                      setShowdown,
                     });
                   } else {
                     alert('チップが足りません！');
                   }
                 }}
               >
-                River ベット（${anteBet}）
+                River ベット（${bets.ante}）
               </button>
 
               <button
                 onClick={() =>
                   handleCheckRiver({
                     deck,
-                    setCommunityCards,
-                    setGamePhase,
-                    setShowdown,
+                    dispatch,
                   })
                 }
               >
@@ -422,30 +338,13 @@ function App() {
             <div className="play-again-wrapper">
               <PlayAgainButton
                 showdown={showdown}
-                restartRound={() => {
-                  setDeck([]);
-                  setPlayerCards([]);
-                  setDealerCards([]);
-                  setCommunityCards([]);
-                  setGamePhase('initial');
-                  setFolded(false);
-                  setShowdown(false);
-                  setResultText('');
-                  setAnteBet(0);
-                  setBonusBet(0);
-                  setJackpotBet(0);
-                  setFlopBet(0);
-                  setTurnBet(0);
-                  setRiverBet(0);
-                  setPlacedChips({
-                    ante: [],
-                    bonus: [],
-                    jackpot: [],
-                    flop: [],
-                    turn: [],
-                    river: [],
-                  });
-                }}
+                restartRound={() =>
+                  restartRound({
+                    dispatch,
+                    setResultText,
+                    placedChips: state.placedChips,
+                  })
+                }
               />
             </div>
           )}

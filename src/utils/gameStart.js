@@ -1,34 +1,36 @@
 import { shuffleDeck } from './deckUtils';
 
-/**
- * Preflop開始時の処理（ANTEチェック付き）
- * - デッキシャッフル
- * - プレイヤー・ディーラーのカード配布
- * - ゲーム初期化（フォールドなどリセット）
- */
 export const handleStartGameWithChecks = ({
-  anteBet,
-  setDeck,
-  setPlayerCards,
-  setDealerCards,
-  setCommunityCards,
-  setGamePhase,
-  setFolded,
-  setShowdown,
+  placedChips, // 追加：円に置いたチップ配列
+  dispatch,
   setResultText,
 }) => {
-  if (anteBet < 25) {
+  /* ---- ① Ante の合計を計算 ---- */
+  const anteAmount = placedChips.ante.reduce((t, c) => t + c.value, 0);
+  const bonusAmount = placedChips.bonus.reduce((t, c) => t + c.value, 0);
+  const jackpotAmount = placedChips.jackpot.reduce((t, c) => t + c.value, 0);
+
+  /* ---- ② 最低額チェック ---- */
+  if (anteAmount < 25) {
     alert('ANTEベットは最低$25必要です！');
     return;
   }
 
+  /* ---- ④ デッキ配布と状態リセット ---- */
   const newDeck = shuffleDeck();
-  setDeck(newDeck);
-  setPlayerCards([newDeck[0], newDeck[2]]);
-  setDealerCards([newDeck[1], newDeck[3]]);
-  setCommunityCards([]);
-  setGamePhase('preflop');
-  setFolded(false);
-  setShowdown(false);
+  dispatch({ type: 'SET_DECK', deck: newDeck });
+  dispatch({
+    type: 'SET_CARDS',
+    who: 'player',
+    cards: [newDeck[0], newDeck[2]],
+  });
+  dispatch({
+    type: 'SET_CARDS',
+    who: 'dealer',
+    cards: [newDeck[1], newDeck[3]],
+  });
+  dispatch({ type: 'SET_CARDS', who: 'board', cards: [] });
+  dispatch({ type: 'SET_PHASE', phase: 'preflop' });
+  dispatch({ type: 'SET_FOLDED', value: false });
   setResultText('');
 };

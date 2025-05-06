@@ -1,5 +1,5 @@
-// ChipSelector.js
-import React, { useEffect, useState } from 'react';
+// ChipSelector.jsx
+import React from 'react';
 import '../styles/TableLayout.css';
 import Chip from './Chip';
 
@@ -16,53 +16,55 @@ const ChipSelector = ({
   chips,
   dispatch,
   placedChips,
-  setPlacedChips,
   gamePhase,
   selectedArea,
+  setSelectedArea, // ← ハイライト用に残す
 }) => {
+  /* ─────────── チップを置く ─────────── */
   const handlePlaceChip = (area, chip) => {
-    // 🔒 ゲーム開始後は ante/bonus/jackpot に置けないようにする
-    const isInitialPhase = gamePhase === 'initial';
-    const restrictedAreas = ['ante', 'bonus', 'jackpot'];
-    if (!isInitialPhase && restrictedAreas.includes(area)) {
-      return;
-    }
+    /* initial 以外では ante/bonus/jackpot をロック */
+    const restricted = ['ante', 'bonus', 'jackpot'];
+    if (gamePhase !== 'initial' && restricted.includes(area)) return;
 
     if (chips >= chip.value) {
-      setPlacedChips((prev) => {
-        // ✅ チップを追加して、ソート（小さい順）！
-        const updated = [...prev[area], chip];
-        updated.sort((a, b) => a.value - b.value); // 小さい順！
+      /* 新しいスタックを生成（小さい順にソート）*/
+      const updated = [...placedChips[area], chip].sort(
+        (a, b) => a.value - b.value
+      );
 
-        return {
-          ...prev,
-          [area]: updated,
-        };
+      /* UI 用: placedChips をピンポイント更新 */
+      dispatch({
+        type: 'SET_PLACED_CHIPS',
+        area: area, // 'ante' | 'flop' | …
+        chips: updated,
       });
 
-      dispatch({ type: 'SUB_CHIPS', amount: chip.value });
+      /* 内部ロジック用: bets と残高を確定 */
+      dispatch({
+        type: 'PLACE_BET',
+        area: area,
+        amount: chip.value,
+      });
     }
   };
 
+  /* ─────────── リセット（初期フェーズのみ） ─────────── */
   const handleResetBets = () => {
     if (gamePhase !== 'initial') return;
 
+    /* 払い戻し額を計算して所持チップに戻す */
     const refund = Object.values(placedChips)
       .flat()
       .reduce((sum, chip) => sum + chip.value, 0);
 
     dispatch({ type: 'ADD_CHIPS', amount: refund });
 
-    setPlacedChips({
-      ante: [],
-      bonus: [],
-      jackpot: [],
-      flop: [],
-      turn: [],
-      river: [],
-    });
+    /* bets と placedChips をいっきに初期化 */
+    dispatch({ type: 'RESET_BETS' });
+    dispatch({ type: 'RESET_PLACED_CHIPS' });
   };
 
+  /* ───────────  JSX  ─────────── */
   return (
     <div className="chip-selector">
       <div className="chip-label">
