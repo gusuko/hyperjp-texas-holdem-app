@@ -9,6 +9,7 @@ const chipOptions = [
   { value: 100, src: '/chips/chip_100.png' },
   { value: 500, src: '/chips/chip_500.png' },
   { value: 1000, src: '/chips/chip_1000.png' },
+  { value: 5000, src: '/chips/chip_5000.png' },
   { value: 10000, src: '/chips/chip_10000.png' },
 ];
 

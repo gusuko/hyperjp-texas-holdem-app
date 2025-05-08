@@ -1,11 +1,20 @@
 /*───────────────────────────────────────────────
   01) テーブル全体ラッパー
 ───────────────────────────────────────────────*/
+.table-cell {
+  /* ← 新ラッパー */
+  position: relative; /* グリッド上は普通のセル */
+  height: 100vh;
+}
+
+/* 中央固定はそのまま */
 .table-wrapper {
-  position: relative;
-  width: 100%; /* ← 固定幅を外して 100% に */
-  height: 100vh; /* ← 画面いっぱいを基準に */
-  margin: 0; /* 余白ゼロ */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% - 400px));
+  width: 0;
+  height: 0;
 }
 
 /*───────────────────────────────────────────────
@@ -76,13 +85,20 @@
 /*───────────────────────────────────────────────
   03) チップセレクタ（画面下部の灰色パネル）
 ───────────────────────────────────────────────*/
-/* .chip-selector {
-  margin-top: 20px;
-  display: inline-block;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px 20px;
-  border-radius: 10px;
-} */
+.chip-selector {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.chip-selector-panel {
+  position: absolute;
+  top: 180px; /* ←縦位置は後で微調整 */
+  left: 50%;
+  transform: translateX(-50%); /* ★これが無いと中央に来ません */
+  display: flex;
+  gap: 8px;
+}
+
 .chip-label {
   color: #fff;
   font-size: 14px;
@@ -136,4 +152,26 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
+}
+
+.fold-btn {
+  width: 70px; /* チップ画像と同じ直径 */
+  height: 70px;
+  line-height: 70px; /* 縦中央揃え */
+  border-radius: 50%; /* 円形に */
+  background: #b91c1c; /* 濃い赤 */
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.85rem; /* 文字が収まるサイズに */
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, background 0.15s;
+  text-align: center; /* 横中央揃え */
+  padding: 0; /* 余白はゼロに */
+}
+
+.fold-btn:hover {
+  background: #991b1b;
+  transform: scale(1.07);
 }

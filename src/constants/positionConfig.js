@@ -9,35 +9,37 @@ export const TABLE_SCALE = 1;
 
 /* ===== ① ベット円 6 個 ===== */
 export const betPositions = {
-  ante: { top: -480, left: -110 },
-  bonus: { top: -480, left: -35 },
-  jackpot: { top: -480, left: 40 },
+  ante: { top: -460, left: -385 },
+  bonus: { top: -460, left: -315 },
+  jackpot: { top: -460, left: -245 },
 
-  flop: { top: -350, left: -110 },
-  turn: { top: -350, left: -35 },
-  river: { top: -350, left: 40 },
+  flop: { top: -460, left: -110 },
+  turn: { top: -460, left: -35 },
+  river: { top: -460, left: 40 },
 };
 
 /* ===== ② カード枠 2 + 5 + 2 ===== */
 export const cardSlotPositions = {
   /* Dealer 2 枚 */
   dealer: [
-    { top: -800, left: -105 }, // 1st
-    { top: -800, left: +5 }, // 2nd
+    { top: -800, left: -400 }, // 1st
+    { top: -800, left: -290 }, // 2nd
   ],
 
   /* Player 2 枚 */
   player: [
-    { top: -200, left: -105 },
-    { top: -200, left: +5 },
+    { top: -350, left: -400 },
+    { top: -350, left: -290 },
   ],
 
   /* Community 5 枚 */
   community: [
-    { top: -640, left: -250 },
-    { top: -640, left: -140 },
-    { top: -640, left: -30 },
-    { top: -640, left: +80 },
-    { top: -640, left: +190 },
+    { top: -640, left: -565 },
+    { top: -640, left: -455 },
+    { top: -640, left: -345 },
+    { top: -640, left: -235 },
+    { top: -640, left: -125 },
   ],
 };
+/* ===== ③ ChipSelector 1 か所 ===== */
+export const chipSelectorPos = { top: 440, left: -300 };

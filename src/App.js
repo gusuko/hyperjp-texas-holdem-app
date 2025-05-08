@@ -19,9 +19,13 @@ import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロ�
 
 import ChipSelector from './components/ChipSelector';
 import './styles/App.css';
-// import CasinoTableSVG from './components/CasinoTableSVG';
 import BetCircle from './components/BetCircle';
-import { betPositions, cardSlotPositions } from './constants/positionConfig';
+import {
+  TABLE_SCALE,
+  betPositions,
+  cardSlotPositions,
+  chipSelectorPos,
+} from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
 import { convertToChips, getTotalBet } from './utils/chipHelpers';
 import CardGroup from './components/CardGroup';
@@ -122,218 +126,177 @@ function App() {
     }
   };
 
+  /* ===== App.js  ─  return 以降ぜんぶ貼り替え ===== */
   return (
     <div className="table-and-game">
-      <h1>🃏 Megalink Texas Hold'em</h1>
-      <ChipSummary
-        chips={chips}
-        anteBet={bets.ante}
-        bonusBet={bets.bonus}
-        jackpotBet={bets.jackpot}
-        flopBet={bets.flop}
-        turnBet={bets.turn}
-        riverBet={bets.river}
-      />
+      <h1>🃏 HyperJP Texas Hold'em</h1>
 
-      <div className="table-wrapper">
-        {/* =========================================================
-     テーブル上レイヤー : ①枠 → ②カード の順で描画
-========================================================= */}
-        {/* ---------- ① 枠を先に描画（CardSlot） ---------- */}
-        {/* Dealer 2 枠 */}
-        {cardSlotPositions.dealer.map((pos, idx) => (
-          <CardSlot key={`slot-d${idx}`} style={pos} />
-        ))}
-        {/* Player 2 枠 */}
-        {cardSlotPositions.player.map((pos, idx) => (
-          <CardSlot key={`slot-p${idx}`} style={pos} />
-        ))}
-        {/* Community 5 枠 */}
-        {cardSlotPositions.community.map((pos, idx) => (
-          <CardSlot key={`slot-c${idx}`} style={pos} />
-        ))}
-        {/* Dealer 2 枚 */}
-        <CardGroup
-          cards={cards.dealer}
-          positions={cardSlotPositions.dealer}
-          facedown={!showdown}
-        />
-        {/* Community 5 枚 */}
-        <CardGroup
-          cards={cards.board}
-          positions={cardSlotPositions.community}
-        />
-        {/* Player 2 枚 */}
-        <CardGroup cards={cards.player} positions={cardSlotPositions.player} />
+      {/* ─────────────────────────────────────────────
+        2-カラム：左＝テーブル  右＝サイドバー
+    ───────────────────────────────────────────── */}
+      <div className="casino-grid">
+        {/* === 左列：テーブル全体（今までのまま） === */}
+        <div className="table-cell">
+          <div className="table-wrapper">
+            {/* ① 枠（CardSlot） */}
+            {cardSlotPositions.dealer.map((pos, i) => (
+              <CardSlot key={`slot-d${i}`} style={pos} />
+            ))}
+            {cardSlotPositions.player.map((pos, i) => (
+              <CardSlot key={`slot-p${i}`} style={pos} />
+            ))}
+            {cardSlotPositions.community.map((pos, i) => (
+              <CardSlot key={`slot-c${i}`} style={pos} />
+            ))}
 
-        {/* ---------- ベット円（6個） ---------- */}
-        {/* ANTE */}
-        <BetCircle
-          area="ante"
-          total={getTotalBet(placedChips, 'ante')}
-          chips={placedChips.ante}
-          isActive={gamePhase === 'initial'}
-          isSelected={selectedArea === 'ante'}
-          onClick={() => setSelectedArea('ante')}
-          style={betPositions.ante}
-        />
-        {/* BONUS */}
-        <BetCircle
-          area="bonus"
-          total={getTotalBet(placedChips, 'bonus')}
-          chips={placedChips.bonus}
-          isActive={gamePhase === 'initial'}
-          isSelected={selectedArea === 'bonus'}
-          onClick={() => setSelectedArea('bonus')}
-          style={betPositions.bonus}
-        />
-        {/* JACKPOT */}
-        <BetCircle
-          area="jackpot"
-          total={getTotalBet(placedChips, 'jackpot')}
-          chips={placedChips.jackpot}
-          isActive={gamePhase === 'initial'}
-          isSelected={selectedArea === 'jackpot'}
-          onClick={() => setSelectedArea('jackpot')}
-          style={betPositions.jackpot}
-        />
-        {/* FLOP */}
-        <BetCircle
-          area="flop"
-          total={getTotalBet(placedChips, 'flop')}
-          chips={placedChips.flop}
-          isActive={gamePhase === 'preflop'}
-          isSelected={false}
-          onClick={handleFlopCircleClick}
-          style={betPositions.flop}
-        />
-        {/* TURN */}
-        <BetCircle
-          area="turn"
-          total={getTotalBet(placedChips, 'turn')}
-          chips={placedChips.turn}
-          isActive={gamePhase === 'flop'}
-          isSelected={false}
-          onClick={handleTurnCircleClick}
-          style={betPositions.turn}
-        />
-        {/* RIVER */}
-        <BetCircle
-          area="river"
-          total={getTotalBet(placedChips, 'river')}
-          chips={placedChips.river}
-          isActive={gamePhase === 'turn'}
-          isSelected={false}
-          onClick={handleRiverCircleClick}
-          style={betPositions.river}
-        />
-        {gamePhase === 'initial' && (
-          <>
+            {/* ② カード */}
+            <CardGroup
+              cards={cards.dealer}
+              positions={cardSlotPositions.dealer}
+              facedown={!showdown}
+            />
+            <CardGroup
+              cards={cards.board}
+              positions={cardSlotPositions.community}
+            />
+            <CardGroup
+              cards={cards.player}
+              positions={cardSlotPositions.player}
+            />
+
+            {/* ---------- ベット円（6個） ---------- */}
+            {/* ANTE */}
+            <BetCircle
+              area="ante"
+              total={getTotalBet(placedChips, 'ante')}
+              chips={placedChips.ante}
+              isActive={gamePhase === 'initial'}
+              isSelected={selectedArea === 'ante'}
+              onClick={() => setSelectedArea('ante')}
+              style={betPositions.ante}
+            />
+            {/* BONUS */}
+            <BetCircle
+              area="bonus"
+              total={getTotalBet(placedChips, 'bonus')}
+              chips={placedChips.bonus}
+              isActive={gamePhase === 'initial'}
+              isSelected={selectedArea === 'bonus'}
+              onClick={() => setSelectedArea('bonus')}
+              style={betPositions.bonus}
+            />
+            {/* JACKPOT */}
+            <BetCircle
+              area="jackpot"
+              total={getTotalBet(placedChips, 'jackpot')}
+              chips={placedChips.jackpot}
+              isActive={gamePhase === 'initial'}
+              isSelected={selectedArea === 'jackpot'}
+              onClick={() => setSelectedArea('jackpot')}
+              style={betPositions.jackpot}
+            />
+            {/* FLOP */}
+            <BetCircle
+              area="flop"
+              total={getTotalBet(placedChips, 'flop')}
+              chips={placedChips.flop}
+              isActive={gamePhase === 'preflop'}
+              isSelected={false}
+              onClick={handleFlopCircleClick}
+              style={betPositions.flop}
+            />
+            {/* TURN */}
+            <BetCircle
+              area="turn"
+              total={getTotalBet(placedChips, 'turn')}
+              chips={placedChips.turn}
+              isActive={gamePhase === 'flop'}
+              isSelected={false}
+              onClick={handleTurnCircleClick}
+              style={betPositions.turn}
+            />
+            {/* RIVER */}
+            <BetCircle
+              area="river"
+              total={getTotalBet(placedChips, 'river')}
+              chips={placedChips.river}
+              isActive={gamePhase === 'turn'}
+              isSelected={false}
+              onClick={handleRiverCircleClick}
+              style={betPositions.river}
+            />
+
+            {/* 勝敗テキスト */}
+            <ShowdownResult showdown={showdown} resultText={resultText} />
+
+            {/* チップ選択パネル */}
+            <div
+              className="chip-selector-panel"
+              style={{
+                top: chipSelectorPos.top * TABLE_SCALE,
+                left: chipSelectorPos.left * TABLE_SCALE,
+              }}
+            >
+              <ChipSelector
+                chips={chips}
+                dispatch={dispatch}
+                placedChips={placedChips}
+                gamePhase={gamePhase}
+                onFlopClick={handleFlopCircleClick}
+                onTurnClick={handleTurnCircleClick}
+                onRiverClick={handleRiverCircleClick}
+                isFlopActive={gamePhase === 'preflop'}
+                isTurnActive={gamePhase === 'flop'}
+                isRiverActive={gamePhase === 'turn'}
+                selectedArea={selectedArea}
+                setSelectedArea={setSelectedArea}
+              />
+            </div>
+          </div>
+        </div>
+        {/* ========= ここで table-wrapper を閉じる ========= */}
+
+        {/* === 右列：操作サイドバー === */}
+        <aside className="sidebar">
+          {/* ① フォールド（preflop でのみ表示） */}
+          {!folded && gamePhase === 'preflop' && (
+            <button
+              className="fold-btn"
+              onClick={() => handleFold({ dispatch, deck })}
+            >
+              FOLD
+            </button>
+          )}
+          {/* 残高サマリー */}
+          <ChipSummary
+            chips={chips}
+            anteBet={bets.ante}
+            bonusBet={bets.bonus}
+            jackpotBet={bets.jackpot}
+            flopBet={bets.flop}
+            turnBet={bets.turn}
+            riverBet={bets.river}
+          />
+
+          {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
+          {gamePhase === 'initial' && (
             <div className="start-button-wrapper">
               <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
             </div>
-          </>
-        )}
-        {/* ✅ 横並びエリア：TableLayout + カード表示 */}
-        <div className="play-area-row">
-          <ChipSelector
-            chips={chips}
-            dispatch={dispatch}
-            placedChips={placedChips}
-            gamePhase={gamePhase}
-            onFlopClick={handleFlopCircleClick}
-            onTurnClick={handleTurnCircleClick}
-            onRiverClick={handleRiverCircleClick}
-            isFlopActive={gamePhase === 'preflop'}
-            isTurnActive={gamePhase === 'flop'}
-            isRiverActive={gamePhase === 'turn'}
-            selectedArea={selectedArea}
-            setSelectedArea={setSelectedArea}
-          />
-        </div>
-        <ShowdownResult showdown={showdown} resultText={resultText} />
+          )}
+        </aside>
       </div>
-      {/* 🔄 ベットボタンや勝敗、再プレイ */}
+      {/* ========= ここで casino-grid を閉じる ========= */}
+
       {gamePhase !== 'initial' && (
         <>
-          {gamePhase === 'preflop' && !folded && (
-            <div style={{ marginTop: '1em' }}>
-              <button
-                onClick={() =>
-                  handleFold({
-                    dispatch,
-                    deck,
-                  })
-                }
-              >
-                フォールド（降りる）
-              </button>
-            </div>
-          )}
-
           {folded && (
             <div style={{ marginTop: '2em', color: 'red' }}>
               降りました！AnteとBonusは没収されます。
             </div>
           )}
 
-          {gamePhase === 'flop' && !folded && (
-            <div style={{ marginTop: '1em' }}>
-              <button
-                onClick={() => {
-                  const betAmount = bets.ante;
-                  if (chips >= betAmount) {
-                    handleTurnBet({
-                      betAmount,
-                      deck,
-                      dispatch,
-                    });
-                  } else {
-                    alert('チップが足りません！');
-                  }
-                }}
-              >
-                Turn ベット（${bets.ante}）
-              </button>
-
-              <button onClick={() => handleCheckTurn({ deck, dispatch })}>
-                チェック
-              </button>
-            </div>
-          )}
-
-          {gamePhase === 'turn' && !folded && (
-            <div style={{ marginTop: '1em' }}>
-              <button
-                onClick={() => {
-                  const betAmount = bets.ante;
-                  if (chips >= betAmount) {
-                    handleRiverBet({
-                      betAmount,
-                      deck,
-                      dispatch,
-                    });
-                  } else {
-                    alert('チップが足りません！');
-                  }
-                }}
-              >
-                River ベット（${bets.ante}）
-              </button>
-
-              <button
-                onClick={() =>
-                  handleCheckRiver({
-                    deck,
-                    dispatch,
-                  })
-                }
-              >
-                チェック
-              </button>
-            </div>
-          )}
-
+          {/* 再プレイボタン */}
           {gamePhase === 'showdown' && (
             <div className="play-again-wrapper">
               <PlayAgainButton

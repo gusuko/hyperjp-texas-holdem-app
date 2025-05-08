@@ -8,7 +8,7 @@ const Chip = ({ value, imageSrc, onClick }) => {
         width: '70px', // ←大きく！
         height: '70px',
         cursor: 'pointer',
-        margin: '0 8px',
+        margin: 0,
       }}
     />
   );
