@@ -12,7 +12,6 @@ import {
   handleCheckRiver,
   handleFold,
 } from './utils/betActions';
-import ChipSummary from './components/ChipSummary';
 import ShowdownResult from './components/ShowdownResult';
 import PlayAgainButton from './components/PlayAgainButton';
 import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロジックのHook
@@ -25,6 +24,7 @@ import {
   betPositions,
   cardSlotPositions,
   chipSelectorPos,
+  uiPositions,
 } from './constants/positionConfig';
 import CardSlot from './components/CardSlot';
 import { convertToChips, getTotalBet } from './utils/chipHelpers';
@@ -126,7 +126,6 @@ function App() {
     }
   };
 
-  /* ===== App.js  ─  return 以降ぜんぶ貼り替え ===== */
   return (
     <div className="table-and-game">
       <h1>🃏 HyperJP Texas Hold'em</h1>
@@ -226,9 +225,6 @@ function App() {
               style={betPositions.river}
             />
 
-            {/* 勝敗テキスト */}
-            <ShowdownResult showdown={showdown} resultText={resultText} />
-
             {/* チップ選択パネル */}
             <div
               className="chip-selector-panel"
@@ -252,9 +248,19 @@ function App() {
                 setSelectedArea={setSelectedArea}
               />
             </div>
+            {/* === 下段：補充ボタン === */}
+            <button
+              className="recharge-btn"
+              onClick={() => dispatch({ type: 'ADD_CHIPS', amount: 1000 })}
+            >
+              ＋$1,000
+            </button>
           </div>
         </div>
         {/* ========= ここで table-wrapper を閉じる ========= */}
+
+        {/* 勝敗テキスト */}
+        <ShowdownResult showdown={showdown} resultText={resultText} />
 
         {/* === 右列：操作サイドバー === */}
         <aside className="sidebar">
@@ -267,16 +273,6 @@ function App() {
               FOLD
             </button>
           )}
-          {/* 残高サマリー */}
-          <ChipSummary
-            chips={chips}
-            anteBet={bets.ante}
-            bonusBet={bets.bonus}
-            jackpotBet={bets.jackpot}
-            flopBet={bets.flop}
-            turnBet={bets.turn}
-            riverBet={bets.river}
-          />
 
           {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
           {gamePhase === 'initial' && (
@@ -312,6 +308,19 @@ function App() {
             </div>
           )}
         </>
+      )}
+      {/* 円形チェックボタン：flop または turn フェーズのみ */}
+      {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (
+        <button
+          className="check-btn"
+          onClick={() =>
+            gamePhase === 'flop'
+              ? handleCheckTurn({ deck, dispatch })
+              : handleCheckRiver({ deck, dispatch })
+          }
+        >
+          チェック
+        </button>
       )}
     </div>
   );

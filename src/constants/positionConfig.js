@@ -13,9 +13,9 @@ export const betPositions = {
   bonus: { top: -460, left: -315 },
   jackpot: { top: -460, left: -245 },
 
-  flop: { top: -460, left: -110 },
-  turn: { top: -460, left: -35 },
-  river: { top: -460, left: 40 },
+  flop: { top: -360, left: -110 },
+  turn: { top: -360, left: -35 },
+  river: { top: -360, left: 40 },
 };
 
 /* ===== ② カード枠 2 + 5 + 2 ===== */
@@ -28,18 +28,25 @@ export const cardSlotPositions = {
 
   /* Player 2 枚 */
   player: [
-    { top: -350, left: -400 },
-    { top: -350, left: -290 },
+    { top: -250, left: -400 },
+    { top: -250, left: -290 },
   ],
 
   /* Community 5 枚 */
   community: [
-    { top: -640, left: -565 },
-    { top: -640, left: -455 },
-    { top: -640, left: -345 },
-    { top: -640, left: -235 },
     { top: -640, left: -125 },
+    { top: -640, left: -235 },
+    { top: -640, left: -345 },
+    { top: -640, left: -455 },
+    { top: -640, left: -565 },
   ],
 };
 /* ===== ③ ChipSelector 1 か所 ===== */
-export const chipSelectorPos = { top: 440, left: -300 };
+export const chipSelectorPos = { top: 550, left: -300 };
+
+export const uiPositions = {
+  startBtn: { top: 80, left: 0 },
+  foldBtn: { top: -60, left: 200 },
+  recharge: { top: -60, left: -200 },
+  selector: { top: 180, left: 0 },
+};

@@ -18,7 +18,7 @@ const ShowdownResult = ({ showdown, resultText }) => {
         whiteSpace: 'pre-line',
       }}
     >
-      Showdown！勝負！
+      R E S U L T
       <br />
       {resultText}
     </div>

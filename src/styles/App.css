@@ -26,17 +26,6 @@ h1 {
   margin-top: 2rem;
 }
 
-.reset-button {
-  background-color: crimson;
-  color: white;
-  font-weight: bold;
-  border: none;
-  padding: 0.5em 1em;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: auto; /* 👈 右端に配置 */
-}
-
 .start-button-wrapper button {
   padding: 1em 2em;
   font-size: 1.2rem;

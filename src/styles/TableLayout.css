@@ -105,14 +105,19 @@
   margin-right: 10px;
 }
 .reset-button {
-  margin-left: 10px;
-  padding: 6px 12px;
-  background: crimson;
+  width: 60px; /* ← チップと同径 */
+  height: 60px;
+  border-radius: 50%; /* 完全な円形 */
+  padding: 0; /* 余白ゼロで真円を保つ */
+  background: crimson; /* 色はお好みで */
   color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
   font-weight: bold;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 文字中央 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 .reset-button:hover {
   background: darkred;
@@ -174,4 +179,64 @@
 .fold-btn:hover {
   background: #991b1b;
   transform: scale(1.07);
+}
+
+.check-btn {
+  position: absolute; /* テーブル内の好きな位置へ */
+  top: 12px; /* 例：右上 */
+  right: 12px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #2563eb; /* 青系：お好みで */
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+.check-btn:hover {
+  background: #1e40af;
+  transform: scale(1.07);
+}
+.chip-info {
+  font-size: 0.85rem; /* 1 行だけでも入れておけば OK */
+  display: flex;
+  gap: 1rem;
+  color: #fff;
+}
+
+.chip-info .value.balance {
+  color: gold;
+}
+.chip-info .value.inplay {
+  color: #0f0;
+}
+
+.chip-list {
+  display: flex;
+  gap: 8px;
+}
+
+/* チップ補充ボタン */
+.recharge-btn {
+  margin-top: 8px;
+  background: #059669;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s;
+}
+.recharge-btn:hover {
+  background: #047857;
 }
