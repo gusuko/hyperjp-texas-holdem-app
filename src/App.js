@@ -20,12 +20,12 @@ import ChipSelector from './components/ChipSelector';
 import './styles/App.css';
 import BetCircle from './components/BetCircle';
 import {
-  TABLE_SCALE,
   betPositions,
   cardSlotPositions,
   chipSelectorPos,
   uiPositions,
 } from './constants/positionConfig';
+import { TABLE_SCALE, DIM, POS } from './constants/layoutConfig';
 import CardSlot from './components/CardSlot';
 import { convertToChips, getTotalBet } from './utils/chipHelpers';
 import CardGroup from './components/CardGroup';
@@ -127,162 +127,140 @@ function App() {
   };
 
   return (
-    <div className="table-and-game">
+    <div className="table-canvas">
       <h1>🃏 HyperJP Texas Hold'em</h1>
 
-      {/* ─────────────────────────────────────────────
-        2-カラム：左＝テーブル  右＝サイドバー
-    ───────────────────────────────────────────── */}
-      <div className="casino-grid">
-        {/* === 左列：テーブル全体（今までのまま） === */}
-        <div className="table-cell">
-          <div className="table-wrapper">
-            {/* ① 枠（CardSlot） */}
-            {cardSlotPositions.dealer.map((pos, i) => (
-              <CardSlot key={`slot-d${i}`} style={pos} />
-            ))}
-            {cardSlotPositions.player.map((pos, i) => (
-              <CardSlot key={`slot-p${i}`} style={pos} />
-            ))}
-            {cardSlotPositions.community.map((pos, i) => (
-              <CardSlot key={`slot-c${i}`} style={pos} />
-            ))}
+      {/* ① 枠（CardSlot） */}
+      {cardSlotPositions.dealer.map((pos, i) => (
+        <CardSlot key={`slot-d${i}`} style={pos} />
+      ))}
+      {cardSlotPositions.player.map((pos, i) => (
+        <CardSlot key={`slot-p${i}`} style={pos} />
+      ))}
+      {cardSlotPositions.community.map((pos, i) => (
+        <CardSlot key={`slot-c${i}`} style={pos} />
+      ))}
 
-            {/* ② カード */}
-            <CardGroup
-              cards={cards.dealer}
-              positions={cardSlotPositions.dealer}
-              facedown={!showdown}
-            />
-            <CardGroup
-              cards={cards.board}
-              positions={cardSlotPositions.community}
-            />
-            <CardGroup
-              cards={cards.player}
-              positions={cardSlotPositions.player}
-            />
+      {/* ② カード */}
+      <CardGroup
+        cards={cards.dealer}
+        positions={cardSlotPositions.dealer}
+        facedown={!showdown}
+      />
+      <CardGroup cards={cards.board} positions={cardSlotPositions.community} />
+      <CardGroup cards={cards.player} positions={cardSlotPositions.player} />
 
-            {/* ---------- ベット円（6個） ---------- */}
-            {/* ANTE */}
-            <BetCircle
-              area="ante"
-              total={getTotalBet(placedChips, 'ante')}
-              chips={placedChips.ante}
-              isActive={gamePhase === 'initial'}
-              isSelected={selectedArea === 'ante'}
-              onClick={() => setSelectedArea('ante')}
-              style={betPositions.ante}
-            />
-            {/* BONUS */}
-            <BetCircle
-              area="bonus"
-              total={getTotalBet(placedChips, 'bonus')}
-              chips={placedChips.bonus}
-              isActive={gamePhase === 'initial'}
-              isSelected={selectedArea === 'bonus'}
-              onClick={() => setSelectedArea('bonus')}
-              style={betPositions.bonus}
-            />
-            {/* JACKPOT */}
-            <BetCircle
-              area="jackpot"
-              total={getTotalBet(placedChips, 'jackpot')}
-              chips={placedChips.jackpot}
-              isActive={gamePhase === 'initial'}
-              isSelected={selectedArea === 'jackpot'}
-              onClick={() => setSelectedArea('jackpot')}
-              style={betPositions.jackpot}
-            />
-            {/* FLOP */}
-            <BetCircle
-              area="flop"
-              total={getTotalBet(placedChips, 'flop')}
-              chips={placedChips.flop}
-              isActive={gamePhase === 'preflop'}
-              isSelected={false}
-              onClick={handleFlopCircleClick}
-              style={betPositions.flop}
-            />
-            {/* TURN */}
-            <BetCircle
-              area="turn"
-              total={getTotalBet(placedChips, 'turn')}
-              chips={placedChips.turn}
-              isActive={gamePhase === 'flop'}
-              isSelected={false}
-              onClick={handleTurnCircleClick}
-              style={betPositions.turn}
-            />
-            {/* RIVER */}
-            <BetCircle
-              area="river"
-              total={getTotalBet(placedChips, 'river')}
-              chips={placedChips.river}
-              isActive={gamePhase === 'turn'}
-              isSelected={false}
-              onClick={handleRiverCircleClick}
-              style={betPositions.river}
-            />
+      {/* ---------- ベット円（6個） ---------- */}
+      {/* ANTE */}
+      <BetCircle
+        area="ante"
+        total={getTotalBet(placedChips, 'ante')}
+        chips={placedChips.ante}
+        isActive={gamePhase === 'initial'}
+        isSelected={selectedArea === 'ante'}
+        onClick={() => setSelectedArea('ante')}
+        style={betPositions.ante}
+      />
+      {/* BONUS */}
+      <BetCircle
+        area="bonus"
+        total={getTotalBet(placedChips, 'bonus')}
+        chips={placedChips.bonus}
+        isActive={gamePhase === 'initial'}
+        isSelected={selectedArea === 'bonus'}
+        onClick={() => setSelectedArea('bonus')}
+        style={betPositions.bonus}
+      />
+      {/* JACKPOT */}
+      <BetCircle
+        area="jackpot"
+        total={getTotalBet(placedChips, 'jackpot')}
+        chips={placedChips.jackpot}
+        isActive={gamePhase === 'initial'}
+        isSelected={selectedArea === 'jackpot'}
+        onClick={() => setSelectedArea('jackpot')}
+        style={betPositions.jackpot}
+      />
+      {/* FLOP */}
+      <BetCircle
+        area="flop"
+        total={getTotalBet(placedChips, 'flop')}
+        chips={placedChips.flop}
+        isActive={gamePhase === 'preflop'}
+        isSelected={false}
+        onClick={handleFlopCircleClick}
+        style={betPositions.flop}
+      />
+      {/* TURN */}
+      <BetCircle
+        area="turn"
+        total={getTotalBet(placedChips, 'turn')}
+        chips={placedChips.turn}
+        isActive={gamePhase === 'flop'}
+        isSelected={false}
+        onClick={handleTurnCircleClick}
+        style={betPositions.turn}
+      />
+      {/* RIVER */}
+      <BetCircle
+        area="river"
+        total={getTotalBet(placedChips, 'river')}
+        chips={placedChips.river}
+        isActive={gamePhase === 'turn'}
+        isSelected={false}
+        onClick={handleRiverCircleClick}
+        style={betPositions.river}
+      />
 
-            {/* チップ選択パネル */}
-            <div
-              className="chip-selector-panel"
-              style={{
-                top: chipSelectorPos.top * TABLE_SCALE,
-                left: chipSelectorPos.left * TABLE_SCALE,
-              }}
-            >
-              <ChipSelector
-                chips={chips}
-                dispatch={dispatch}
-                placedChips={placedChips}
-                gamePhase={gamePhase}
-                onFlopClick={handleFlopCircleClick}
-                onTurnClick={handleTurnCircleClick}
-                onRiverClick={handleRiverCircleClick}
-                isFlopActive={gamePhase === 'preflop'}
-                isTurnActive={gamePhase === 'flop'}
-                isRiverActive={gamePhase === 'turn'}
-                selectedArea={selectedArea}
-                setSelectedArea={setSelectedArea}
-              />
-            </div>
-            {/* === 下段：補充ボタン === */}
-            <button
-              className="recharge-btn"
-              onClick={() => dispatch({ type: 'ADD_CHIPS', amount: 1000 })}
-            >
-              ＋$1,000
-            </button>
-          </div>
-        </div>
-        {/* ========= ここで table-wrapper を閉じる ========= */}
-
-        {/* 勝敗テキスト */}
-        <ShowdownResult showdown={showdown} resultText={resultText} />
-
-        {/* === 右列：操作サイドバー === */}
-        <aside className="sidebar">
-          {/* ① フォールド（preflop でのみ表示） */}
-          {!folded && gamePhase === 'preflop' && (
-            <button
-              className="fold-btn"
-              onClick={() => handleFold({ dispatch, deck })}
-            >
-              FOLD
-            </button>
-          )}
-
-          {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
-          {gamePhase === 'initial' && (
-            <div className="start-button-wrapper">
-              <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
-            </div>
-          )}
-        </aside>
+      {/* チップ選択パネル */}
+      <div
+        className="chip-selector-panel"
+        style={{
+          top: chipSelectorPos.top * TABLE_SCALE,
+          left: chipSelectorPos.left * TABLE_SCALE,
+        }}
+      >
+        <ChipSelector
+          chips={chips}
+          dispatch={dispatch}
+          placedChips={placedChips}
+          gamePhase={gamePhase}
+          onFlopClick={handleFlopCircleClick}
+          onTurnClick={handleTurnCircleClick}
+          onRiverClick={handleRiverCircleClick}
+          isFlopActive={gamePhase === 'preflop'}
+          isTurnActive={gamePhase === 'flop'}
+          isRiverActive={gamePhase === 'turn'}
+          selectedArea={selectedArea}
+          setSelectedArea={setSelectedArea}
+        />
       </div>
-      {/* ========= ここで casino-grid を閉じる ========= */}
+      {/* === 下段：補充ボタン === */}
+      <button
+        className="recharge-btn"
+        onClick={() => dispatch({ type: 'ADD_CHIPS', amount: 1000 })}
+      >
+        ＋$1,000
+      </button>
+      {/* ========= ここで table-wrapper を閉じる ========= */}
+
+      {/* 勝敗テキスト */}
+      <ShowdownResult showdown={showdown} resultText={resultText} />
+
+      {/* ① フォールド（preflop でのみ表示） */}
+      {!folded && gamePhase === 'preflop' && (
+        <button
+          className="fold-btn"
+          onClick={() => handleFold({ dispatch, deck })}
+        >
+          FOLD
+        </button>
+      )}
+
+      {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
+      {gamePhase === 'initial' && (
+        <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
+      )}
 
       {gamePhase !== 'initial' && (
         <>

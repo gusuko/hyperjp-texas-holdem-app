@@ -1,12 +1,6 @@
 /*───────────────────────────────────────────────
   01) テーブル全体ラッパー
 ───────────────────────────────────────────────*/
-.table-cell {
-  /* ← 新ラッパー */
-  position: relative; /* グリッド上は普通のセル */
-  height: 100vh;
-}
-
 /* 中央固定はそのまま */
 .table-wrapper {
   position: absolute;
@@ -99,11 +93,6 @@
   gap: 8px;
 }
 
-.chip-label {
-  color: #fff;
-  font-size: 14px;
-  margin-right: 10px;
-}
 .reset-button {
   width: 60px; /* ← チップと同径 */
   height: 60px;
@@ -124,7 +113,7 @@
 }
 
 /*───────────────────────────────────────────────
-  04) カード絶対配置（デバッグ線は自由に外して OK）
+  04) カード絶対配置(枠にピタッとはまってる）
 ───────────────────────────────────────────────*/
 .card-abs {
   position: absolute;
@@ -132,25 +121,6 @@
   /* outline: 1px dashed cyan; */
 }
 
-/* 中央ガイド：画面に赤い 1 本線を引くだけ */
-
-/* .center-guide {
-  position: absolute;
-  top: 0;
-  bottom: 0; 
-  left: 50%;
-  width: 2px;
-  background: rgba(255, 0, 0, 0.6);/
-  pointer-events: none; 
-  z-index: 0; 
-} */
-
-.chip-stack {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
 .play-again-wrapper {
   position: absolute;
   top: 50%; /* 台の下の方だけど押しやすい場所 */
@@ -219,6 +189,7 @@
   color: #0f0;
 }
 
+/* チップを横並びにさせてるCSS */
 .chip-list {
   display: flex;
   gap: 8px;

@@ -1,6 +1,6 @@
 // src/components/CardSlot.jsx
 import React from 'react';
-import { TABLE_SCALE } from '../constants/positionConfig';
+import { TABLE_SCALE, DIM, POS } from '../constants/layoutConfig';
 
 export default function CardSlot({ style }) {
   // style には {top, left} が入ってくる
@@ -13,8 +13,8 @@ export default function CardSlot({ style }) {
         /* 画面中央を原点に計算 */
         left: `calc(50% + ${left * TABLE_SCALE}px)`,
         top: `calc(50vh + ${top * TABLE_SCALE}px)`,
-        width: 100 * TABLE_SCALE,
-        height: 140 * TABLE_SCALE,
+        width: DIM.CARD_W * TABLE_SCALE,
+        height: DIM.CARD_H * TABLE_SCALE,
         zIndex: 0,
       }}
     />

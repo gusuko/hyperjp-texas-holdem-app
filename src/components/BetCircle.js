@@ -1,6 +1,7 @@
 // BetCircle.jsx  ─ 直径 70px のベット円
 import React from 'react';
-import { TABLE_SCALE, betPositions } from '../constants/positionConfig';
+import { betPositions } from '../constants/positionConfig';
+import { TABLE_SCALE, DIM, POS } from '../constants/layoutConfig';
 
 export default function BetCircle({
   area, // 'ante' | 'bonus' | …

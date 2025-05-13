@@ -28,21 +28,21 @@ export const cardSlotPositions = {
 
   /* Player 2 枚 */
   player: [
-    { top: -250, left: -400 },
-    { top: -250, left: -290 },
+    { top: -50, left: -635 },
+    { top: -50, left: -525 },
   ],
 
   /* Community 5 枚 */
   community: [
-    { top: -640, left: -125 },
-    { top: -640, left: -235 },
-    { top: -640, left: -345 },
-    { top: -640, left: -455 },
-    { top: -640, left: -565 },
+    { top: -400, left: -360 },
+    { top: -400, left: -470 },
+    { top: -400, left: -580 },
+    { top: -400, left: -690 },
+    { top: -400, left: -800 },
   ],
 };
 /* ===== ③ ChipSelector 1 か所 ===== */
-export const chipSelectorPos = { top: 550, left: -300 };
+export const chipSelectorPos = { top: 0, left: 0 };
 
 export const uiPositions = {
   startBtn: { top: 80, left: 0 },
