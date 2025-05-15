@@ -86,11 +86,10 @@
 }
 .chip-selector-panel {
   position: absolute;
-  top: 180px; /* ←縦位置は後で微調整 */
-  left: 50%;
-  transform: translateX(-50%); /* ★これが無いと中央に来ません */
-  display: flex;
+  display: flex; /* ← 横並び */
   gap: 8px;
+  width: max-content; /* 中身に合わせて伸縮 */
+  max-width: 100%;
 }
 
 .reset-button {
@@ -107,6 +106,7 @@
   align-items: center;
   justify-content: center; /* 文字中央 */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  margin-left: auto;
 }
 .reset-button:hover {
   background: darkred;
@@ -121,31 +121,36 @@
   /* outline: 1px dashed cyan; */
 }
 
-.play-again-wrapper {
-  position: absolute;
-  top: 50%; /* 台の下の方だけど押しやすい場所 */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-}
+/* ================================ */
+/*  円形 FOLD ボタンのスタイル定義   */
+/* ================================ */
 
 .fold-btn {
-  width: 70px; /* チップ画像と同じ直径 */
+  /* 位置は JSX 側の inline-style で指定する */
+  position: absolute; /* ← ここで絶対配置にしておく */
+
+  /* ── 基本寸法 ── */
+  width: 70px; /* 直径（TABLE_SCALE=1 の基準） */
   height: 70px;
-  line-height: 70px; /* 縦中央揃え */
-  border-radius: 50%; /* 円形に */
+  line-height: 70px; /* テキストを縦中央に */
+
+  /* ── 形状 & 配色 ── */
+  border: none;
+  border-radius: 50%; /* 完全な円形 */
   background: #b91c1c; /* 濃い赤 */
   color: #fff;
+  font-size: 0.85rem;
   font-weight: bold;
-  font-size: 0.85rem; /* 文字が収まるサイズに */
-  border: none;
+  text-align: center;
+
+  /* ── その他 ── */
   cursor: pointer;
+  padding: 0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   transition: transform 0.15s, background 0.15s;
-  text-align: center; /* 横中央揃え */
-  padding: 0; /* 余白はゼロに */
 }
 
+/* ホバー時の色と拡大 */
 .fold-btn:hover {
   background: #991b1b;
   transform: scale(1.07);
@@ -153,8 +158,6 @@
 
 .check-btn {
   position: absolute; /* テーブル内の好きな位置へ */
-  top: 12px; /* 例：右上 */
-  right: 12px;
   width: 70px;
   height: 70px;
   border-radius: 50%;
@@ -193,6 +196,7 @@
 .chip-list {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 /* チップ補充ボタン */
@@ -210,4 +214,29 @@
 }
 .recharge-btn:hover {
   background: #047857;
+}
+.btn-start {
+  display: flex;
+  flex-direction: column; /* 上下に並べる */
+  align-items: center; /* 横中央 */
+  justify-content: center; /* 縦中央 */
+}
+
+/* styles/buttons.css など */
+.playagain-btn {
+  position: absolute; /* ← 座標は JSX から渡す */
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  background: #0d9488; /* エメラルド系 */
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, background 0.15s;
+}
+.playagain-btn:hover {
+  background: #0f766e;
+  transform: scale(1.07);
 }

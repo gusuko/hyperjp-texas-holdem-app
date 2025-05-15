@@ -1,6 +1,6 @@
 // src/components/CardSlot.jsx
 import React from 'react';
-import { TABLE_SCALE, DIM, POS } from '../constants/layoutConfig';
+import { TABLE_SCALE, DIM } from '../constants/layoutConfig';
 
 export default function CardSlot({ style }) {
   // style には {top, left} が入ってくる

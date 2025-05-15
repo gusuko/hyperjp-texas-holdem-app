@@ -64,14 +64,12 @@ export default function ChipSelector({
   /* ─────────── JSX ─────────── */
   return (
     <div className="chip-selector">
-      {/* 上段：インフォバー */}
       <div className="chip-info">
         <span className="value balance">${chips}</span>
         <span className="spacer" />
         <span className="value inplay">${totalBet}</span>
       </div>
 
-      {/* 中段：チップ画像一覧 */}
       <div className="chip-list">
         {chipOptions.map((chip) => (
           <Chip
@@ -82,8 +80,6 @@ export default function ChipSelector({
           />
         ))}
       </div>
-
-      {/* 下段：リセットボタン（初期のみ表示） */}
       {gamePhase === 'initial' && (
         <button className="reset-button" onClick={handleResetBets}>
           リセット

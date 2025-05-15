@@ -1,6 +1,6 @@
 // components/RenderCard.js
 import React from 'react';
-import { TABLE_SCALE } from '../constants/positionConfig';
+import { TABLE_SCALE } from '../constants/layoutConfig';
 
 /**
  * カードを指定の位置に表示するコンポーネント

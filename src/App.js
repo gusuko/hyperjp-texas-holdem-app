@@ -13,19 +13,12 @@ import {
   handleFold,
 } from './utils/betActions';
 import ShowdownResult from './components/ShowdownResult';
-import PlayAgainButton from './components/PlayAgainButton';
 import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロジックのHook
 
 import ChipSelector from './components/ChipSelector';
 import './styles/App.css';
 import BetCircle from './components/BetCircle';
-import {
-  betPositions,
-  cardSlotPositions,
-  chipSelectorPos,
-  uiPositions,
-} from './constants/positionConfig';
-import { TABLE_SCALE, DIM, POS } from './constants/layoutConfig';
+import { TABLE_SCALE, POS, DIM } from './constants/layoutConfig';
 import CardSlot from './components/CardSlot';
 import { convertToChips, getTotalBet } from './utils/chipHelpers';
 import CardGroup from './components/CardGroup';
@@ -131,24 +124,24 @@ function App() {
       <h1>🃏 HyperJP Texas Hold'em</h1>
 
       {/* ① 枠（CardSlot） */}
-      {cardSlotPositions.dealer.map((pos, i) => (
+      {POS.cardSlot.dealer.map((pos, i) => (
         <CardSlot key={`slot-d${i}`} style={pos} />
       ))}
-      {cardSlotPositions.player.map((pos, i) => (
+      {POS.cardSlot.player.map((pos, i) => (
         <CardSlot key={`slot-p${i}`} style={pos} />
       ))}
-      {cardSlotPositions.community.map((pos, i) => (
+      {POS.cardSlot.community.map((pos, i) => (
         <CardSlot key={`slot-c${i}`} style={pos} />
       ))}
 
       {/* ② カード */}
       <CardGroup
         cards={cards.dealer}
-        positions={cardSlotPositions.dealer}
+        positions={POS.cardSlot.dealer}
         facedown={!showdown}
       />
-      <CardGroup cards={cards.board} positions={cardSlotPositions.community} />
-      <CardGroup cards={cards.player} positions={cardSlotPositions.player} />
+      <CardGroup cards={cards.board} positions={POS.cardSlot.community} />
+      <CardGroup cards={cards.player} positions={POS.cardSlot.player} />
 
       {/* ---------- ベット円（6個） ---------- */}
       {/* ANTE */}
@@ -159,7 +152,7 @@ function App() {
         isActive={gamePhase === 'initial'}
         isSelected={selectedArea === 'ante'}
         onClick={() => setSelectedArea('ante')}
-        style={betPositions.ante}
+        style={POS.bet.ante}
       />
       {/* BONUS */}
       <BetCircle
@@ -169,7 +162,7 @@ function App() {
         isActive={gamePhase === 'initial'}
         isSelected={selectedArea === 'bonus'}
         onClick={() => setSelectedArea('bonus')}
-        style={betPositions.bonus}
+        style={POS.bet.bonus}
       />
       {/* JACKPOT */}
       <BetCircle
@@ -179,7 +172,7 @@ function App() {
         isActive={gamePhase === 'initial'}
         isSelected={selectedArea === 'jackpot'}
         onClick={() => setSelectedArea('jackpot')}
-        style={betPositions.jackpot}
+        style={POS.bet.jackpot}
       />
       {/* FLOP */}
       <BetCircle
@@ -189,7 +182,7 @@ function App() {
         isActive={gamePhase === 'preflop'}
         isSelected={false}
         onClick={handleFlopCircleClick}
-        style={betPositions.flop}
+        style={POS.bet.flop}
       />
       {/* TURN */}
       <BetCircle
@@ -199,7 +192,7 @@ function App() {
         isActive={gamePhase === 'flop'}
         isSelected={false}
         onClick={handleTurnCircleClick}
-        style={betPositions.turn}
+        style={POS.bet.turn}
       />
       {/* RIVER */}
       <BetCircle
@@ -209,15 +202,15 @@ function App() {
         isActive={gamePhase === 'turn'}
         isSelected={false}
         onClick={handleRiverCircleClick}
-        style={betPositions.river}
+        style={POS.bet.river}
       />
 
       {/* チップ選択パネル */}
       <div
         className="chip-selector-panel"
         style={{
-          top: chipSelectorPos.top * TABLE_SCALE,
-          left: chipSelectorPos.left * TABLE_SCALE,
+          top: `calc(50vh + ${POS.ui.selector.top * TABLE_SCALE}px)`,
+          left: `calc(50%  + ${POS.ui.selector.left * TABLE_SCALE}px)`,
         }}
       >
         <ChipSelector
@@ -239,19 +232,40 @@ function App() {
       <button
         className="recharge-btn"
         onClick={() => dispatch({ type: 'ADD_CHIPS', amount: 1000 })}
+        style={{
+          position: 'absolute',
+          top: `calc(50vh + ${POS.ui.recharge.top * TABLE_SCALE}px)`,
+          left: `calc(50%  + ${POS.ui.recharge.left * TABLE_SCALE}px)`,
+        }}
       >
         ＋$1,000
       </button>
       {/* ========= ここで table-wrapper を閉じる ========= */}
 
       {/* 勝敗テキスト */}
-      <ShowdownResult showdown={showdown} resultText={resultText} />
+      <ShowdownResult
+        showdown={showdown}
+        resultText={resultText}
+        style={{
+          position: 'absolute',
+          top: `calc(50vh + ${POS.ui.resultText.top * TABLE_SCALE}px)`,
+          left: `calc(50%  + ${POS.ui.resultText.left * TABLE_SCALE}px)`,
+          textAlign: 'center',
+        }}
+      />
 
       {/* ① フォールド（preflop でのみ表示） */}
       {!folded && gamePhase === 'preflop' && (
         <button
           className="fold-btn"
           onClick={() => handleFold({ dispatch, deck })}
+          style={{
+            position: 'absolute', // ① 絶対配置に
+            top: `calc(50vh + ${POS.ui.fold.top * TABLE_SCALE}px)`,
+            left: `calc(50%  + ${POS.ui.fold.left * TABLE_SCALE}px)`,
+            width: DIM.BET_D * TABLE_SCALE, // = 70px * scale
+            height: DIM.BET_D * TABLE_SCALE,
+          }}
         >
           FOLD
         </button>
@@ -259,7 +273,17 @@ function App() {
 
       {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
       {gamePhase === 'initial' && (
-        <button onClick={handleGameStart}>🎮 ゲーム開始！</button>
+        <button
+          className="btn-start"
+          onClick={handleGameStart}
+          style={{
+            position: 'absolute',
+            top: `calc(50vh + ${POS.ui.start.top * TABLE_SCALE}px)`,
+            left: `calc(50%  + ${POS.ui.start.left * TABLE_SCALE}px)`,
+          }}
+        >
+          🎮 <br />S T A R T
+        </button>
       )}
 
       {gamePhase !== 'initial' && (
@@ -272,18 +296,22 @@ function App() {
 
           {/* 再プレイボタン */}
           {gamePhase === 'showdown' && (
-            <div className="play-again-wrapper">
-              <PlayAgainButton
-                showdown={showdown}
-                restartRound={() =>
-                  restartRound({
-                    dispatch,
-                    setResultText,
-                    placedChips: state.placedChips,
-                  })
-                }
-              />
-            </div>
+            <button
+              className="playagain-btn"
+              onClick={() =>
+                restartRound({
+                  dispatch,
+                  setResultText,
+                  placedChips: state.placedChips,
+                })
+              }
+              style={{
+                top: `calc(50vh + ${POS.ui.playAgain.top * TABLE_SCALE}px)`,
+                left: `calc(50%  + ${POS.ui.playAgain.left * TABLE_SCALE}px)`,
+              }}
+            >
+              PLAY&nbsp;AGAIN
+            </button>
           )}
         </>
       )}
@@ -296,6 +324,10 @@ function App() {
               ? handleCheckTurn({ deck, dispatch })
               : handleCheckRiver({ deck, dispatch })
           }
+          style={{
+            top: `calc(50vh + ${POS.ui.check.top * TABLE_SCALE}px)`,
+            left: `calc(50%  + ${POS.ui.check.left * TABLE_SCALE}px)`,
+          }}
         >
           チェック
         </button>

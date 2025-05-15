@@ -17,33 +17,6 @@ body {
   overflow: hidden; /* フェルト外へはみ出す物を隠す */
 }
 
-/* 例：ボタン共通 */
-.table-canvas button {
-  position: absolute; /* 各 UI も絶対配置 */
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
-
-.chip-summary {
-  text-align: left; /* ← 中央寄せから左寄せに変更！ */
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.chip-summary-title {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 1em;
-}
-
-.chip-summary-values {
-  font-size: 0.9em;
-  margin-bottom: 1em;
-}
 .card-slot-frame {
   position: absolute; /* 座標は inline style で与える */
   border: 1px solid rgba(255, 255, 255, 0.7);

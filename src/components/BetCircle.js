@@ -1,6 +1,5 @@
 // BetCircle.jsx  ─ 直径 70px のベット円
 import React from 'react';
-import { betPositions } from '../constants/positionConfig';
 import { TABLE_SCALE, DIM, POS } from '../constants/layoutConfig';
 
 export default function BetCircle({
@@ -12,7 +11,7 @@ export default function BetCircle({
   onClick, // クリックハンドラ
 }) {
   /* ① 中央線(50%) を原点としたオフセットを取得 */
-  const { top, left } = betPositions[area]; // ← positionConfig で定義した差分(px)
+  const { top, left } = POS.bet[area];
 
   return (
     <div
@@ -22,7 +21,9 @@ export default function BetCircle({
       tabIndex={isActive ? 0 : -1}
       aria-pressed={isSelected}
       style={{
-        left: `calc(50%  + ${left * TABLE_SCALE}px)`,
+        width: DIM.BET_D * TABLE_SCALE,
+        height: DIM.BET_D * TABLE_SCALE,
+        left: `calc(50% + ${left * TABLE_SCALE}px)`,
         top: `calc(50vh + ${top * TABLE_SCALE}px)`,
         transform: `scale(${TABLE_SCALE})`,
       }}
