@@ -250,7 +250,7 @@ function App() {
           position: 'absolute',
           top: `calc(50vh + ${POS.ui.resultText.top * TABLE_SCALE}px)`,
           left: `calc(50%  + ${POS.ui.resultText.left * TABLE_SCALE}px)`,
-          textAlign: 'center',
+          textAlign: 'left',
         }}
       />
 

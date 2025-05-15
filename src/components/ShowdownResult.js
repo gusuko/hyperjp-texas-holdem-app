@@ -10,18 +10,18 @@ const ShowdownResult = ({ showdown, resultText, style = {} }) => {
   if (!showdown) return null;
 
   return (
-    <div
+    <pre
       style={{
+        fontFamily: '"Fira Code", monospace', // 等幅フォント
+        fontSize: '1.5em',
         fontWeight: 'bold',
-        fontSize: '1.2em',
-        whiteSpace: 'pre-line',
+        whiteSpace: 'pre', // 改行・空白を保持
+        textAlign: 'left',
         ...style,
       }}
     >
-      R E S U L T
-      <br />
       {resultText}
-    </div>
+    </pre>
   );
 };
 

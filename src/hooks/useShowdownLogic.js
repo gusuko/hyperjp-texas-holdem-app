@@ -11,6 +11,34 @@ import { formatCard, formatHandByCompareRanks } from '../utils/formatUtils';
 import { handRanks } from '../constants/rankorder';
 import { getJackpotPayout } from '../utils/jackpotUtils';
 
+const buildResultText = ({
+  playerHandText,
+  dealerHandText,
+  winnerText,
+  anteText,
+  totalBetAmount,
+  bonusTotal,
+  jackpotTotal,
+  payout,
+}) => {
+  const pad = (t, w = 8) => t.padEnd(w); // ラベル桁揃え
+  return `
+  R E S U L T
+  ${playerHandText}
+  ${dealerHandText}
+  
+  ${winnerText}
+  
+  💰 払い戻し詳細
+  ${pad('ANTE')} : ${anteText}
+  ${pad('BET')}  : $${totalBetAmount}
+  ${pad('BONUS')} : $${bonusTotal}
+  ${pad('JACKPOT')}: $${jackpotTotal}
+  
+  💰 合計：$${payout}
+    `.trim();
+};
+
 const useShowdownLogic = ({
   showdown,
   folded,
@@ -166,26 +194,16 @@ const useShowdownLogic = ({
     dispatch({ type: 'ADD_CHIPS', amount: payout });
 
     setResultText(
-      `${playerHandText}
-${dealerHandText}
-
-${winnerText}
-
-💰 払い戻し詳細:
-ANTE: ${anteText}
-BET: $${totalBetAmount}
-BONUS: $${bonusWin > 0 ? bets.bonus + bonusWin : 0}（${
-        bonusWin > 0
-          ? `倍率：x${bonusRate}${bonusRate === 1000 ? '（AA vs AA!）' : ''}`
-          : '対象外'
-      }）
-JACKPOT: $${jackpotWin > 0 ? bets.jackpot + jackpotWin : 0}（${
-        jackpotWin > 0 ? `役：${jackpotRank}` : '対象外'
-      }）
-
-
-
-💰 合計：$${payout}`
+      buildResultText({
+        playerHandText,
+        dealerHandText,
+        winnerText,
+        anteText,
+        totalBetAmount,
+        bonusTotal: bonusWin > 0 ? bets.bonus + bonusWin : 0,
+        jackpotTotal: jackpotWin > 0 ? bets.jackpot + jackpotWin : 0,
+        payout,
+      })
     );
   }, [showdown]);
 };
