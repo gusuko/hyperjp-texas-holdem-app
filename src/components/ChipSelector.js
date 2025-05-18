@@ -28,13 +28,7 @@ export default function ChipSelector({
   gamePhase,
   selectedArea,
   dispatch,
-  setSelectedArea,
 }) {
-  /* ───────── 合計ベット計算 ───────── */
-  const totalBet = Object.values(placedChips)
-    .flat()
-    .reduce((sum, chip) => sum + chip.value, 0);
-
   /* ─────────── チップを置く ─────────── */
   const handlePlaceChip = (area, chip) => {
     /* initial 以外では ante / bonus / jackpot をロック */
@@ -64,12 +58,6 @@ export default function ChipSelector({
   /* ─────────── JSX ─────────── */
   return (
     <div className="chip-selector">
-      <div className="chip-info">
-        <span className="value balance">${chips}</span>
-        <span className="spacer" />
-        <span className="value inplay">${totalBet}</span>
-      </div>
-
       <div className="chip-list">
         {chipOptions.map((chip) => (
           <Chip

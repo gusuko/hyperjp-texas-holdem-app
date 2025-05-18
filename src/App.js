@@ -23,6 +23,8 @@ import CardSlot from './components/CardSlot';
 import { convertToChips, getTotalBet } from './utils/chipHelpers';
 import CardGroup from './components/CardGroup';
 import { restartRound } from './utils/gameReset';
+import PayoutTable from './components/PayoutTable';
+import { bonusPayouts, jackpotPayouts } from './constants/payouts';
 
 function App() {
   // 🎯 状態（ステート）管理
@@ -240,6 +242,16 @@ function App() {
       >
         ＋$1,000
       </button>
+
+      {/* BONUS 払い戻し表 */}
+      <PayoutTable uiKey="bonusTable" title="B O N U S" data={bonusPayouts} />
+
+      {/* JACKPOT 払い戻し表 */}
+      <PayoutTable
+        uiKey="jackpotTable"
+        title="J A C K P O T"
+        data={jackpotPayouts}
+      />
       {/* ========= ここで table-wrapper を閉じる ========= */}
 
       {/* 勝敗テキスト */}

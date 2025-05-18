@@ -1,4 +1,4 @@
-import { shuffleDeck } from './deckUtils';
+import { getDebugDeck } from './deckUtils';
 
 /**
  * ゲーム全体を完全にリセットする関数
@@ -7,7 +7,7 @@ import { shuffleDeck } from './deckUtils';
  * - 状態を初期化（BET含む）
  */
 export const resetGame = ({ dispatch, setResultText }) => {
-  const newDeck = shuffleDeck();
+  const newDeck = getDebugDeck();
   dispatch({ type: 'SET_DECK', deck: newDeck });
   dispatch({
     type: 'SET_CARDS',

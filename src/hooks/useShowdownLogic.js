@@ -11,34 +11,6 @@ import { formatCard, formatHandByCompareRanks } from '../utils/formatUtils';
 import { handRanks } from '../constants/rankorder';
 import { getJackpotPayout } from '../utils/jackpotUtils';
 
-const buildResultText = ({
-  playerHandText,
-  dealerHandText,
-  winnerText,
-  anteText,
-  totalBetAmount,
-  bonusTotal,
-  jackpotTotal,
-  payout,
-}) => {
-  const pad = (t, w = 8) => t.padEnd(w); // ラベル桁揃え
-  return `
-  R E S U L T
-  ${playerHandText}
-  ${dealerHandText}
-  
-  ${winnerText}
-  
-  💰 払い戻し詳細
-  ${pad('ANTE')} : ${anteText}
-  ${pad('BET')}  : $${totalBetAmount}
-  ${pad('BONUS')} : $${bonusTotal}
-  ${pad('JACKPOT')}: $${jackpotTotal}
-  
-  💰 合計：$${payout}
-    `.trim();
-};
-
 const useShowdownLogic = ({
   showdown,
   folded,
@@ -174,10 +146,10 @@ const useShowdownLogic = ({
 
       if (handStrengthIndex >= 4) {
         payout += anteWin * 2;
-        anteText = `$${bets.ante * 2}（勝利＋ストレート以上の役）`;
+        anteText = `$${bets.ante}+$${bets.ante}(x1)`;
       } else {
         payout += anteWin;
-        anteText = `$${bets.ante}（勝利だがストレート未満 → ANTE同額返却）`;
+        anteText = `$${bets.ante}+ 0(x0）`;
       }
 
       payout += betWin * 2;
@@ -185,26 +157,55 @@ const useShowdownLogic = ({
       anteWin = bets.ante;
       betWin = bets.flop + bets.turn + bets.river;
       payout += anteWin + betWin;
-      anteText = `$${bets.ante}（引き分け → ANTE同額返却）`;
+      anteText = `$${bets.ante}+ 0(x0)`;
     } else {
       anteText = `$0（敗北 → ANTE没収）`;
+    }
+
+    let flopTurnRiverText = '';
+    if (folded) {
+      flopTurnRiverText = '$0（降りたため没収）';
+    } else if (playerWins) {
+      flopTurnRiverText =
+        betWin > 0
+          ? `$${betWin} + $${betWin}(x1)` // 勝利時: 2倍払い戻し
+          : '$0';
+    } else if (tie) {
+      flopTurnRiverText = betWin > 0 ? `$${betWin}` : '$0'; // 引き分けは返金のみ
+    } else {
+      flopTurnRiverText = '$0（敗北 → 没収）';
     }
 
     // --- チップと結果表示を反映 ---
     dispatch({ type: 'ADD_CHIPS', amount: payout });
 
-    setResultText(
-      buildResultText({
-        playerHandText,
-        dealerHandText,
-        winnerText,
-        anteText,
-        totalBetAmount,
-        bonusTotal: bonusWin > 0 ? bets.bonus + bonusWin : 0,
-        jackpotTotal: jackpotWin > 0 ? bets.jackpot + jackpotWin : 0,
-        payout,
-      })
-    );
+    /* ─ 行データをまとめて渡す ─ */
+    setResultText({
+      hands: [playerHandText, dealerHandText],
+      winnerText,
+      payoutRows: [
+        { label: 'TOTAL BET', value: `$${totalBetAmount}` },
+        { label: 'ANTE', value: anteText },
+        { label: 'FLOP/TURN/RIVER', value: flopTurnRiverText },
+
+        {
+          label: 'BONUS',
+          value:
+            bonusWin > 0
+              ? `$${bets.bonus} + $${bonusWin} (x${bonusRate})`
+              : '$0',
+        },
+        {
+          label: 'JACKPOT',
+          value:
+            jackpotWin > 0
+              ? `$${bets.jackpot} + $${jackpotWin} (${jackpotRank})`
+              : '$0',
+        },
+      ],
+      total: `$${payout}`,
+    });
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [showdown]);
 };
 

@@ -1,4 +1,4 @@
-import { shuffleDeck } from './deckUtils';
+import { getDebugDeck } from './deckUtils';
 
 export const handleStartGameWithChecks = ({
   placedChips, // 追加：円に置いたチップ配列
@@ -7,8 +7,6 @@ export const handleStartGameWithChecks = ({
 }) => {
   /* ---- ① Ante の合計を計算 ---- */
   const anteAmount = placedChips.ante.reduce((t, c) => t + c.value, 0);
-  const bonusAmount = placedChips.bonus.reduce((t, c) => t + c.value, 0);
-  const jackpotAmount = placedChips.jackpot.reduce((t, c) => t + c.value, 0);
 
   /* ---- ② 最低額チェック ---- */
   if (anteAmount < 25) {
@@ -17,7 +15,7 @@ export const handleStartGameWithChecks = ({
   }
 
   /* ---- ④ デッキ配布と状態リセット ---- */
-  const newDeck = shuffleDeck();
+  const newDeck = getDebugDeck();
   dispatch({ type: 'SET_DECK', deck: newDeck });
   dispatch({
     type: 'SET_CARDS',

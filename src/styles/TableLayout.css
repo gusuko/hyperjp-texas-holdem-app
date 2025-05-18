@@ -185,13 +185,6 @@
   color: #fff;
 }
 
-.chip-info .value.balance {
-  color: gold;
-}
-.chip-info .value.inplay {
-  color: #0f0;
-}
-
 /* チップを横並びにさせてるCSS */
 .chip-list {
   display: flex;
@@ -239,4 +232,48 @@
 .playagain-btn:hover {
   background: #0f766e;
   transform: scale(1.07);
+}
+
+.payout {
+  margin-top: 1rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+.payout thead th {
+  text-align: center;
+  background: #064d2c;
+  color: #fff;
+  padding: 0.4em 0;
+}
+.payout td.cell-label {
+  font-weight: 600;
+  padding-right: 1em;
+}
+.payout td.val {
+  text-align: right;
+}
+/*───────────────────────────────────────────────
+  ここからペイアウトテーブル（JP,BONUS)のCSS
+───────────────────────────────────────────────*/
+.payout-board {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.2rem;
+  color: #ffd92c; /* カジノっぽいゴールド */
+  border-collapse: collapse;
+  text-shadow: 1px 1px #000;
+}
+.payout-board thead th {
+  background: transparent;
+  color: #ff5555; /* タイトルレッド */
+  font-size: 1.5rem;
+  padding-bottom: 0.3em;
+}
+.payout-board td {
+  padding: 1px 0;
+}
+.payout-board td.hand {
+  text-align: left;
+}
+.payout-board td.val {
+  text-align: right;
 }

@@ -22,41 +22,43 @@ export const DIM = {
 export const POS = {
   /* 2-A) ベット円（6個） */
   bet: {
-    ante: { top: -60, left: -635 },
-    bonus: { top: -60, left: -560 },
-    jackpot: { top: -60, left: -485 },
-    flop: { top: -150, left: -450 },
-    turn: { top: -150, left: -670 },
-    river: { top: -150, left: -780 },
+    ante: { top: -50, left: -410 },
+    bonus: { top: -50, left: -330 },
+    jackpot: { top: -50, left: -250 },
+    flop: { top: -150, left: -230 },
+    turn: { top: -150, left: -450 },
+    river: { top: -150, left: -560 },
   },
 
   /* 2-B) カード枠（Dealer2 + Community5 + Player2） */
   cardSlot: {
     dealer: [
-      { top: -480, left: -635 }, // 1st
-      { top: -480, left: -525 }, // 2nd
+      { top: -480, left: -415 }, // 1st
+      { top: -480, left: -310 }, // 2nd
     ],
     player: [
-      { top: 50, left: -635 },
-      { top: 50, left: -525 },
+      { top: 50, left: -415 },
+      { top: 50, left: -310 },
     ],
     community: [
+      { top: -300, left: -140 },
+      { top: -300, left: -250 },
       { top: -300, left: -360 },
       { top: -300, left: -470 },
       { top: -300, left: -580 },
-      { top: -300, left: -690 },
-      { top: -300, left: -800 },
     ],
   },
 
   /* 2-C) UI ボタン類 & ChipSelector */
   ui: {
-    start: { top: 50, left: -300 }, // ゲーム開始
-    fold: { top: 50, left: -300 },
-    recharge: { top: 50, left: -800 },
-    selector: { top: 250, left: -800 }, // ChipSelector
-    playAgain: { top: 50, left: -300 },
-    check: { top: 50, left: -300 },
-    resultText: { top: -500, left: -200 }, //ShowDownresult.js内
+    start: { top: 100, left: -150 }, // ゲーム開始
+    fold: { top: 100, left: -150 },
+    recharge: { top: 100, left: -600 },
+    selector: { top: 200, left: -600 }, // ChipSelector
+    playAgain: { top: 100, left: -150 },
+    check: { top: 100, left: -150 },
+    resultText: { top: -500, left: 0 },
+    bonusTable: { top: -550, left: -840 },
+    jackpotTable: { top: -250, left: -840 },
   },
 };
