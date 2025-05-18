@@ -75,8 +75,7 @@ web_modules/
 snowpack
 
 # Ignore all cards image files and zips in public/cards
-public/cards/
+# public/cards/
 public/cards*.zip
 
 # public/ ディレクトリ自体は無視しない方がいいが、必要ならコメントアウト解除
-# public
