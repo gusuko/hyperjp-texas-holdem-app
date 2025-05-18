@@ -1,0 +1,82 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Build
+build/
+dist/
+.cache
+.parcel-cache
+.next
+out
+.nuxt
+.vuepress/dist
+.temp
+.cache/
+**/.vitepress/dist
+**/.vitepress/cache
+.docusaurus
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+
+# Coverage
+coverage
+*.lcov
+.nyc_output
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Cache
+.npm
+.eslintcache
+.stylelintcache
+.yarn-integrity
+.vscode-test
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+/.pnp
+.pnp.js
+
+# Env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Misc
+.DS_Store
+*.tgz
+.node_repl_history
+bower_components
+lib-cov
+jspm_packages/
+web_modules/
+snowpack
+
+# Ignore all cards image files and zips in public/cards
+public/cards/
+public/cards*.zip
+
+# public/ ディレクトリ自体は無視しない方がいいが、必要ならコメントアウト解除
+# public
