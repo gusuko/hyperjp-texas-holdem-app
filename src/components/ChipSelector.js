@@ -3,13 +3,13 @@ import '../styles/TableLayout.css';
 import Chip from './Chip';
 
 const chipOptions = [
-  { value: 5, src: '/chips/chip_5.png' },
-  { value: 25, src: '/chips/chip_25.png' },
-  { value: 100, src: '/chips/chip_100.png' },
-  { value: 500, src: '/chips/chip_500.png' },
-  { value: 1000, src: '/chips/chip_1000.png' },
-  { value: 5000, src: '/chips/chip_5000.png' },
-  { value: 10000, src: '/chips/chip_10000.png' },
+  { value: 5, src: process.env.PUBLIC_URL + '/chips/chip_5.png' },
+  { value: 25, src: process.env.PUBLIC_URL + '/chips/chip_25.png' },
+  { value: 100, src: process.env.PUBLIC_URL + '/chips/chip_100.png' },
+  { value: 500, src: process.env.PUBLIC_URL + '/chips/chip_500.png' },
+  { value: 1000, src: process.env.PUBLIC_URL + '/chips/chip_1000.png' },
+  { value: 5000, src: process.env.PUBLIC_URL + '/chips/chip_5000.png' },
+  { value: 10000, src: process.env.PUBLIC_URL + '/chips/chip_10000.png' },
 ];
 
 /**

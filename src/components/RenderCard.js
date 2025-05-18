@@ -22,7 +22,7 @@ const RenderCard = ({ card, pos, faceDown = false, keyProp }) => {
       }}
     >
       <img
-        src={`/cards/${faceDown ? 'back' : card}.png`}
+        src={process.env.PUBLIC_URL + `/cards/${faceDown ? 'back' : card}.png`}
         alt={card}
         style={{ width: '100%', height: '100%' }}
       />

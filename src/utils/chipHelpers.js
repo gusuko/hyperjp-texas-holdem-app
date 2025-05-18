@@ -8,7 +8,10 @@ export function convertToChips(amount) {
 
   for (const value of CHIP_VALUES) {
     while (rest >= value) {
-      chips.push({ value, src: `/chips/chip_${value}.png` });
+      chips.push({
+        value,
+        src: process.env.PUBLIC_URL + `/chips/chip_${value}.png`,
+      });
       rest -= value;
     }
   }
