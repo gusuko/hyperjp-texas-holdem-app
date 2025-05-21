@@ -26,3 +26,33 @@ body {
   justify-content: center;
   /* 枠を調整するときは width/height を変える */
 }
+
+.place-bets-overlay {
+  position: absolute;
+  top: 30%;
+  left: 33%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 0 0 16px #000, 0 2px 6px #333;
+  white-space: nowrap;
+  padding: 0.2em 1em;
+  border-radius: 1em;
+  z-index: 1000;
+  animation: fadeOut 1.3s linear forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}

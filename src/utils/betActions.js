@@ -4,13 +4,18 @@
  * - Flopベット額をセット
  * - フェーズとコミュニティカードを更新
  */
-export const handleFlopBet = ({ deck, dispatch }) => {
-  dispatch({
-    // 新：board へ 3 枚セット
-    type: 'SET_CARDS',
-    who: 'board',
-    cards: deck.slice(4, 7),
-  });
+import sleep from '../utils/sleep';
+import playCardSound from './sound';
+
+export const handleFlopBet = async ({ deck, dispatch }) => {
+  for (let i = 4; i <= 6; i++) {
+    dispatch({
+      type: 'APPEND_BOARD_CARDS',
+      cards: [deck[i]], // 1枚ずつ追加
+    });
+    playCardSound();
+    await sleep(600); // 0.4秒ディレイ（お好みで）
+  }
   dispatch({ type: 'SET_PHASE', phase: 'flop' });
 };
 
@@ -22,6 +27,7 @@ export const handleFlopBet = ({ deck, dispatch }) => {
  */
 export const handleTurnBet = ({ deck, dispatch }) => {
   dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[7]] });
+  playCardSound();
   dispatch({ type: 'SET_PHASE', phase: 'turn' });
 };
 /**
@@ -33,6 +39,7 @@ export const handleTurnBet = ({ deck, dispatch }) => {
  */
 export const handleRiverBet = ({ deck, dispatch }) => {
   dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[8]] });
+  playCardSound();
   dispatch({ type: 'SET_PHASE', phase: 'showdown' }); // 最終フェーズへ
   dispatch({ type: 'SET_SHOWDOWN', value: true }); // Showdown画面に切り替える
 };
@@ -43,6 +50,7 @@ export const handleRiverBet = ({ deck, dispatch }) => {
  */
 export const handleCheckTurn = ({ deck, dispatch }) => {
   dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[7]] });
+  playCardSound();
   dispatch({ type: 'SET_PHASE', phase: 'turn' });
 };
 
@@ -53,6 +61,7 @@ export const handleCheckTurn = ({ deck, dispatch }) => {
  */
 export const handleCheckRiver = ({ deck, dispatch }) => {
   dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[8]] });
+  playCardSound();
   dispatch({ type: 'SET_PHASE', phase: 'showdown' });
   dispatch({ type: 'SET_SHOWDOWN', value: true });
 };

@@ -25,6 +25,9 @@ import CardGroup from './components/CardGroup';
 import { restartRound } from './utils/gameReset';
 import PayoutTable from './components/PayoutTable';
 import { bonusPayouts, jackpotPayouts } from './constants/payouts';
+import CurrentChips from './components/CurrentChips';
+import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
+import sleep from './utils/sleep';
 
 function App() {
   // 🎯 状態（ステート）管理
@@ -34,6 +37,7 @@ function App() {
   const [resultText, setResultText] = useState('');
   const [selectedArea, setSelectedArea] = useState('ante');
   const { placedChips } = state;
+  const [showPlaceYourBets, setShowPlaceYourBets] = useState(false);
 
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
@@ -45,6 +49,19 @@ function App() {
     setResultText,
   });
 
+  const handlePlayAgain = async () => {
+    restartRound({
+      dispatch,
+      setResultText,
+      placedChips: state.placedChips,
+    });
+    await sleep(600); // 0.6秒ディレイ
+    playPlaceYourBetsSound(); // SE再生
+    setShowPlaceYourBets(true);
+    // 1.5秒後ぐらいに消す
+    setTimeout(() => setShowPlaceYourBets(false), 1500);
+  };
+
   const handleGameStart = () => {
     handleStartGameWithChecks({
       placedChips: state.placedChips,
@@ -54,7 +71,7 @@ function App() {
   };
 
   // ✅ FLOP 円クリックで ANTE × 2 の自動ベット
-  const handleFlopCircleClick = () => {
+  const handleFlopCircleClick = async () => {
     const betAmount = bets.ante * 2;
 
     if (gamePhase === 'preflop' && bets.flop === 0 && chips >= betAmount) {
@@ -66,8 +83,10 @@ function App() {
         area: 'flop',
         chips: chipsToPlace,
       });
+      playBetSound();
       dispatch({ type: 'PLACE_BET', area: 'flop', amount: betAmount });
-      handleFlopBet({
+      await sleep(220);
+      await handleFlopBet({
         betAmount,
         deck,
         dispatch,
@@ -76,7 +95,7 @@ function App() {
   };
 
   // ✅ TURN 円クリックで ANTE × 1 の自動ベット
-  const handleTurnCircleClick = () => {
+  const handleTurnCircleClick = async () => {
     const betAmount = bets.ante;
 
     if (gamePhase === 'flop' && bets.turn === 0 && chips >= betAmount) {
@@ -88,9 +107,10 @@ function App() {
         area: 'turn',
         chips: chipsToPlace,
       });
+      playBetSound();
       dispatch({ type: 'PLACE_BET', area: 'turn', amount: betAmount });
-
-      handleTurnBet({
+      await sleep(220);
+      await handleTurnBet({
         betAmount,
         deck,
         dispatch,
@@ -99,7 +119,7 @@ function App() {
   };
 
   // ✅ RIVER 円クリックで ANTE × 1 の自動ベット
-  const handleRiverCircleClick = () => {
+  const handleRiverCircleClick = async () => {
     const betAmount = bets.ante;
 
     if (gamePhase === 'turn' && bets.river === 0 && chips >= betAmount) {
@@ -111,9 +131,10 @@ function App() {
         area: 'river',
         chips: chipsToPlace,
       });
+      playBetSound();
       dispatch({ type: 'PLACE_BET', area: 'river', amount: betAmount });
-
-      handleRiverBet({
+      await sleep(220);
+      await handleRiverBet({
         betAmount,
         deck,
         dispatch,
@@ -124,6 +145,15 @@ function App() {
   return (
     <div className="table-canvas">
       <h1>🃏 HyperJP Texas Hold'em</h1>
+      <CurrentChips
+        chips={chips} // stateから渡す
+        style={{
+          position: 'absolute',
+          top: `calc(50vh + ${POS.ui.chips.top * TABLE_SCALE}px)`,
+          left: `calc(50%  + ${POS.ui.chips.left * TABLE_SCALE}px)`,
+          zIndex: 20,
+        }}
+      />
 
       {/* ① 枠（CardSlot） */}
       {POS.cardSlot.dealer.map((pos, i) => (
@@ -257,6 +287,7 @@ function App() {
       {/* 勝敗テキスト */}
       <ShowdownResult
         showdown={showdown}
+        folded={folded}
         resultText={resultText}
         style={{
           position: 'absolute',
@@ -300,23 +331,11 @@ function App() {
 
       {gamePhase !== 'initial' && (
         <>
-          {folded && (
-            <div style={{ marginTop: '2em', color: 'red' }}>
-              降りました！AnteとBonusは没収されます。
-            </div>
-          )}
-
           {/* 再プレイボタン */}
           {gamePhase === 'showdown' && (
             <button
               className="playagain-btn"
-              onClick={() =>
-                restartRound({
-                  dispatch,
-                  setResultText,
-                  placedChips: state.placedChips,
-                })
-              }
+              onClick={handlePlayAgain}
               style={{
                 top: `calc(50vh + ${POS.ui.playAgain.top * TABLE_SCALE}px)`,
                 left: `calc(50%  + ${POS.ui.playAgain.left * TABLE_SCALE}px)`,
@@ -326,6 +345,11 @@ function App() {
             </button>
           )}
         </>
+      )}
+
+      {/* 再プレイボタン押した後の文字 */}
+      {showPlaceYourBets && (
+        <div className="place-bets-overlay">PLACE YOUR BETS Please!</div>
       )}
       {/* 円形チェックボタン：flop または turn フェーズのみ */}
       {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (

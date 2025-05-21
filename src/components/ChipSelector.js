@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/TableLayout.css';
 import Chip from './Chip';
-
+import { playBetSound } from '../utils/sound';
 const chipOptions = [
   { value: 5, src: process.env.PUBLIC_URL + '/chips/chip_5.png' },
   { value: 25, src: process.env.PUBLIC_URL + '/chips/chip_25.png' },
@@ -40,6 +40,7 @@ export default function ChipSelector({
         (a, b) => a.value - b.value
       );
       dispatch({ type: 'SET_PLACED_CHIPS', area, chips: updated });
+      playBetSound();
       dispatch({ type: 'PLACE_BET', area, amount: chip.value });
     }
   };

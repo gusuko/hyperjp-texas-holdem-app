@@ -60,5 +60,6 @@ export const POS = {
     resultText: { top: -500, left: 0 },
     bonusTable: { top: -550, left: -840 },
     jackpotTable: { top: -250, left: -840 },
+    chips: { top: -500, left: -200 },
   },
 };

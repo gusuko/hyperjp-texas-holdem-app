@@ -277,3 +277,16 @@
 .payout-board td.val {
   text-align: right;
 }
+
+.current-chips {
+  font-family: 'Bebas Neue', Impact, sans-serif;
+  font-size: 2.7rem;
+  font-weight: bold;
+  color: #ffd700; /* 金色 */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000, 0 0 10px #e2b100;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  /* アニメ・エフェクト入れるならここに */
+  /* 例: transition: transform 0.2s; */
+}

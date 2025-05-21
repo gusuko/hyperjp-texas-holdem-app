@@ -1,5 +1,26 @@
 // src/components/ShowdownResult.jsx
-export default function ShowdownResult({ showdown, resultText, style = {} }) {
+export default function ShowdownResult({
+  showdown,
+  folded,
+  resultText,
+  style = {},
+}) {
+  if (folded) {
+    return (
+      <div
+        className="result-box"
+        style={{
+          fontFamily: '"Inter", sans-serif',
+          fontSize: '1.4rem',
+          color: 'crimson',
+          fontWeight: 'bold',
+          ...style,
+        }}
+      >
+        FOLD...！AnteとBonusは没収されます。<br></br>
+      </div>
+    );
+  }
   if (!showdown) return null;
 
   /* ここで安全に分割代入 ─ 初期は空オブジェクトを想定 */
