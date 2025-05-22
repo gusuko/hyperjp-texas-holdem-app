@@ -8,8 +8,9 @@ import { TABLE_SCALE } from '../constants/layoutConfig';
  * @param {object} pos - 位置情報 {top, left, scale}
  * @param {boolean} faceDown - trueなら裏向き
  * @param {string} keyProp - React key (コンポーネント内で使用)
+ * @param {function} onLoad - 画像が描画されたときのコールバック（追加！）
  */
-const RenderCard = ({ card, pos, faceDown = false, keyProp }) => {
+const RenderCard = ({ card, pos, faceDown = false, keyProp, onLoad }) => {
   return (
     <div
       key={keyProp}
@@ -25,6 +26,7 @@ const RenderCard = ({ card, pos, faceDown = false, keyProp }) => {
         src={process.env.PUBLIC_URL + `/cards/${faceDown ? 'back' : card}.png`}
         alt={card}
         style={{ width: '100%', height: '100%' }}
+        onLoad={onLoad}
       />
     </div>
   );

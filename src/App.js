@@ -38,6 +38,15 @@ function App() {
   const [selectedArea, setSelectedArea] = useState('ante');
   const { placedChips } = state;
   const [showPlaceYourBets, setShowPlaceYourBets] = useState(false);
+  const [playerCardLoadCallback, setPlayerCardLoadCallback] = useState(
+    () => () => {}
+  );
+  const [dealerCardLoadCallback, setDealerCardLoadCallback] = useState(
+    () => () => {}
+  );
+  const [boardCardLoadCallback, setBoardCardLoadCallback] = useState(
+    () => () => {}
+  );
 
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
@@ -67,6 +76,8 @@ function App() {
       placedChips: state.placedChips,
       dispatch,
       setResultText,
+      setPlayerCardLoadCallback,
+      setDealerCardLoadCallback,
     });
   };
 
@@ -90,6 +101,8 @@ function App() {
         betAmount,
         deck,
         dispatch,
+        setBoardCardLoadCallback,
+        cards,
       });
     }
   };
@@ -114,6 +127,8 @@ function App() {
         betAmount,
         deck,
         dispatch,
+        setBoardCardLoadCallback,
+        cards,
       });
     }
   };
@@ -138,6 +153,8 @@ function App() {
         betAmount,
         deck,
         dispatch,
+        setBoardCardLoadCallback,
+        cards,
       });
     }
   };
@@ -168,12 +185,21 @@ function App() {
 
       {/* ② カード */}
       <CardGroup
+        onCardLoad={dealerCardLoadCallback}
         cards={cards.dealer}
         positions={POS.cardSlot.dealer}
         facedown={!showdown}
       />
-      <CardGroup cards={cards.board} positions={POS.cardSlot.community} />
-      <CardGroup cards={cards.player} positions={POS.cardSlot.player} />
+      <CardGroup
+        onCardLoad={boardCardLoadCallback}
+        cards={cards.board}
+        positions={POS.cardSlot.community}
+      />
+      <CardGroup
+        onCardLoad={playerCardLoadCallback}
+        cards={cards.player}
+        positions={POS.cardSlot.player}
+      />
 
       {/* ---------- ベット円（6個） ---------- */}
       {/* ANTE */}
@@ -357,8 +383,18 @@ function App() {
           className="check-btn"
           onClick={() =>
             gamePhase === 'flop'
-              ? handleCheckTurn({ deck, dispatch })
-              : handleCheckRiver({ deck, dispatch })
+              ? handleCheckTurn({
+                  deck,
+                  dispatch,
+                  setBoardCardLoadCallback, // ←追加！
+                  cards,
+                })
+              : handleCheckRiver({
+                  deck,
+                  dispatch,
+                  setBoardCardLoadCallback, // ←追加！
+                  cards,
+                })
           }
           style={{
             top: `calc(50vh + ${POS.ui.check.top * TABLE_SCALE}px)`,

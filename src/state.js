@@ -69,14 +69,6 @@ export function reducer(state, action) {
     case 'SET_DECK':
       return { ...state, deck: action.deck };
 
-    case 'APPEND_BOARD_CARDS':
-      return {
-        ...state,
-        cards: {
-          ...state.cards,
-          board: [...state.cards.board, ...action.cards], // 末尾に追加
-        },
-      };
     case 'SET_PLACED_CHIPS':
       return {
         ...state,

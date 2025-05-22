@@ -7,14 +7,26 @@
 import sleep from '../utils/sleep';
 import playCardSound from './sound';
 
-export const handleFlopBet = async ({ deck, dispatch }) => {
+export const handleFlopBet = async ({
+  deck,
+  dispatch,
+  setBoardCardLoadCallback,
+  cards, // 必要なら現在のboard配列（App.jsから渡す）
+}) => {
+  let currentBoard = cards?.board ? [...cards.board] : [];
   for (let i = 4; i <= 6; i++) {
-    dispatch({
-      type: 'APPEND_BOARD_CARDS',
-      cards: [deck[i]], // 1枚ずつ追加
+    const updatedBoard = [...currentBoard, deck[i]];
+    await new Promise((resolve) => {
+      dispatch({
+        type: 'SET_CARDS',
+        who: 'board',
+        cards: updatedBoard,
+      });
+      setBoardCardLoadCallback(() => resolve);
     });
     playCardSound();
-    await sleep(600); // 0.4秒ディレイ（お好みで）
+    await sleep(300);
+    currentBoard = updatedBoard; // ← Promiseの外で必ず代入
   }
   dispatch({ type: 'SET_PHASE', phase: 'flop' });
 };
@@ -25,11 +37,28 @@ export const handleFlopBet = async ({ deck, dispatch }) => {
  * - Turnベット額をセット
  * - フェーズと場カードを更新
  */
-export const handleTurnBet = ({ deck, dispatch }) => {
-  dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[7]] });
+export const handleTurnBet = async ({
+  deck,
+  dispatch,
+  setBoardCardLoadCallback,
+  cards,
+}) => {
+  const updatedBoard = [...(cards?.board || []), deck[7]];
+  await new Promise((resolve) => {
+    dispatch({
+      type: 'SET_CARDS',
+      who: 'board',
+      cards: updatedBoard,
+    });
+    setBoardCardLoadCallback(() => resolve);
+  });
   playCardSound();
+  await sleep(300);
   dispatch({ type: 'SET_PHASE', phase: 'turn' });
 };
+
+export const handleCheckTurn = handleTurnBet; // 完全に同じならエイリアス化も可！
+
 /**
  * River ベットを処理する関数
  * - チップを引く
@@ -37,34 +66,29 @@ export const handleTurnBet = ({ deck, dispatch }) => {
  * - 最後のコミュニティカードを追加
  * - フェーズを "showdown" にして勝負に進む
  */
-export const handleRiverBet = ({ deck, dispatch }) => {
-  dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[8]] });
+export const handleRiverBet = async ({
+  deck,
+  dispatch,
+  setBoardCardLoadCallback,
+  cards,
+}) => {
+  const updatedBoard = [...(cards?.board || []), deck[8]];
+  await new Promise((resolve) => {
+    dispatch({
+      type: 'SET_CARDS',
+      who: 'board',
+      cards: updatedBoard,
+    });
+    setBoardCardLoadCallback(() => resolve);
+  });
   playCardSound();
-  dispatch({ type: 'SET_PHASE', phase: 'showdown' }); // 最終フェーズへ
-  dispatch({ type: 'SET_SHOWDOWN', value: true }); // Showdown画面に切り替える
-};
-/**
- * Turn フェーズでチェック（ベットせず進む）する処理
- * - Turnカードを1枚追加
- * - フェーズを "turn" に進める
- */
-export const handleCheckTurn = ({ deck, dispatch }) => {
-  dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[7]] });
-  playCardSound();
-  dispatch({ type: 'SET_PHASE', phase: 'turn' });
-};
-
-/**
- * River フェーズでチェック（ベットせず進む）する処理
- * - Riverカードを1枚追加
- * - フェーズを "showdown" に進める
- */
-export const handleCheckRiver = ({ deck, dispatch }) => {
-  dispatch({ type: 'APPEND_BOARD_CARDS', cards: [deck[8]] });
-  playCardSound();
+  await sleep(300);
   dispatch({ type: 'SET_PHASE', phase: 'showdown' });
   dispatch({ type: 'SET_SHOWDOWN', value: true });
 };
+
+export const handleCheckRiver = handleRiverBet; // 完全に同じならエイリアス化も可！
+
 /**
  * フォールド（降りる）処理
  * - フォールド状態にする
