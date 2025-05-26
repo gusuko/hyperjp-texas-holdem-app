@@ -1,6 +1,5 @@
 // components/RenderCard.js
 import React from 'react';
-import { TABLE_SCALE } from '../constants/layoutConfig';
 
 /**
  * カードを指定の位置に表示するコンポーネント
@@ -16,10 +15,11 @@ const RenderCard = ({ card, pos, faceDown = false, keyProp, onLoad }) => {
       key={keyProp}
       className="card-abs"
       style={{
-        left: `calc(50% + ${pos.left * TABLE_SCALE}px)`,
-        top: `calc(50vh + ${pos.top * TABLE_SCALE}px)`,
-        width: 100 * TABLE_SCALE,
-        height: 140 * TABLE_SCALE,
+        left: pos.left, // ← 数値だけ渡せば px になる
+        top: pos.top,
+        width: 100, // DIM.CARD_W と同じ
+        height: 140, // DIM.CARD_H と同じ
+        position: 'absolute',
       }}
     >
       <img

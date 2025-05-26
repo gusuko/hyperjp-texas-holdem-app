@@ -56,3 +56,51 @@ body {
     transform: translate(-50%, -50%) scale(1.2);
   }
 }
+
+/* ① 画面左上に固定されるタイトル帯（80 px）*/
+.title-global {
+  position: fixed; /* ← 画面左上にピタッと固定 */
+  top: 0;
+  left: 0;
+  height: 80px; /* 帯の高さ（変えたければここだけ） */
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+
+  font: 3rem/1 'Bebas Neue', sans-serif;
+  color: #ffd700;
+  text-shadow: 0 2px 4px #000;
+
+  transform: scale(var(--game-scale, 1)); /* ボードと同倍率で縮む */
+  transform-origin: top left;
+  pointer-events: none;
+  z-index: 3000;
+}
+
+/* ② ボードは『帯の高さ ÷ 2』ぶんだけ常に下げて中央寄せ */
+.game-board {
+  width: 1800px; /* 基準サイズとそろえる */
+  height: 1100px;
+  position: absolute;
+  left: 50%;
+  top: calc(var(--title-gap, 80px) / 2 + 50%);
+
+  transform: scale(var(--game-scale, 1)) translate(-50%, -50%);
+  transform-origin: top left;
+}
+/* 画面が小さすぎるときだけ “真っ黒半透明” オーバーレイを表示 */
+html.too-small::after {
+  content: '画面が小さ過ぎます。\A ウィンドウを広げてください';
+  white-space: pre;
+  position: fixed;
+  inset: 0; /* 画面全体を覆う */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75); /* 黒 75% 透過 */
+  color: #fff;
+  font: 1.4rem/1.4 sans-serif;
+  text-align: center;
+  z-index: 6000; /* 何よりも前面 */
+  pointer-events: all; /* クリックを遮断して操作不可に */
+}

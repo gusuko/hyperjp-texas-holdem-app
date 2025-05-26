@@ -1,6 +1,6 @@
 // BetCircle.jsx  ─ 直径 70px のベット円
 import React from 'react';
-import { TABLE_SCALE, DIM, POS } from '../constants/layoutConfig';
+import { DIM, POS } from '../constants/layoutConfig';
 
 export default function BetCircle({
   area, // 'ante' | 'bonus' | …
@@ -21,11 +21,10 @@ export default function BetCircle({
       tabIndex={isActive ? 0 : -1}
       aria-pressed={isSelected}
       style={{
-        width: DIM.BET_D * TABLE_SCALE,
-        height: DIM.BET_D * TABLE_SCALE,
-        left: `calc(50% + ${left * TABLE_SCALE}px)`,
-        top: `calc(50vh + ${top * TABLE_SCALE}px)`,
-        transform: `scale(${TABLE_SCALE})`,
+        width: DIM.BET_D, // ← “実寸” だけ
+        height: DIM.BET_D,
+        left: left, // ← 受け取った px
+        top: top,
       }}
     >
       {/* ───────── 点線の円 ───────── */}

@@ -1,6 +1,6 @@
 // src/components/PayoutTable.jsx
 import React from 'react';
-import { TABLE_SCALE, POS } from '../constants/layoutConfig';
+import { POS } from '../constants/layoutConfig';
 
 export default function PayoutTable({ uiKey, title, data }) {
   const { top, left } = POS.ui[uiKey]; // bonusTable / jackpotTable
@@ -10,10 +10,9 @@ export default function PayoutTable({ uiKey, title, data }) {
     <table
       className="payout-board"
       style={{
-        position: 'absolute',
-        top: `calc(50vh + ${top * TABLE_SCALE}px)`,
-        left: `calc(50%  + ${left * TABLE_SCALE}px)`,
-        transform: `scale(${TABLE_SCALE})`,
+        position: 'absolute', // ← ボード内で自由配置したいので残す
+        top: top, // ← 受け取った px をそのまま
+        left: left,
       }}
     >
       <thead>

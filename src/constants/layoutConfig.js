@@ -1,26 +1,31 @@
 // src/constants/layoutConfig.js
 // =============================================================
 // 🎛️ レイアウト関連の「数値だけ」をここに一本化
-//    ├ TABLE_SCALE  … 全体倍率（レスポンシブ化もここで）
-//    ├ DIM.*        … 各パーツの基準サイズ(px)
-//    └ POS.*        … 画面中央 (left:50%, top:50vh) を原点と
-//                     した差分オフセット(px)
-//      → 実際に描画する際は × TABLE_SCALE で縮尺
+//    – “NEG_POS” で中央±px を保持
+//    – “POS” で左上 (0,0) 基準に変換して export
 // =============================================================
 
-// ---------- 0) 全体拡大／縮小倍率 ----------
-export const TABLE_SCALE = 1; // 1 = 等倍
+// ---------- 0) グローバル倍率（今は使わないが残しておく） ----------
+export const TABLE_SCALE = 1;
 
-// ---------- 1) パーツ基準サイズ ----------
+// ---------- 1) ゲームボード基準サイズ ----------
+export const BOARD_W = 1800; // .game-board の width と同じ
+export const BOARD_H = 1100; // .game-board の height と同じ
+const CENTER_X = BOARD_W / 2; // 900
+const CENTER_Y = BOARD_H / 2; // 550
+
+// ---------- 2) パーツ基準寸法 ----------
 export const DIM = {
-  CARD_W: 100, // カード幅
-  CARD_H: 140, // カード高さ
-  BET_D: 70, // ベット円直径
+  CARD_W: 100,
+  CARD_H: 140,
+  BET_D: 70,
 };
 
-// ---------- 2) 座標オフセット ----------
-export const POS = {
-  /* 2-A) ベット円（6個） */
+/* =============================================================
+   A) 旧来の “中央 (0,0) 基準 ±px” 座標を NEG_POS として保持
+   ============================================================= */
+const NEG_POS = {
+  /* A-1) ベット円（6個） */
   bet: {
     ante: { top: -50, left: -410 },
     bonus: { top: -50, left: -330 },
@@ -30,11 +35,11 @@ export const POS = {
     river: { top: -150, left: -560 },
   },
 
-  /* 2-B) カード枠（Dealer2 + Community5 + Player2） */
+  /* A-2) カード枠 */
   cardSlot: {
     dealer: [
-      { top: -480, left: -415 }, // 1st
-      { top: -480, left: -310 }, // 2nd
+      { top: -480, left: -415 },
+      { top: -480, left: -310 },
     ],
     player: [
       { top: 50, left: -415 },
@@ -49,12 +54,12 @@ export const POS = {
     ],
   },
 
-  /* 2-C) UI ボタン類 & ChipSelector */
+  /* A-3) UI ボタン類 & テーブル類 */
   ui: {
-    start: { top: 100, left: -150 }, // ゲーム開始
+    start: { top: 100, left: -150 },
     fold: { top: 100, left: -150 },
     recharge: { top: 100, left: -600 },
-    selector: { top: 200, left: -600 }, // ChipSelector
+    selector: { top: 200, left: -600 },
     playAgain: { top: 100, left: -150 },
     check: { top: 100, left: -150 },
     resultText: { top: -500, left: 0 },
@@ -62,4 +67,31 @@ export const POS = {
     jackpotTable: { top: -250, left: -840 },
     chips: { top: -500, left: -200 },
   },
+};
+
+/* =============================================================
+   B) NEG_POS → 左上 (0,0) 基準へ変換して export する POS
+   ============================================================= */
+const shift = ({ top, left }) => ({
+  top: top + CENTER_Y,
+  left: left + CENTER_X,
+});
+
+export const POS = {
+  // ベット円
+  bet: Object.fromEntries(
+    Object.entries(NEG_POS.bet).map(([k, v]) => [k, shift(v)])
+  ),
+
+  // カード枠
+  cardSlot: {
+    dealer: NEG_POS.cardSlot.dealer.map(shift),
+    player: NEG_POS.cardSlot.player.map(shift),
+    community: NEG_POS.cardSlot.community.map(shift),
+  },
+
+  // UI ボタン・テーブル
+  ui: Object.fromEntries(
+    Object.entries(NEG_POS.ui).map(([k, v]) => [k, shift(v)])
+  ),
 };
