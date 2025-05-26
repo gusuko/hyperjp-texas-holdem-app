@@ -27,42 +27,42 @@ export const DIM = {
 const NEG_POS = {
   /* A-1) ベット円（6個） */
   bet: {
-    ante: { top: -50, left: -410 },
-    bonus: { top: -50, left: -330 },
-    jackpot: { top: -50, left: -250 },
-    flop: { top: -150, left: -230 },
-    turn: { top: -150, left: -450 },
-    river: { top: -150, left: -560 },
+    ante: { top: -120, left: -410 },
+    bonus: { top: -120, left: -330 },
+    jackpot: { top: -120, left: -250 },
+    flop: { top: -220, left: -230 },
+    turn: { top: -220, left: -450 },
+    river: { top: -220, left: -560 },
   },
 
   /* A-2) カード枠 */
   cardSlot: {
     dealer: [
-      { top: -480, left: -415 },
-      { top: -480, left: -310 },
+      { top: -550, left: -415 },
+      { top: -550, left: -310 },
     ],
     player: [
-      { top: 50, left: -415 },
-      { top: 50, left: -310 },
+      { top: -20, left: -415 },
+      { top: -20, left: -310 },
     ],
     community: [
-      { top: -300, left: -140 },
-      { top: -300, left: -250 },
-      { top: -300, left: -360 },
-      { top: -300, left: -470 },
-      { top: -300, left: -580 },
+      { top: -370, left: -140 },
+      { top: -370, left: -250 },
+      { top: -370, left: -360 },
+      { top: -370, left: -470 },
+      { top: -370, left: -580 },
     ],
   },
 
   /* A-3) UI ボタン類 & テーブル類 */
   ui: {
-    start: { top: 100, left: -150 },
-    fold: { top: 100, left: -150 },
-    recharge: { top: 100, left: -600 },
-    selector: { top: 200, left: -600 },
-    playAgain: { top: 100, left: -150 },
-    check: { top: 100, left: -150 },
-    resultText: { top: -500, left: 0 },
+    start: { top: 30, left: -150 },
+    fold: { top: 30, left: -150 },
+    recharge: { top: 30, left: -600 },
+    selector: { top: 130, left: -600 },
+    playAgain: { top: 30, left: -150 },
+    check: { top: 30, left: -150 },
+    resultText: { top: -550, left: 0 },
     bonusTable: { top: -550, left: -840 },
     jackpotTable: { top: -250, left: -840 },
     chips: { top: -500, left: -200 },
@@ -72,8 +72,10 @@ const NEG_POS = {
 /* =============================================================
    B) NEG_POS → 左上 (0,0) 基準へ変換して export する POS
    ============================================================= */
+const BOARD_PADDING_TOP = 150; // タイトル高さ＋余白（好きな数字）
+
 const shift = ({ top, left }) => ({
-  top: top + CENTER_Y,
+  top: top + CENTER_Y + BOARD_PADDING_TOP,
   left: left + CENTER_X,
 });
 

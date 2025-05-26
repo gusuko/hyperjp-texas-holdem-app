@@ -9,12 +9,14 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-.table-canvas {
-  position: relative; /* これがすべての絶対座標の基準 */
-  width: 100vw; /* 画面いっぱいをフェルトに */
-  height: 100vh;
+/* 旧 .table-canvas を削除して  body に移す */
+body {
+  margin: 0;
+  overflow: hidden; /* ← はみ出し非表示 */
+  width: 100vw;
+  height: 100vh; /* 画面いっぱい */
   background: radial-gradient(#0c753e 0%, #064d2c 100%);
-  overflow: hidden; /* フェルト外へはみ出す物を隠す */
+  font-family: 'Inter', sans-serif; /* もともと全体指定ならここへ */
 }
 
 .card-slot-frame {
@@ -57,38 +59,29 @@ body {
   }
 }
 
-/* ① 画面左上に固定されるタイトル帯（80 px）*/
-.title-global {
-  position: fixed; /* ← 画面左上にピタッと固定 */
-  top: 0;
+/* ボード本体 ─ 左上原点 & 拡大縮小のみ */
+.game-board {
+  width: 1800px;
+  height: 1100px;
+  position: absolute;
   left: 0;
-  height: 80px; /* 帯の高さ（変えたければここだけ） */
-  display: flex;
-  align-items: center;
-  padding-left: 16px;
+  top: 0;
+  transform: scale(var(--game-scale, 1));
+  transform-origin: top left;
+}
 
+/* タイトル（ボードの 10,10 に固定。ボードと一緒に縮む） */
+.title-in-board {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   font: 3rem/1 'Bebas Neue', sans-serif;
   color: #ffd700;
   text-shadow: 0 2px 4px #000;
-
-  transform: scale(var(--game-scale, 1)); /* ボードと同倍率で縮む */
-  transform-origin: top left;
   pointer-events: none;
-  z-index: 3000;
 }
 
-/* ② ボードは『帯の高さ ÷ 2』ぶんだけ常に下げて中央寄せ */
-.game-board {
-  width: 1800px; /* 基準サイズとそろえる */
-  height: 1100px;
-  position: absolute;
-  left: 50%;
-  top: calc(var(--title-gap, 80px) / 2 + 50%);
-
-  transform: scale(var(--game-scale, 1)) translate(-50%, -50%);
-  transform-origin: top left;
-}
-/* 画面が小さすぎるときだけ “真っ黒半透明” オーバーレイを表示 */
+/* 画面が小さ過ぎる警告（前のまま利用可） */
 html.too-small::after {
   content: '画面が小さ過ぎます。\A ウィンドウを広げてください';
   white-space: pre;
