@@ -1,10 +1,18 @@
 // src/components/ShowdownResult.jsx
+import { miniCardSrc } from '../utils/cardImages';
+
+const renderMini = (ids) =>
+  ids.map((id) => (
+    <img key={id} src={miniCardSrc(id)} className="mini" alt={id} />
+  ));
+
 export default function ShowdownResult({
   showdown,
   folded,
   resultText,
   style = {},
 }) {
+  /* --------- フォールド時だけ早期リターン --------- */
   if (folded) {
     return (
       <div
@@ -17,38 +25,52 @@ export default function ShowdownResult({
           ...style,
         }}
       >
-        FOLD...！AnteとBonusは没収されます。<br></br>
+        FOLD...！AnteとBonusは没収されます。
       </div>
     );
   }
   if (!showdown) return null;
 
-  /* ここで安全に分割代入 ─ 初期は空オブジェクトを想定 */
+  /* --------- 受け取るデータ --------- */
   const {
-    hands = [],
     winnerText = '',
     payoutRows = [],
     total = '',
+    playerBest = [], // ["9H","KD",…] 5枚
+    dealerBest = [], // ["QS","QC",…] 5枚
+    playerRank = '',
+    dealerRank = '',
   } = resultText ?? {};
 
-  /* データがまだ無い（ゲーム開始前）は描画しない */
-  if (!payoutRows.length) return null;
+  if (!payoutRows.length) return null; // データ無ければ描画しない
 
+  /* --------- 描画 --------- */
   return (
     <div
       className="result-box"
       style={{
         fontFamily: '"Inter", sans-serif',
-        fontSize: '1.25rem' /* ← 好きな大きさに */,
+        fontSize: '1.25rem',
         lineHeight: 1.4,
         whiteSpace: 'pre-wrap',
-        ...style /* 位置は App.js から受け取る */,
+        ...style,
       }}
     >
-      {/* ─ 役表示 ─ */}
-      {hands.map((ln, i) => (
-        <div key={i}>{ln}</div>
-      ))}
+      {/* あなた / ディーラーの 5 枚をミニカードで表示 */}
+      <div style={{ marginBottom: '0.3em' }}>
+        あなた : {renderMini(playerBest)}
+      </div>
+      <div style={{ marginBottom: '0.1em', fontWeight: '600' }}>
+        役 : {playerRank}
+      </div>
+      <div style={{ marginBottom: '0.5em' }}>
+        ディーラー : {renderMini(dealerBest)}
+      </div>
+      <div style={{ marginBottom: '0.3em', fontWeight: '600' }}>
+        役 : {dealerRank}
+      </div>
+
+      {/* 勝敗テキスト */}
       <strong>{winnerText}</strong>
 
       {/* ─ 払い戻し表 ─ */}

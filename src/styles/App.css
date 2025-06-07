@@ -97,3 +97,11 @@ html.too-small::after {
   z-index: 6000; /* 何よりも前面 */
   pointer-events: all; /* クリックを遮断して操作不可に */
 }
+/* styles/App.css 等に追記 */
+.mini {
+  width: 32px; /* 好みの大きさに調整 */
+  height: auto;
+  margin-right: 2px;
+  vertical-align: middle;
+  filter: drop-shadow(0 0 2px #0006); /* ほんのり縁取り（任意） */
+}

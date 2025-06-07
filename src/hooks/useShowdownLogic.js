@@ -7,7 +7,7 @@ import {
   getBonusMultiplierForPlayer,
   checkDoubleAceBonus,
 } from '../utils/bonusUtils';
-import { formatCard, formatHandByCompareRanks } from '../utils/formatUtils';
+import { formatHandByCompareRanks } from '../utils/formatUtils';
 import { handRanks } from '../constants/rankorder';
 import { getJackpotPayout } from '../utils/jackpotUtils';
 
@@ -74,16 +74,11 @@ const useShowdownLogic = ({
       playerResult.hand,
       playerResult.compareRanks
     );
+
     const dealerSortedHand = formatHandByCompareRanks(
       dealerResult.hand,
       dealerResult.compareRanks
     );
-
-    const playerUsedCards = playerSortedHand.map(formatCard).join(' ');
-    const dealerUsedCards = dealerSortedHand.map(formatCard).join(' ');
-
-    const playerHandText = `あなたの手：${playerRank}（${playerUsedCards}）`;
-    const dealerHandText = `ディーラーの手：${dealerRank}（${dealerUsedCards}）`;
 
     // --- 勝敗とキッカー勝負の判定 ---
     const pRanks = playerResult.compareRanks;
@@ -181,7 +176,10 @@ const useShowdownLogic = ({
 
     /* ─ 行データをまとめて渡す ─ */
     setResultText({
-      hands: [playerHandText, dealerHandText],
+      playerBest: playerSortedHand,
+      dealerBest: dealerSortedHand,
+      playerRank: playerRank, // 追加 例 "Straight"
+      dealerRank: dealerRank, // 追加
       winnerText,
       payoutRows: [
         { label: 'TOTAL BET', value: `$${totalBetAmount}` },
