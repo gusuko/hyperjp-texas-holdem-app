@@ -3,6 +3,8 @@
 
 import React, { useState, useReducer } from 'react';
 import { initialState, reducer } from './state';
+import useHandHistory from './hooks/useHandHistory';
+import HistoryList from './components/HistoryList';
 import { handleStartGameWithChecks } from './utils/gameStart';
 import {
   handleFlopBet,
@@ -66,6 +68,8 @@ function App() {
   useAutoScale();
   // 🎯 状態（ステート）管理
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { history, addHand, wipe } = useHandHistory();
+  const [showHistory, setShowHistory] = useState(false);
   const { chips } = state;
   const { deck, cards, bets, phase: gamePhase, folded, showdown } = state;
   const [resultText, setResultText] = useState('');
@@ -90,7 +94,11 @@ function App() {
     bets,
     dispatch,
     setResultText,
+    onHandComplete: addHand,
   });
+
+  // HistoryList 内の × ボタン or 「Back」ボタンで呼ぶ想定
+  const closeHistory = () => setShowHistory(false);
 
   const handlePlayAgain = async () => {
     restartRound({
@@ -341,7 +349,16 @@ function App() {
       {!folded && gamePhase === 'preflop' && (
         <button
           className="fold-btn"
-          onClick={() => handleFold({ dispatch, deck })}
+          onClick={() =>
+            handleFold({
+              dispatch,
+              deck: state.deck,
+              playerCards: state.playerCards,
+              dealerCards: state.dealerCards,
+              bets: state.bets, // 全ベット額が入っている state
+              onHandComplete: addHand,
+            })
+          }
           style={POS.ui.fold}
         >
           FOLD
@@ -405,6 +422,42 @@ function App() {
           チェック
         </button>
       )}
+      {/* ---- ハンド履歴パネル ---- */}
+      {showHistory && (
+        <HistoryList
+          history={history}
+          onClose={closeHistory}
+          style={{ position: 'absolute', ...POS.ui.history }}
+        />
+      )}
+
+      {/* ==== デバッグ: ハンド履歴テスト ==== */}
+      <div style={{ marginTop: '1rem', borderTop: '1px dashed #ccc' }}>
+        <button
+          onClick={() =>
+            addHand({
+              playerCards: ['Ah', 'Kd'],
+              dealerCards: ['7c', '7d'],
+              community: ['2h', '5s', '9d', 'Qs', 'Jc'],
+              resultText: 'Demo Save',
+              payout: 0,
+            })
+          }
+        >
+          + Dummy Hand
+        </button>
+        <button onClick={wipe} style={{ marginLeft: '0.5rem' }}>
+          Clear History
+        </button>
+        <span style={{ marginLeft: '1rem' }}>現在 {history.length} 件</span>
+      </div>
+      {/* === 履歴トグルボタン === */}
+      <button
+        onClick={() => setShowHistory((prev) => !prev)}
+        style={{ position: 'absolute', ...POS.ui.historyToggle }}
+      >
+        {showHistory ? '履歴を閉じる' : '履歴を開く'}
+      </button>
     </div>
   );
 }

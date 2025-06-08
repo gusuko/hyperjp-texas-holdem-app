@@ -105,3 +105,50 @@ html.too-small::after {
   vertical-align: middle;
   filter: drop-shadow(0 0 2px #0006); /* ほんのり縁取り（任意） */
 }
+/* === HistoryList テーブル === */
+/* === HistoryList テーブル === */
+.history-list {
+  width: 400px; /* ← 横幅 +60 */
+  max-height: 560px; /* ← 縦幅 +80 */
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.78rem; /* ← 字も少し大 */
+}
+
+.history-title {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* 罫線入りテーブル */
+.history-table {
+  width: 100%;
+  border-collapse: collapse; /* ←線を一体化 */
+}
+
+.history-table th,
+.history-table td {
+  padding: 3px 4px;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* ←格子線 */
+}
+
+.history-table thead tr {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.history-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.plus {
+  color: #2ecc71;
+} /* 緑 */
+.minus {
+  color: #e74c3c;
+} /* 赤 */

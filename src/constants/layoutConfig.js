@@ -63,6 +63,8 @@ const NEG_POS = {
     playAgain: { top: 30, left: -150 },
     check: { top: 30, left: -150 },
     resultText: { top: -550, left: 0 },
+    history: { top: -550, left: 0 }, // ★履歴パネルの基準位置
+    historyToggle: { top: -600, left: 0 },
     bonusTable: { top: -550, left: -840 },
     jackpotTable: { top: -250, left: -840 },
     chips: { top: -500, left: -200 },

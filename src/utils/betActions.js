@@ -94,7 +94,14 @@ export const handleCheckRiver = handleRiverBet; // 完全に同じならエイ�
  * - フォールド状態にする
  * - フェーズを "folded" に変更する
  */
-export const handleFold = ({ dispatch, deck }) => {
+export const handleFold = ({
+  dispatch,
+  deck,
+  playerCards, // ★追加
+  dealerCards, // ★追加
+  bets, // ★追加（賭け金合計を計算するため）
+  onHandComplete,
+}) => {
   dispatch({ type: 'SET_FOLDED', value: true });
   // 💡 フォールドしても場カード（5枚）をすべて出す
   dispatch({
@@ -110,6 +117,21 @@ export const handleFold = ({ dispatch, deck }) => {
     ],
   });
 
+  const communityCards = [deck[4], deck[5], deck[6], deck[7], deck[8]];
+
   dispatch({ type: 'SET_PHASE', phase: 'showdown' });
   dispatch({ type: 'SET_SHOWDOWN', value: true });
+
+  /* ===== ここから追加 ===== */
+  const totalBet =
+    bets.ante + bets.bonus + bets.jackpot + bets.flop + bets.turn + bets.river;
+
+  onHandComplete?.({
+    playerCards,
+    dealerCards,
+    community: communityCards,
+    resultText: 'Fold',
+    payout: -totalBet, // 掛け金没収
+    endedBy: 'fold',
+  });
 };

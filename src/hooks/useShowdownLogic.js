@@ -12,6 +12,7 @@ import { handRanks } from '../constants/rankorder';
 import { getJackpotPayout } from '../utils/jackpotUtils';
 
 const useShowdownLogic = ({
+  onHandComplete,
   showdown,
   folded,
   cards,
@@ -25,7 +26,7 @@ const useShowdownLogic = ({
     board: communityCards,
   } = cards;
   useEffect(() => {
-    if (!showdown) return;
+    if (!showdown || folded) return;
     // --- 初期化 ---
     let payout = 0;
     let anteWin = 0;
@@ -202,6 +203,16 @@ const useShowdownLogic = ({
         },
       ],
       total: `$${payout}`,
+    });
+    onHandComplete?.({
+      playerCards, // 2 枚
+      dealerCards, // 2 枚
+      community: communityCards, // 5 枚
+      resultText: winnerText, // 例: "→ あなたの勝ち！"
+      payout, // 最終払戻し額
+      endedBy: folded ? 'fold' : 'showdown',
+      playerWins,
+      tie,
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [showdown]);
