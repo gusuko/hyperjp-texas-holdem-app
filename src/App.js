@@ -5,6 +5,8 @@ import React, { useState, useReducer } from 'react';
 import { initialState, reducer } from './state';
 import useHandHistory from './hooks/useHandHistory';
 import HistoryList from './components/HistoryList';
+import ResultPanel from './components/ResultPanel';
+import StatsPanel from './components/StatsPanel';
 import { handleStartGameWithChecks } from './utils/gameStart';
 import {
   handleFlopBet,
@@ -14,7 +16,7 @@ import {
   handleCheckRiver,
   handleFold,
 } from './utils/betActions';
-import ShowdownResult from './components/ShowdownResult';
+import { setChips } from './data/handHistoryRepo';
 import useShowdownLogic from './hooks/useShowdownLogic'; // ← 勝敗判定ロジックのHook
 
 import ChipSelector from './components/ChipSelector';
@@ -28,6 +30,7 @@ import { restartRound } from './utils/gameReset';
 import PayoutTable from './components/PayoutTable';
 import { bonusPayouts, jackpotPayouts } from './constants/payouts';
 import CurrentChips from './components/CurrentChips';
+import useWallet from './hooks/useWallet';
 import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
 import sleep from './utils/sleep';
 /* 画面に合わせて “タイトル帯を除いた残りエリア” だけで拡縮 */
@@ -70,7 +73,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { history, addHand, wipe } = useHandHistory();
   const [showHistory, setShowHistory] = useState(false);
-  const { chips } = state;
+  const { chips, credit, debit } = useWallet();
   const { deck, cards, bets, phase: gamePhase, folded, showdown } = state;
   const [resultText, setResultText] = useState('');
   const [selectedArea, setSelectedArea] = useState('ante');
@@ -85,12 +88,23 @@ function App() {
   const [boardCardLoadCallback, setBoardCardLoadCallback] = useState(
     () => () => {}
   );
+  const handleTopUp = async () => {
+    if (chips === 0) {
+      /* -------- 初回 Welcome -------- */
+      credit(1000);
+    } else {
+      /* -------- 2 回目以降：広告に差し替え予定 -------- */
+      // await showRewardedAd();   ← SDK 組み込み後ここを有効化
+      credit(1000);
+    }
+  };
 
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
     showdown,
     folded,
     cards,
+    credit,
     bets,
     dispatch,
     setResultText,
@@ -113,8 +127,21 @@ function App() {
     setTimeout(() => setShowPlaceYourBets(false), 1500);
   };
 
-  const handleGameStart = () => {
-    handleStartGameWithChecks({
+  const handleGameStart = async () => {
+    /* ① 先に同期バリデーションだけする */
+    const ante = state.placedChips.ante.reduce((s, c) => s + c.value, 0);
+    if (ante < 25) {
+      // ❌ NG → 何も変えない
+      alert('ANTE は最低 $25 必要です');
+      return;
+    }
+
+    /* ② 合格したら即フェーズを 'starting' にして
+            Reset / Start を画面から消す */
+    dispatch({ type: 'SET_PHASE', phase: 'starting' });
+
+    /* ③ 重い処理を走らせる（元の関数をそのまま呼ぶ）*/
+    await handleStartGameWithChecks({
       placedChips: state.placedChips,
       dispatch,
       setResultText,
@@ -122,7 +149,6 @@ function App() {
       setDealerCardLoadCallback,
     });
   };
-
   // ✅ FLOP 円クリックで ANTE × 2 の自動ベット
   const handleFlopCircleClick = async () => {
     const betAmount = bets.ante * 2;
@@ -130,7 +156,7 @@ function App() {
     if (gamePhase === 'preflop' && bets.flop === 0 && chips >= betAmount) {
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
-
+      debit(betAmount);
       dispatch({
         type: 'SET_PLACED_CHIPS',
         area: 'flop',
@@ -154,8 +180,9 @@ function App() {
     const betAmount = bets.ante;
 
     if (gamePhase === 'flop' && bets.turn === 0 && chips >= betAmount) {
+      debit(betAmount);
       const chipsToPlace = convertToChips(betAmount);
-      chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
+      chipsToPlace.sort((a, b) => a.value - b.value);
 
       dispatch({
         type: 'SET_PLACED_CHIPS',
@@ -180,6 +207,7 @@ function App() {
     const betAmount = bets.ante;
 
     if (gamePhase === 'turn' && bets.river === 0 && chips >= betAmount) {
+      debit(betAmount);
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value); // 小さい順！
 
@@ -315,15 +343,17 @@ function App() {
           isRiverActive={gamePhase === 'turn'}
           selectedArea={selectedArea}
           setSelectedArea={setSelectedArea}
+          credit={credit}
+          debit={debit}
         />
       </div>
       {/* === 下段：補充ボタン === */}
       <button
         className="recharge-btn"
-        onClick={() => dispatch({ type: 'ADD_CHIPS', amount: 1000 })}
+        onClick={() => handleTopUp()}
         style={{ position: 'absolute', ...POS.ui.recharge }}
       >
-        ＋$1,000
+        {chips === 0 ? 'WELCOME\n＋$1,000' : '＋$1,000'}
       </button>
 
       {/* BONUS 払い戻し表 */}
@@ -338,11 +368,12 @@ function App() {
       {/* ========= ここで table-wrapper を閉じる ========= */}
 
       {/* 勝敗テキスト */}
-      <ShowdownResult
+      <ResultPanel
         showdown={showdown}
         folded={folded}
         resultText={resultText}
-        style={{ position: 'absolute', ...POS.ui.resultText }}
+        history={history}
+        onPlayAgain={handlePlayAgain}
       />
 
       {/* ① フォールド（preflop でのみ表示） */}
@@ -357,6 +388,8 @@ function App() {
               dealerCards: state.dealerCards,
               bets: state.bets, // 全ベット額が入っている state
               onHandComplete: addHand,
+              onResult: setResultText,
+              debit,
             })
           }
           style={POS.ui.fold}
@@ -422,14 +455,6 @@ function App() {
           チェック
         </button>
       )}
-      {/* ---- ハンド履歴パネル ---- */}
-      {showHistory && (
-        <HistoryList
-          history={history}
-          onClose={closeHistory}
-          style={{ position: 'absolute', ...POS.ui.history }}
-        />
-      )}
 
       {/* ==== デバッグ: ハンド履歴テスト ==== */}
       <div style={{ marginTop: '1rem', borderTop: '1px dashed #ccc' }}>
@@ -451,13 +476,17 @@ function App() {
         </button>
         <span style={{ marginLeft: '1rem' }}>現在 {history.length} 件</span>
       </div>
-      {/* === 履歴トグルボタン === */}
+      {/* Debug only */}
       <button
-        onClick={() => setShowHistory((prev) => !prev)}
-        style={{ position: 'absolute', ...POS.ui.historyToggle }}
+        onClick={() => setChips(0)}
+        style={{ position: 'fixed', bottom: 8, right: 8 }}
       >
-        {showHistory ? '履歴を閉じる' : '履歴を開く'}
+        RESET WALLET
       </button>
+      <StatsPanel
+        history={history}
+        style={{ position: 'absolute', ...POS.ui.statsPanel }}
+      />
     </div>
   );
 }

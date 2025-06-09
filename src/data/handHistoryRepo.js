@@ -9,8 +9,9 @@ const db = new Dexie('UthHandHistory');
 // ❸ スキーマ定義：hands テーブルに
 //    - 自動採番 id (`++id`)
 //    - ソート用 createdAt
-db.version(1).stores({
+db.version(2).stores({
   hands: '++id, createdAt',
+  wallet: 'id, chips',
 });
 /**
  * hand : {
@@ -46,6 +47,17 @@ export function getAllHands() {
 export function clearHistory() {
   return db.hands.clear();
 }
+/* --- wallet helpers ------------------------------------------------- */
+export async function initWallet() {
+  const count = await db.wallet.count();
+  if (count === 0) await db.wallet.add({ id: 1, chips: 0 }); // 初期0
+}
+
+export const getChips = () => db.wallet.get(1).then((w) => w?.chips ?? 0);
+
+export const setChips = (n) => db.wallet.put({ id: 1, chips: n });
+
+export const addChips = (delta) => getChips().then((c) => setChips(c + delta));
 
 // ❹ 当面は DB インスタンスだけ export
 export default db;

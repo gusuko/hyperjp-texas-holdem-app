@@ -26,8 +26,6 @@ export const initialState = {
 
 export function reducer(state, action) {
   switch (action.type) {
-    case 'ADD_CHIPS':
-      return { ...state, chips: state.chips + action.amount };
     case 'SUB_CHIPS':
       return { ...state, chips: state.chips - action.amount };
     case 'SET_PHASE':

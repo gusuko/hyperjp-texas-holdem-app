@@ -28,6 +28,8 @@ export default function ChipSelector({
   gamePhase,
   selectedArea,
   dispatch,
+  credit,
+  debit,
 }) {
   /* ─────────── チップを置く ─────────── */
   const handlePlaceChip = (area, chip) => {
@@ -39,6 +41,7 @@ export default function ChipSelector({
       const updated = [...placedChips[area], chip].sort(
         (a, b) => a.value - b.value
       );
+      debit(chip.value);
       dispatch({ type: 'SET_PLACED_CHIPS', area, chips: updated });
       playBetSound();
       dispatch({ type: 'PLACE_BET', area, amount: chip.value });
@@ -51,7 +54,7 @@ export default function ChipSelector({
     const refund = Object.values(placedChips)
       .flat()
       .reduce((sum, chip) => sum + chip.value, 0);
-    dispatch({ type: 'ADD_CHIPS', amount: refund });
+    credit(refund);
     dispatch({ type: 'RESET_BETS' });
     dispatch({ type: 'RESET_PLACED_CHIPS' });
   };

@@ -5,7 +5,6 @@ import playCardSound from './sound';
 export const handleStartGameWithChecks = async ({
   placedChips, // 追加：円に置いたチップ配列
   dispatch,
-  setResultText,
   setPlayerCardLoadCallback,
   setDealerCardLoadCallback,
 }) => {
@@ -15,7 +14,7 @@ export const handleStartGameWithChecks = async ({
   /* ---- ② 最低額チェック ---- */
   if (anteAmount < 25) {
     alert('ANTEベットは最低$25必要です！');
-    return;
+    return false;
   }
 
   /* ---- ④ デッキ配布と状態リセット ---- */
@@ -65,5 +64,5 @@ export const handleStartGameWithChecks = async ({
   dispatch({ type: 'SET_CARDS', who: 'board', cards: [] });
   dispatch({ type: 'SET_PHASE', phase: 'preflop' });
   dispatch({ type: 'SET_FOLDED', value: false });
-  setResultText('');
+  return true;
 };

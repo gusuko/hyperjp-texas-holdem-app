@@ -2,18 +2,28 @@
 import { miniCardSrc } from '../utils/cardImages';
 
 const renderMini = (ids) =>
-  ids.map((id) => (
+  (ids ?? []).map((id) => (
     <img key={id} src={miniCardSrc(id)} className="mini" alt={id} />
   ));
 
-export default function ShowdownResult({
-  showdown,
-  folded,
-  resultText,
-  style = {},
-}) {
-  /* --------- フォールド時だけ早期リターン --------- */
-  if (folded) {
+export default function ShowdownResult({ resultText, style = {} }) {
+  /* 結果データが無ければ描画しない */
+  if (!resultText) return null;
+
+  /* --------- データ展開 --------- */
+  const {
+    endedBy = '', // 'showdown' | 'fold'
+    winnerText = '',
+    payoutRows = [],
+    total = '',
+    playerBest = [], // ["9H","KD",…] 5枚
+    dealerBest = [], // ["QS","QC",…] 5枚
+    playerRank = '',
+    dealerRank = '',
+  } = resultText;
+
+  /* --------- Fold 用の簡易表示 --------- */
+  if (endedBy === 'fold') {
     return (
       <div
         className="result-box"
@@ -25,26 +35,14 @@ export default function ShowdownResult({
           ...style,
         }}
       >
-        FOLD...！AnteとBonusは没収されます。
+        FOLD...！Ante と Bonus は没収されます。
       </div>
     );
   }
-  if (!showdown) return null;
 
-  /* --------- 受け取るデータ --------- */
-  const {
-    winnerText = '',
-    payoutRows = [],
-    total = '',
-    playerBest = [], // ["9H","KD",…] 5枚
-    dealerBest = [], // ["QS","QC",…] 5枚
-    playerRank = '',
-    dealerRank = '',
-  } = resultText ?? {};
-
+  /* --------- ショーダウン表示 --------- */
   if (!payoutRows.length) return null; // データ無ければ描画しない
 
-  /* --------- 描画 --------- */
   return (
     <div
       className="result-box"
@@ -60,13 +58,13 @@ export default function ShowdownResult({
       <div style={{ marginBottom: '0.3em' }}>
         あなた : {renderMini(playerBest)}
       </div>
-      <div style={{ marginBottom: '0.1em', fontWeight: '600' }}>
+      <div style={{ marginBottom: '0.1em', fontWeight: 600 }}>
         役 : {playerRank}
       </div>
       <div style={{ marginBottom: '0.5em' }}>
         ディーラー : {renderMini(dealerBest)}
       </div>
-      <div style={{ marginBottom: '0.3em', fontWeight: '600' }}>
+      <div style={{ marginBottom: '0.3em', fontWeight: 600 }}>
         役 : {dealerRank}
       </div>
 

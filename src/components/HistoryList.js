@@ -1,10 +1,15 @@
 // src/components/HistoryList.js
 import React from 'react';
-
+import { miniCardSrc } from '../utils/cardImages';
 /**
  * props:
  *   history : [{ playerCards, dealerCards, community, resultText, payout, endedBy, createdAt }]
  */
+const renderMini = (ids = []) =>
+  ids.map((id) => (
+    <img key={id} src={miniCardSrc(id)} className="mini" alt={id} />
+  ));
+
 export default function HistoryList({ history, style }) {
   return (
     <div className="history-list" style={style}>
@@ -33,9 +38,9 @@ export default function HistoryList({ history, style }) {
               <tr key={idx}>
                 <td>{history.length - idx}</td>
                 {/* 新しい順で番号 */}
-                <td>{(h.playerCards ?? []).join(' ')}</td>
-                <td>{(h.dealerCards ?? []).join(' ')}</td>
-                <td>{(h.community ?? []).join(' ')}</td>
+                <td>{renderMini(h.playerCards)}</td>
+                <td>{renderMini(h.dealerCards)}</td>
+                <td className="board">{renderMini(h.community)}</td>
                 <td>{res}</td>
                 <td className={h.payout >= 0 ? 'plus' : 'minus'}>
                   {h.payout >= 0 ? `+${h.payout}` : h.payout}

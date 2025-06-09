@@ -11,7 +11,7 @@ export const handleFlopBet = async ({
   deck,
   dispatch,
   setBoardCardLoadCallback,
-  cards, // 必要なら現在のboard配列（App.jsから渡す）
+  cards,
 }) => {
   let currentBoard = cards?.board ? [...cards.board] : [];
   for (let i = 4; i <= 6; i++) {
@@ -97,10 +97,11 @@ export const handleCheckRiver = handleRiverBet; // 完全に同じならエイ�
 export const handleFold = ({
   dispatch,
   deck,
-  playerCards, // ★追加
-  dealerCards, // ★追加
-  bets, // ★追加（賭け金合計を計算するため）
+  playerCards,
+  dealerCards,
+  bets,
   onHandComplete,
+  onResult,
 }) => {
   dispatch({ type: 'SET_FOLDED', value: true });
   // 💡 フォールドしても場カード（5枚）をすべて出す
@@ -126,6 +127,15 @@ export const handleFold = ({
   const totalBet =
     bets.ante + bets.bonus + bets.jackpot + bets.flop + bets.turn + bets.river;
 
+  /* ── ⭐ Fold 用に RESULT も出力 ───────────────── */
+  onResult?.({
+    endedBy: 'fold',
+    winnerText: 'You folded',
+    payoutRows: [{ label: 'TOTAL BET', value: `$${totalBet}` }],
+    total: `-$${totalBet}`,
+  });
+  /* ─────────────────────────────────────────── */
+
   onHandComplete?.({
     playerCards,
     dealerCards,
@@ -133,5 +143,10 @@ export const handleFold = ({
     resultText: 'Fold',
     payout: -totalBet, // 掛け金没収
     endedBy: 'fold',
+    playerWins: false,
+    tie: false,
+    totalBet: totalBet, // 失った掛け金
+    bonusWin: 0,
+    jackpotWin: 0,
   });
 };

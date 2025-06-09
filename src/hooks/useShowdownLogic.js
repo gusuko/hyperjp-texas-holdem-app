@@ -17,6 +17,7 @@ const useShowdownLogic = ({
   folded,
   cards,
   bets,
+  credit,
   dispatch,
   setResultText,
 }) => {
@@ -104,12 +105,12 @@ const useShowdownLogic = ({
       for (let i = 0; i < pRanks.length; i++) {
         if (pRanks[i] > dRanks[i]) {
           playerWins = true;
-          kickerUsed = i >= 1; // 0番目なら役の中身で勝敗、キッカーではない
+          kickerUsed = i === pRanks.length - 1;
           winnerDecided = true;
           break;
         } else if (pRanks[i] < dRanks[i]) {
           playerWins = false;
-          kickerUsed = i >= 1;
+          kickerUsed = i === pRanks.length - 1;
           winnerDecided = true;
           break;
         }
@@ -173,7 +174,7 @@ const useShowdownLogic = ({
     }
 
     // --- チップと結果表示を反映 ---
-    dispatch({ type: 'ADD_CHIPS', amount: payout });
+    credit(payout);
 
     /* ─ 行データをまとめて渡す ─ */
     setResultText({
@@ -213,6 +214,9 @@ const useShowdownLogic = ({
       endedBy: folded ? 'fold' : 'showdown',
       playerWins,
       tie,
+      totalBet: totalBetAmount, // ★ 掛け金合計
+      bonusWin: bonusWin, // ★ BONUS 配当
+      jackpotWin: jackpotWin, // ★ JACKPOT 配当
     });
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [showdown]);

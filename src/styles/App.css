@@ -105,7 +105,12 @@ html.too-small::after {
   vertical-align: middle;
   filter: drop-shadow(0 0 2px #0006); /* ほんのり縁取り（任意） */
 }
-/* === HistoryList テーブル === */
+/* HistoryList 内だけサイズ上書き */
+.history-list .mini {
+  width: 25px; /* 好きなサイズに */
+  height: auto;
+  margin-right: 1px;
+}
 /* === HistoryList テーブル === */
 .history-list {
   width: 400px; /* ← 横幅 +60 */
@@ -152,3 +157,51 @@ html.too-small::after {
 .minus {
   color: #e74c3c;
 } /* 赤 */
+/* --- ResultPanel 共通 --- */
+.result-panel {
+  width: var(--result-panel-w);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.tab-header {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+  width: var(--result-panel-w);
+}
+
+.tab-header button {
+  flex: 1;
+  padding: 4px 0;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+}
+.tab-header button.active {
+  background: #e67e22;
+}
+:root {
+  --result-panel-w: 420px; /* 好みの横幅 */
+}
+.stats-box {
+  background: #222;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+.stats-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+}
+.stats-box li {
+  margin: 2px 0;
+}

@@ -41,5 +41,5 @@ export const restartRound = ({ dispatch, setResultText }) => {
   /* 🂣 ④ ベット額をゼロに */
   dispatch({ type: 'RESET_BETS' });
   dispatch({ type: 'RESET_PLACED_CHIPS' });
-  setResultText('');
+  //   setResultText(''); Resultを残すためにコメントアウト
 };
