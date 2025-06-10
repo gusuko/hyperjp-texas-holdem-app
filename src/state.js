@@ -22,6 +22,7 @@ export const initialState = {
     turn: [],
     river: [],
   },
+  mode: 'normal',
 };
 
 export function reducer(state, action) {
@@ -78,6 +79,9 @@ export function reducer(state, action) {
 
     case 'RESET_PLACED_CHIPS':
       return { ...state, placedChips: initialState.placedChips };
+
+    case 'SET_MODE':
+      return { ...state, mode: action.payload };
 
     default:
       return state; // どの case にも合わない時
