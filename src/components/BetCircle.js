@@ -1,36 +1,51 @@
-// BetCircle.jsx  ─ 直径 70px のベット円
+// src/components/BetCircle.js
 import React from 'react';
 import { DIM, POS } from '../constants/layoutConfig';
 
+/**
+ * props
+ * ─ area, total, chips, isSelected, isActive, onClick
+ * ─ isDisabled     : boolean  … チュートリアル中などのクリック無効化
+ * ─ tutorialActive : boolean  … true の間だけハイライト
+ */
 export default function BetCircle({
-  area, // 'ante' | 'bonus' | …
-  total, // 合計金額
-  chips = [], // 可視チップ [{ value, src }, …]
-  isSelected, // 選択中?
-  isActive, // クリック可?
-  onClick, // クリックハンドラ
+  area,
+  total,
+  chips = [],
+  isSelected = false,
+  isActive = false,
+  isDisabled = false,
+  tutorialActive = false, // ★ 追加
+  onClick,
 }) {
-  /* ① 中央線(50%) を原点としたオフセットを取得 */
   const { top, left } = POS.bet[area];
+  const clickable = isActive && !isDisabled;
 
   return (
     <div
-      className={`bet-area ${isSelected ? 'selected' : ''}`}
-      onClick={isActive ? onClick : undefined} // ← inactive のとき無効化
+      className={[
+        'bet-area',
+        isSelected ? 'selected' : '',
+        clickable ? 'active' : 'inactive',
+        isDisabled ? 'disabled' : '',
+        tutorialActive ? 'highlight-circle' : '', // ハイライト
+      ].join(' ')}
+      onClick={clickable ? onClick : undefined}
       role="button"
-      tabIndex={isActive ? 0 : -1}
+      tabIndex={clickable ? 0 : -1}
       aria-pressed={isSelected}
       style={{
-        width: DIM.BET_D, // ← “実寸” だけ
+        width: DIM.BET_D,
         height: DIM.BET_D,
-        left: left, // ← 受け取った px
-        top: top,
+        left,
+        top,
+        pointerEvents: clickable ? 'auto' : 'none',
       }}
     >
-      {/* ───────── 点線の円 ───────── */}
-      <div className={`circle ${isActive ? 'active' : 'inactive'}`} />
+      {/* 点線円 */}
+      <div className={`circle ${clickable ? 'active' : 'inactive'}`} />
 
-      {/* ──────── チップ画像（最大5枚）──────── */}
+      {/* チップ画像（最大 5 枚）*/}
       <div className="chip-stack">
         {chips
           .slice(0, 5)
@@ -42,18 +57,16 @@ export default function BetCircle({
               className="bet-chip"
               alt={`$${chip.value}`}
               style={{
-                /* 中央基点からわずかに右下へスタック */
-                transform: `translate(-50%, -50%)                   /* 中央に合わせる */ 
-                  translate(${i * 2}px, ${
+                transform: `translate(-50%, -50%) translate(${i * 2}px, ${
                   -i * 2
-                }px)` /* その上で少し右下へ重ねる */,
+                }px)`,
                 zIndex: i + 1,
               }}
             />
           ))}
       </div>
 
-      {/* ───── ラベル & 合計金額 ───── */}
+      {/* ラベル & 合計 */}
       <div className="label">{area.toUpperCase()}</div>
       <div className="total">${total}</div>
     </div>

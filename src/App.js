@@ -32,6 +32,9 @@ import CurrentChips from './components/CurrentChips';
 import useWallet from './hooks/useWallet';
 import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
 import sleep from './utils/sleep';
+import { initWallet } from './data/handHistoryRepo';
+import TutorialOverlay from './components/TutorialOverlay';
+
 /* 画面に合わせて “タイトル帯を除いた残りエリア” だけで拡縮 */
 /* 画面サイズ変化に合わせて --game-scale と --title-gap を更新 */
 /* 画面サイズに応じて
@@ -68,6 +71,11 @@ function useAutoScale() {
 
 function App() {
   useAutoScale();
+  // --- 初回起動で wallet 行を確実に作成 ---
+  React.useEffect(() => {
+    initWallet();
+  }, []);
+
   // 🎯 状態（ステート）管理
   const [state, dispatch] = useReducer(reducer, initialState);
   const { history, addHand, wipe } = useHandHistory();
@@ -76,6 +84,11 @@ function App() {
   const [resultText, setResultText] = useState('');
   const [selectedArea, setSelectedArea] = useState('ante');
   const { placedChips } = state;
+  const anteDone = getTotalBet(placedChips, 'ante') >= 25; // ANTE が $25 以上
+  const bonusDone = getTotalBet(placedChips, 'bonus') >= 25; // BONUS が $25 以上
+  const jackpotDone = getTotalBet(placedChips, 'jackpot') >= 25;
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStage, setTutorialStage] = useState(1);
   const [showPlaceYourBets, setShowPlaceYourBets] = useState(false);
   const [playerCardLoadCallback, setPlayerCardLoadCallback] = useState(
     () => () => {}
@@ -92,6 +105,9 @@ function App() {
       const newChips = wallet.chips + 1000; // 今の残高 +1000
       await setWallet({ id: 1, chips: newChips, welcomeClaimed: true });
       refresh();
+      // ★ まだチュートリアル未完了なら表示フラグを ON
+      if (!wallet.tutorialCompleted) setShowTutorial(true);
+      console.log('✅ showTutorial ON');
     } else {
       /* --- 2 回目以降（広告予定） --- */
       // await showRewardedAd();
@@ -231,7 +247,7 @@ function App() {
 
   return (
     <div className="game-board">
-      <h1 className="title-in-board">🃏 HyperJP Texas Hold'em</h1>
+      <h1 className="title-in-board">🃏 Ultimate Texas Hold'em Simulator</h1>
       <CurrentChips
         chips={wallet.chips} // stateから渡す
         style={{ position: 'absolute', ...POS.ui.chips }}
@@ -264,7 +280,6 @@ function App() {
         positions={POS.cardSlot.player}
       />
       {/* ---------- ベット円（6個） ---------- */}
-      {/* ANTE */}
       <BetCircle
         area="ante"
         total={getTotalBet(placedChips, 'ante')}
@@ -273,8 +288,11 @@ function App() {
         isSelected={selectedArea === 'ante'}
         onClick={() => setSelectedArea('ante')}
         style={POS.bet.ante}
+        /* ステージ1だけ点滅させる */
+        tutorialActive={showTutorial && tutorialStage === 1}
+        /* ANTE は常にクリック可なので無効化しない */
+        isDisabled={false}
       />
-      {/* BONUS */}
       <BetCircle
         area="bonus"
         total={getTotalBet(placedChips, 'bonus')}
@@ -283,8 +301,11 @@ function App() {
         isSelected={selectedArea === 'bonus'}
         onClick={() => setSelectedArea('bonus')}
         style={POS.bet.bonus}
+        /* ステージ1の間はクリック無効化（半透明） */
+        isDisabled={showTutorial && tutorialStage === 1}
+        /* ステージ2だけ点滅させる */
+        tutorialActive={showTutorial && tutorialStage === 2}
       />
-      {/* JACKPOT */}
       <BetCircle
         area="jackpot"
         total={getTotalBet(placedChips, 'jackpot')}
@@ -293,6 +314,11 @@ function App() {
         isSelected={selectedArea === 'jackpot'}
         onClick={() => setSelectedArea('jackpot')}
         style={POS.bet.jackpot}
+        /* ステージ1・2 ではクリック無効。
+     ステージ3（JACKPOTの番）だけクリック可にする */
+        isDisabled={showTutorial && tutorialStage !== 3}
+        /* ステージ3 だけ点滅させる */
+        tutorialActive={showTutorial && tutorialStage === 3}
       />
       {/* FLOP */}
       <BetCircle
@@ -341,6 +367,8 @@ function App() {
           setSelectedArea={setSelectedArea}
           credit={credit}
           debit={debit}
+          tutorialActive={showTutorial}
+          tutorialStage={tutorialStage}
         />
       </div>
       {/* === 下段：補充ボタン === */}
@@ -394,8 +422,9 @@ function App() {
       {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
       {gamePhase === 'initial' && (
         <button
-          className="btn-start"
+          className={`btn-start ${showTutorial ? 'disabled-btn' : ''}`}
           onClick={handleGameStart}
+          disabled={showTutorial} /* ← ボタン無効化 */
           style={{
             position: 'absolute',
             ...POS.ui.start,
@@ -466,11 +495,15 @@ function App() {
         </button>
         <span style={{ marginLeft: '1rem' }}>現在 {history.length} 件</span>
       </div>
-
       {/* Debug only */}
       <button
-        onClick={
-          () => setWallet({ id: 1, chips: 0, welcomeClaimed: false }) // ← ここ
+        onClick={() =>
+          setWallet({
+            id: 1,
+            chips: 0,
+            welcomeClaimed: false,
+            tutorialCompleted: false, // ←★ この行を追加
+          })
         }
         style={{ position: 'fixed', bottom: 8, right: 8 }}
       >
@@ -480,6 +513,33 @@ function App() {
         history={history}
         style={{ position: 'absolute', ...POS.ui.statsPanel }}
       />
+      {/* ===== Tutorial Overlay ===== */}
+      {showTutorial && (
+        <TutorialOverlay
+          /* ステージごとにメッセージを切り替える */
+          stage={tutorialStage}
+          /* OK ボタンが押せる条件をステージ別に渡す */
+          canClose={
+            tutorialStage === 1
+              ? anteDone
+              : tutorialStage === 2
+              ? bonusDone
+              : jackpotDone
+          }
+          /* OK を押したときの挙動をステージ別に分岐 */
+          onClose={async () => {
+            if (tutorialStage === 1) {
+              setTutorialStage(2); // ANTE → BONUS
+            } else if (tutorialStage === 2) {
+              setTutorialStage(3); // BONUS → JACKPOT
+            } else {
+              setShowTutorial(false); // 全部終わり
+              await setWallet({ tutorialCompleted: true });
+              refresh();
+            }
+          }}
+        />
+      )}{' '}
     </div>
   );
 }

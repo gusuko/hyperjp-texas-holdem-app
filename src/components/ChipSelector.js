@@ -1,7 +1,9 @@
+// src/components/ChipSelector.jsx
 import React from 'react';
 import '../styles/TableLayout.css';
 import Chip from './Chip';
 import { playBetSound } from '../utils/sound';
+
 const chipOptions = [
   { value: 5, src: process.env.PUBLIC_URL + '/chips/chip_5.png' },
   { value: 25, src: process.env.PUBLIC_URL + '/chips/chip_25.png' },
@@ -13,14 +15,13 @@ const chipOptions = [
 ];
 
 /**
- * ChipSelector  ─ 残高・現在ベット額を内蔵した新バージョン
+ * ChipSelector
+ *  ─ 残高・ベット配置を扱うパネル
  *
- * @param {number} chips        ─ 所持チップ残高
- * @param {object} placedChips  ─ エリア別に置かれたチップ配列
- * @param {string} gamePhase    ─ 'initial' | 'preflop' | 'flop' | 'turn' | 'river' | 'showdown'
- * @param {string} selectedArea ─ 今選択中のエリア名
- * @param {function} dispatch   ─ useReducer の dispatch
- * @param {function} setSelectedArea ─ 円クリックでエリア切替用
+ * props
+ * ─ chips, placedChips, gamePhase, selectedArea
+ * ─ dispatch, credit, debit
+ * ─ tutorialActive : boolean   ★追加（true → $25 を 1 枚だけ許可）
  */
 export default function ChipSelector({
   chips,
@@ -30,13 +31,24 @@ export default function ChipSelector({
   dispatch,
   credit,
   debit,
+  tutorialActive = false,
+  tutorialStage = 1,
 }) {
-  /* ─────────── チップを置く ─────────── */
-  const handlePlaceChip = (area, chip) => {
-    /* initial 以外では ante / bonus / jackpot をロック */
-    const restricted = ['ante', 'bonus', 'jackpot'];
-    if (gamePhase !== 'initial' && restricted.includes(area)) return;
+  /* --- すでに ANTE に置いた合計 $ --- */
+  const anteTotal = placedChips.ante.reduce((s, c) => s + c.value, 0);
+  /* --- チュートリアル中で $25 以上置いたらロック --- */
+  const tutorialLock = tutorialActive && tutorialStage === 1 && anteTotal >= 25;
 
+  /* チップを置く処理 */
+  const handlePlaceChip = (area, chip) => {
+    if (area === 'jackpot') {
+      // すでに置いてある JACKPOT の合計を計算
+      const currentTotal = placedChips.jackpot.reduce((s, c) => s + c.value, 0);
+      // 25 を超えるなら何もしない
+      if (currentTotal + chip.value > 25) return;
+      const restricted = ['ante', 'bonus', 'jackpot'];
+      if (gamePhase !== 'initial' && restricted.includes(area)) return;
+    }
     if (chips >= chip.value) {
       const updated = [...placedChips[area], chip].sort(
         (a, b) => a.value - b.value
@@ -48,7 +60,7 @@ export default function ChipSelector({
     }
   };
 
-  /* ─────────── リセット（初期フェーズのみ） ─────────── */
+  /* リセット（初期フェーズ限定） */
   const handleResetBets = () => {
     if (gamePhase !== 'initial') return;
     const refund = Object.values(placedChips)
@@ -59,19 +71,37 @@ export default function ChipSelector({
     dispatch({ type: 'RESET_PLACED_CHIPS' });
   };
 
-  /* ─────────── JSX ─────────── */
+  /* ------------- JSX ------------- */
   return (
     <div className="chip-selector">
       <div className="chip-list">
-        {chipOptions.map((chip) => (
-          <Chip
-            key={chip.value}
-            value={chip.value}
-            imageSrc={chip.src}
-            onClick={() => handlePlaceChip(selectedArea, chip)}
-          />
-        ))}
+        {chipOptions.map((chip) => {
+          /* disabled 判定 */
+          const disabled =
+            tutorialLock || // ★ $25 1枚置いたら全チップ無効
+            chip.value > chips ||
+            (tutorialActive && chip.value !== 25);
+
+          return (
+            <Chip
+              key={chip.value}
+              value={chip.value}
+              imageSrc={chip.src}
+              highlight={
+                tutorialActive && tutorialStage === 1 && chip.value === 25
+              }
+              onClick={() => !disabled && handlePlaceChip(selectedArea, chip)}
+              style={{
+                opacity: disabled ? 0.3 : 1,
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                pointerEvents: disabled ? 'none' : 'auto',
+                transition: 'opacity .2s',
+              }}
+            />
+          );
+        })}
       </div>
+
       {gamePhase === 'initial' && (
         <button className="reset-button" onClick={handleResetBets}>
           リセット
