@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/hyperjp-texas-holdem-app/static/css/main.5c27b088.css",
-    "main.js": "/hyperjp-texas-holdem-app/static/js/main.38e79e9d.js",
+    "main.css": "/hyperjp-texas-holdem-app/static/css/main.ed6e5e5d.css",
+    "main.js": "/hyperjp-texas-holdem-app/static/js/main.a1bb3678.js",
     "static/js/453.a4ff113e.chunk.js": "/hyperjp-texas-holdem-app/static/js/453.a4ff113e.chunk.js",
     "index.html": "/hyperjp-texas-holdem-app/index.html",
-    "main.5c27b088.css.map": "/hyperjp-texas-holdem-app/static/css/main.5c27b088.css.map",
-    "main.38e79e9d.js.map": "/hyperjp-texas-holdem-app/static/js/main.38e79e9d.js.map",
+    "main.ed6e5e5d.css.map": "/hyperjp-texas-holdem-app/static/css/main.ed6e5e5d.css.map",
+    "main.a1bb3678.js.map": "/hyperjp-texas-holdem-app/static/js/main.a1bb3678.js.map",
     "453.a4ff113e.chunk.js.map": "/hyperjp-texas-holdem-app/static/js/453.a4ff113e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5c27b088.css",
-    "static/js/main.38e79e9d.js"
+    "static/css/main.ed6e5e5d.css",
+    "static/js/main.a1bb3678.js"
   ]
 }
