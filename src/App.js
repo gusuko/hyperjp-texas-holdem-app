@@ -34,7 +34,6 @@ import useWallet from './hooks/useWallet';
 import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
 import sleep from './utils/sleep';
 import { initWallet } from './data/handHistoryRepo';
-import TutorialOverlay from './components/TutorialOverlay';
 
 /* 画面に合わせて “タイトル帯を除いた残りエリア” だけで拡縮 */
 /* 画面サイズ変化に合わせて --game-scale と --title-gap を更新 */
@@ -94,6 +93,22 @@ function App() {
     x: POS.bet.ante.left + 35,
     y: POS.bet.ante.top + 35,
   };
+  const bonusCenter = {
+    x: POS.bet.bonus.left + 35,
+    y: POS.bet.bonus.top + 35,
+  };
+
+  const jackpotCenter = {
+    x: POS.bet.jackpot.left + 35,
+    y: POS.bet.jackpot.top + 35,
+  };
+
+  /* 5ドルチップは chipOptions[0] (index 0) の中央 */
+  const chip5Center = {
+    x: POS.ui.selector.left + 35, // 左端 + 半径
+    y: POS.ui.selector.top + 35,
+  };
+
   /* ChipSelector パネル左上＋(1チップ分＋gap) ＝ 25$ チップ中央 */
   const chip25Center = {
     x: POS.ui.selector.left + 70 + 8 + 35, // 70=chip幅, 8=gap, 35=半径
@@ -108,9 +123,6 @@ function App() {
   const [resultText, setResultText] = useState('');
   const [selectedArea, setSelectedArea] = useState(null);
   const { placedChips } = state;
-  const anteDone = getTotalBet(placedChips, 'ante') >= 25; // ANTE が $25 以上
-  const bonusDone = getTotalBet(placedChips, 'bonus') >= 25; // BONUS が $25 以上
-  const jackpotDone = getTotalBet(placedChips, 'jackpot') >= 5; // JACKPOT が $5 以上
   const [showTutorial, setShowTutorial] = useState(false);
   const betCirclesLocked = wallet.chips === 0 || showTutorial;
   const [tutorialStage, setTutorialStage] = useState(1);
@@ -139,6 +151,33 @@ function App() {
       credit(1000);
     }
   };
+
+  /* -------------------  チュートリアル自動進行  ------------------- */
+  React.useEffect(() => {
+    if (!showTutorial) return; // チュートリアルが終われば何もしない
+
+    const anteDone = getTotalBet(placedChips, 'ante') >= 25;
+    const bonusDone = getTotalBet(placedChips, 'bonus') >= 25;
+    const jackpotDone = getTotalBet(placedChips, 'jackpot') >= 5;
+
+    // ステージごとに条件を満たしたら次へ
+    if (tutorialStage === 1 && anteDone) {
+      setTutorialStage(2);
+      setSelectedArea(null); // 選択をリセット
+    } else if (tutorialStage === 2 && bonusDone) {
+      setTutorialStage(3);
+      setSelectedArea(null);
+    } else if (tutorialStage === 3 && jackpotDone) {
+      // チュートリアル完了
+      setShowTutorial(false);
+      setSelectedArea(null);
+      (async () => {
+        await setWallet({ tutorialCompleted: true });
+        refresh();
+      })();
+    }
+  }, [showTutorial, tutorialStage, placedChips, refresh]);
+
   // 🧠 勝敗ロジックをカスタムHookで呼び出し
   useShowdownLogic({
     showdown,
@@ -272,7 +311,9 @@ function App() {
 
   return (
     <div className="game-board">
-      <h1 className="title-in-board">🃏 Ultimate Texas Hold'em Simulator</h1>
+      <h1 className="title-in-board">
+        🃏 Ultimate Texas Hold'em Poker Simulator
+      </h1>
       <CurrentChips
         chips={wallet.chips} // stateから渡す
         style={{ position: 'absolute', ...POS.ui.chips }}
@@ -388,6 +429,34 @@ function App() {
           {selectedArea === 'ante' &&
             getTotalBet(placedChips, 'ante') === 0 && (
               <HandPointer x={chip25Center.x} y={chip25Center.y} />
+            )}
+        </>
+      )}
+      {/* ===== 手アイコン（ステージ2ガイド） ===== */}
+      {showTutorial && tutorialStage === 2 && (
+        <>
+          {/* ① 円をまだ選んでいない ⇒ BONUS 円に表示 */}
+          {!selectedArea && <HandPointer x={bonusCenter.x} y={bonusCenter.y} />}
+
+          {/* ② BONUS 円を選んだがチップ未配置 ⇒ 25$ チップに表示 */}
+          {selectedArea === 'bonus' &&
+            getTotalBet(placedChips, 'bonus') === 0 && (
+              <HandPointer x={chip25Center.x} y={chip25Center.y} />
+            )}
+        </>
+      )}
+      {/* ===== 手アイコン（ステージ3ガイド） ===== */}
+      {showTutorial && tutorialStage === 3 && (
+        <>
+          {/* ① まだ円を選んでいない ⇒ JACKPOT 円に表示 */}
+          {!selectedArea && (
+            <HandPointer x={jackpotCenter.x} y={jackpotCenter.y} />
+          )}
+
+          {/* ② JACKPOT 円を選択・未ベット ⇒ 5$ チップに表示 */}
+          {selectedArea === 'jackpot' &&
+            getTotalBet(placedChips, 'jackpot') === 0 && (
+              <HandPointer x={chip5Center.x} y={chip5Center.y} />
             )}
         </>
       )}
@@ -555,38 +624,6 @@ function App() {
         history={history}
         style={{ position: 'absolute', ...POS.ui.statsPanel }}
       />
-      {/* ===== Tutorial Overlay ===== */}
-      {showTutorial && (
-        <TutorialOverlay
-          /* ステージごとにメッセージを切り替える */
-          stage={tutorialStage}
-          /* OK ボタンが押せる条件をステージ別に渡す */
-          canClose={
-            tutorialStage === 1
-              ? anteDone
-              : tutorialStage === 2
-              ? bonusDone
-              : jackpotDone
-          }
-          /* OK を押したときの挙動をステージ別に分岐 */
-          onClose={async () => {
-            if (tutorialStage === 1) {
-              // ANTE → BONUS
-              setTutorialStage(2);
-              setSelectedArea(null); // ★ 選択リセット
-            } else if (tutorialStage === 2) {
-              // BONUS → JACKPOT
-              setTutorialStage(3);
-              setSelectedArea(null); // ★ 選択リセット
-            } else {
-              // チュートリアル終了
-              setShowTutorial(false);
-              await setWallet({ tutorialCompleted: true });
-              refresh();
-            }
-          }}
-        />
-      )}{' '}
     </div>
   );
 }
