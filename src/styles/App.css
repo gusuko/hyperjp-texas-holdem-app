@@ -209,3 +209,14 @@ html.too-small::after {
 .bet-area.disabled {
   opacity: 0.4;
 }
+
+/* 手アイコン用アニメーション ------------------------------- */
+@keyframes tapBounce {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -55%) scale(1.1);
+  }
+}

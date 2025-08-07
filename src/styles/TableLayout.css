@@ -202,6 +202,13 @@
   justify-content: center; /* 縦中央 */
 }
 
+/* Recharge ボタンが disabled のときの見た目 */
+.recharge-btn:disabled {
+  opacity: 0.4; /* 薄くする */
+  cursor: not-allowed; /* 禁止マークに */
+  filter: grayscale(60%); /* うっすら無彩色（任意） */
+}
+
 /* styles/buttons.css など */
 .playagain-btn {
   position: absolute; /* ← 座標は JSX から渡す */

@@ -2,6 +2,7 @@
 // 👉 アプリ全体の中枢コンポーネント。表示の切り替えやロジックの接着を担う
 
 import React, { useState, useReducer } from 'react';
+import HandPointer from './components/HandPointer';
 import { initialState, reducer } from './state';
 import useHandHistory from './hooks/useHandHistory';
 import ResultPanel from './components/ResultPanel';
@@ -77,17 +78,41 @@ function App() {
   }, []);
 
   // 🎯 状態（ステート）管理
+  /* 円がクリック不可かどうかを判定 */
+  const isCircleDisabled = (area) => {
+    if (wallet.chips === 0) return true; // Welcome 前は全部ロック
+    if (!showTutorial) return false; // チュートリアル後は解放
+
+    // チュートリアル中はステージに合った円だけ解放
+    if (area === 'ante') return tutorialStage !== 1;
+    if (area === 'bonus') return tutorialStage !== 2;
+    if (area === 'jackpot') return tutorialStage !== 3;
+    return false; // それ以外
+  };
+  /* -------------------  手アイコン座標  ------------------- */
+  const anteCenter = {
+    x: POS.bet.ante.left + 35,
+    y: POS.bet.ante.top + 35,
+  };
+  /* ChipSelector パネル左上＋(1チップ分＋gap) ＝ 25$ チップ中央 */
+  const chip25Center = {
+    x: POS.ui.selector.left + 70 + 8 + 35, // 70=chip幅, 8=gap, 35=半径
+    y: POS.ui.selector.top + 35,
+  };
+
   const [state, dispatch] = useReducer(reducer, initialState);
   const { history, addHand, wipe } = useHandHistory();
   const { wallet, credit, debit, refresh } = useWallet();
+  /* 残高 0（Welcome 前）またはチュートリアル中は円をロック */
   const { deck, cards, bets, phase: gamePhase, folded, showdown } = state;
   const [resultText, setResultText] = useState('');
-  const [selectedArea, setSelectedArea] = useState('ante');
+  const [selectedArea, setSelectedArea] = useState(null);
   const { placedChips } = state;
   const anteDone = getTotalBet(placedChips, 'ante') >= 25; // ANTE が $25 以上
   const bonusDone = getTotalBet(placedChips, 'bonus') >= 25; // BONUS が $25 以上
-  const jackpotDone = getTotalBet(placedChips, 'jackpot') >= 25;
+  const jackpotDone = getTotalBet(placedChips, 'jackpot') >= 5; // JACKPOT が $5 以上
   const [showTutorial, setShowTutorial] = useState(false);
+  const betCirclesLocked = wallet.chips === 0 || showTutorial;
   const [tutorialStage, setTutorialStage] = useState(1);
   const [showPlaceYourBets, setShowPlaceYourBets] = useState(false);
   const [playerCardLoadCallback, setPlayerCardLoadCallback] = useState(
@@ -291,7 +316,7 @@ function App() {
         /* ステージ1だけ点滅させる */
         tutorialActive={showTutorial && tutorialStage === 1}
         /* ANTE は常にクリック可なので無効化しない */
-        isDisabled={false}
+        isDisabled={isCircleDisabled('ante')}
       />
       <BetCircle
         area="bonus"
@@ -302,7 +327,7 @@ function App() {
         onClick={() => setSelectedArea('bonus')}
         style={POS.bet.bonus}
         /* ステージ1の間はクリック無効化（半透明） */
-        isDisabled={showTutorial && tutorialStage === 1}
+        isDisabled={isCircleDisabled('bonus')}
         /* ステージ2だけ点滅させる */
         tutorialActive={showTutorial && tutorialStage === 2}
       />
@@ -316,7 +341,7 @@ function App() {
         style={POS.bet.jackpot}
         /* ステージ1・2 ではクリック無効。
      ステージ3（JACKPOTの番）だけクリック可にする */
-        isDisabled={showTutorial && tutorialStage !== 3}
+        isDisabled={isCircleDisabled('jackpot')}
         /* ステージ3 だけ点滅させる */
         tutorialActive={showTutorial && tutorialStage === 3}
       />
@@ -329,6 +354,7 @@ function App() {
         isSelected={false}
         onClick={handleFlopCircleClick}
         style={POS.bet.flop}
+        isDisabled={betCirclesLocked}
       />
       {/* TURN */}
       <BetCircle
@@ -339,6 +365,7 @@ function App() {
         isSelected={false}
         onClick={handleTurnCircleClick}
         style={POS.bet.turn}
+        isDisabled={betCirclesLocked}
       />
       {/* RIVER */}
       <BetCircle
@@ -349,7 +376,21 @@ function App() {
         isSelected={false}
         onClick={handleRiverCircleClick}
         style={POS.bet.river}
+        isDisabled={betCirclesLocked}
       />
+      {/* ===== 手アイコン（ステージ1ガイド） ===== */}
+      {showTutorial && tutorialStage === 1 && (
+        <>
+          {/* ① まだ円を選んでいない → ANTE 円の上に表示 */}
+          {!selectedArea && <HandPointer x={anteCenter.x} y={anteCenter.y} />}
+
+          {/* ② ANTE 円を選んだら → 25$ チップの上に表示 */}
+          {selectedArea === 'ante' &&
+            getTotalBet(placedChips, 'ante') === 0 && (
+              <HandPointer x={chip25Center.x} y={chip25Center.y} />
+            )}
+        </>
+      )}
       {/* チップ選択パネル */}
       <div className="chip-selector-panel" style={POS.ui.selector}>
         <ChipSelector
@@ -376,6 +417,7 @@ function App() {
         className="recharge-btn"
         onClick={handleTopUp}
         style={{ position: 'absolute', ...POS.ui.recharge }}
+        disabled={showTutorial}
       >
         {!wallet.welcomeClaimed && wallet.chips === 0
           ? 'WELCOME\n＋$1,000'
@@ -529,11 +571,16 @@ function App() {
           /* OK を押したときの挙動をステージ別に分岐 */
           onClose={async () => {
             if (tutorialStage === 1) {
-              setTutorialStage(2); // ANTE → BONUS
+              // ANTE → BONUS
+              setTutorialStage(2);
+              setSelectedArea(null); // ★ 選択リセット
             } else if (tutorialStage === 2) {
-              setTutorialStage(3); // BONUS → JACKPOT
+              // BONUS → JACKPOT
+              setTutorialStage(3);
+              setSelectedArea(null); // ★ 選択リセット
             } else {
-              setShowTutorial(false); // 全部終わり
+              // チュートリアル終了
+              setShowTutorial(false);
               await setWallet({ tutorialCompleted: true });
               refresh();
             }
