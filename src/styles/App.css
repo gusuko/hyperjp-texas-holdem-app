@@ -220,3 +220,22 @@ html.too-small::after {
     transform: translate(-50%, -55%) scale(1.1);
   }
 }
+/* 親の軽い発光パルス（既存で入っていればそのままでOK） */
+/* 発光の軽い脈動 */
+.guide-arrow {
+  animation: arrowPulse 1.1s ease-in-out infinite;
+}
+@keyframes arrowPulse {
+  0% {
+    filter: drop-shadow(0 0 2px #00eaff);
+    opacity: 0.95;
+  }
+  50% {
+    filter: drop-shadow(0 0 10px #00eaff);
+    opacity: 1;
+  }
+  100% {
+    filter: drop-shadow(0 0 2px #00eaff);
+    opacity: 0.95;
+  }
+}
