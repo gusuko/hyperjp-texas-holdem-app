@@ -95,6 +95,7 @@ export default function ChipSelector({
   /* --------------------------------- */
   const handleResetBets = () => {
     if (gamePhase !== 'initial') return;
+    if (tutorialActive) return;
     const refund = Object.values(placedChips)
       .flat()
       .reduce((sum, chip) => sum + chip.value, 0);
@@ -136,7 +137,15 @@ export default function ChipSelector({
       </div>
 
       {gamePhase === 'initial' && (
-        <button className="reset-button" onClick={handleResetBets}>
+        <button
+          className="reset-button"
+          onClick={handleResetBets}
+          disabled={tutorialActive} // ★ 無効化
+          style={{
+            opacity: tutorialActive ? 0.4 : 1,
+            cursor: tutorialActive ? 'not-allowed' : 'pointer',
+          }}
+        >
           リセット
         </button>
       )}

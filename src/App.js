@@ -137,6 +137,7 @@ function App() {
   const playAgainBtnRef = React.useRef(null);
   // Stage6: TURN/CHECK ピンポン用
   const checkBtnRef = React.useRef(null);
+  const [tutorialHidden, setTutorialHidden] = React.useState(false);
 
   // TURN 円の中心（HandPointer 用）
   const turnCenter = {
@@ -144,9 +145,18 @@ function App() {
     y: POS.bet.turn.top + 35,
   };
 
+  // RIVER 円の中心（★これに差し替え）
+  const riverCenter = {
+    x: POS.bet.river.left + 35,
+    y: POS.bet.river.top + 35,
+  };
+
   // Stage5 の矢印表示条件（preflop 中のチュートリアルで、stage が 5）
   const showStage5Nudge =
-    showTutorial === true && tutorialStage === 5 && gamePhase === 'preflop';
+    showTutorial === true &&
+    tutorialStage === 5 &&
+    gamePhase === 'preflop' &&
+    !tutorialHidden;
 
   // 0 と 1 を交互に切替（0=FLOPを強調、1=FOLDを強調）
   const [nudgeIndex5, setNudgeIndex5] = React.useState(0);
@@ -167,6 +177,23 @@ function App() {
   }, [showTutorial, tutorialStage, gamePhase]);
 
   const welcomeBtnRef = React.useRef(null);
+  const [nudgeIndex7, setNudgeIndex7] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!(showTutorial && tutorialStage === 7 && gamePhase === 'turn')) return;
+    let alive = true;
+    let flag = 0;
+    const id = setInterval(() => {
+      if (!alive) return;
+      flag = flag ? 0 : 1;
+      setNudgeIndex7(flag);
+    }, 900);
+    return () => {
+      alive = false;
+      clearInterval(id);
+      setNudgeIndex7(0);
+    };
+  }, [showTutorial, tutorialStage, gamePhase]);
 
   // 初回だけ WELCOME ボタンに矢印（initial、残高0、welcome未受領、かつオーバーレイ非表示）
   const showWelcomePointer =
@@ -242,6 +269,11 @@ function App() {
   });
 
   const handlePlayAgain = async () => {
+    setTutorialHidden(false); // 矢印の一時非表示フラグだけ解除
+    // チュートリアル矢印をリセット
+    setShowTutorial(false);
+    setTutorialStage(0);
+
     restartRound({
       dispatch,
       setResultText,
@@ -290,6 +322,7 @@ function App() {
   // ✅ FLOP 円クリックで ANTE × 2 の自動ベット
   const handleFlopCircleClick = async () => {
     const betAmount = bets.ante * 2;
+    setTutorialHidden(true);
 
     if (
       gamePhase === 'preflop' &&
@@ -315,7 +348,38 @@ function App() {
         cards,
       });
       // ④ FLOP ベット完了 → Tutorial を Stage6 へ（TURN/CHECK）
-      if (showTutorial) setTutorialStage(6);
+      if (showTutorial) {
+        setTutorialStage(6);
+        setTutorialHidden(false);
+      }
+    }
+  };
+
+  // ✅ チェック（flop/turn 両対応）
+  const handleCheckClick = async () => {
+    setTutorialHidden(true); // 押した瞬間に矢印オフ
+    if (gamePhase === 'flop') {
+      // FLOPでCHECK → ターンカード公開 & フェーズ進行
+      await handleCheckTurn({
+        deck,
+        dispatch,
+        setBoardCardLoadCallback,
+        cards,
+      });
+      // Tutorial中は、TURN へ入ったら Stage7（RIVER/CHECK）を解放
+      if (showTutorial) {
+        setTutorialStage(7); // TURN へ進行
+        setTutorialHidden(false); // Stage7 で再表示
+      }
+    } else if (gamePhase === 'turn') {
+      // TURNでCHECK → リバーカード公開（＝RIVERへ）
+      await handleCheckRiver({
+        deck,
+        dispatch,
+        setBoardCardLoadCallback,
+        cards,
+      });
+      // （この時点でRIVERへ進行。チュートリアルの終了判定は次のステップで調整予定）
     }
   };
 
@@ -324,6 +388,8 @@ function App() {
     const betAmount = bets.ante;
 
     if (gamePhase === 'flop' && bets.turn === 0 && wallet.chips >= betAmount) {
+      setTutorialHidden(true);
+
       debit(betAmount);
       const chipsToPlace = convertToChips(betAmount);
       chipsToPlace.sort((a, b) => a.value - b.value);
@@ -344,12 +410,16 @@ function App() {
         cards,
       });
       // ★ TURN ベット直後に Stage7 へ
-      if (showTutorial) setTutorialStage(7);
+      if (showTutorial) {
+        setTutorialStage(7);
+        setTutorialHidden(false);
+      }
     }
   };
 
   // ✅ RIVER 円クリックで ANTE × 1 の自動ベット
   const handleRiverCircleClick = async () => {
+    setTutorialHidden(true);
     const betAmount = bets.ante;
 
     if (gamePhase === 'turn' && bets.river === 0 && wallet.chips >= betAmount) {
@@ -693,50 +763,13 @@ function App() {
         <button
           ref={checkBtnRef}
           className="check-btn"
-          onClick={() =>
-            gamePhase === 'flop'
-              ? handleCheckTurn({
-                  deck,
-                  dispatch,
-                  setBoardCardLoadCallback,
-                  cards,
-                })
-              : handleCheckRiver({
-                  deck,
-                  dispatch,
-                  setBoardCardLoadCallback,
-                  cards,
-                })
-          }
+          onClick={handleCheckClick}
           style={POS.ui.check}
         >
           チェック
         </button>
       )}
 
-      {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (
-        <button
-          className="check-btn"
-          onClick={() =>
-            gamePhase === 'flop'
-              ? handleCheckTurn({
-                  deck,
-                  dispatch,
-                  setBoardCardLoadCallback,
-                  cards,
-                })
-              : handleCheckRiver({
-                  deck,
-                  dispatch,
-                  setBoardCardLoadCallback,
-                  cards,
-                })
-          }
-          style={POS.ui.check}
-        >
-          チェック
-        </button>
-      )}
       {showStage5Nudge && (
         <div
           aria-hidden="true"
@@ -791,31 +824,71 @@ function App() {
       )}
 
       {/* ===== Stage6: TURN / CHECK のピンポン矢印 ===== */}
-      {showTutorial && tutorialStage === 6 && gamePhase === 'flop' && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2600,
-          }}
-        >
-          {/* TURN を強調 / CHECK を薄く */}
-          <div style={{ opacity: nudgeIndex6 === 0 ? 1 : 0.35 }}>
-            <HandPointer
-              x={turnCenter.x}
-              y={turnCenter.y}
-              corner="NE"
-              durationMs={1200}
-            />
+      {showTutorial &&
+        tutorialStage === 6 &&
+        gamePhase === 'flop' &&
+        !tutorialHidden && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 2600,
+            }}
+          >
+            {/* TURN を強調 / CHECK を薄く */}
+            <div style={{ opacity: nudgeIndex6 === 0 ? 1 : 0.35 }}>
+              <HandPointer
+                x={turnCenter.x}
+                y={turnCenter.y}
+                corner="NE"
+                durationMs={1200}
+              />
+            </div>
+            {/* CHECK を強調 / TURN を薄く */}
+            <div style={{ opacity: nudgeIndex6 === 1 ? 1 : 0.35 }}>
+              <RefPointer
+                targetRef={checkBtnRef}
+                corner="NE"
+                durationMs={1200}
+              />
+            </div>
           </div>
-          {/* CHECK を強調 / TURN を薄く */}
-          <div style={{ opacity: nudgeIndex6 === 1 ? 1 : 0.35 }}>
-            <RefPointer targetRef={checkBtnRef} corner="NE" durationMs={1200} />
+        )}
+      {showTutorial &&
+        tutorialStage === 7 &&
+        (gamePhase === 'turn' || gamePhase === 'river') &&
+        !tutorialHidden && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 2600,
+            }}
+          >
+            {/* RIVER を強調 / CHECK を薄く */}
+            <div style={{ opacity: nudgeIndex7 === 0 ? 1 : 0.35 }}>
+              <HandPointer
+                x={riverCenter.x}
+                y={riverCenter.y}
+                corner="NE"
+                durationMs={1200}
+              />
+            </div>
+
+            {/* CHECK を強調 / RIVER を薄く */}
+            <div style={{ opacity: nudgeIndex7 === 1 ? 1 : 0.35 }}>
+              <RefPointer
+                targetRef={checkBtnRef}
+                corner="NE"
+                durationMs={1200}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ==== デバッグ: ハンド履歴テスト ==== */}
       <div style={{ marginTop: '1rem', borderTop: '1px dashed #ccc' }}>

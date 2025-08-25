@@ -20,7 +20,7 @@ export const getBonusMultiplierForPlayer = (playerCards) => {
   // 🎯 スーテッドの特定コンビネーション
   if (isSuited) {
     if ((rank1 === 'A' && rank2 === 'K') || (rank1 === 'K' && rank2 === 'A'))
-      return 25;
+      return 30;
     if (
       (rank1 === 'A' && rank2 === 'Q') ||
       (rank1 === 'Q' && rank2 === 'A') ||
