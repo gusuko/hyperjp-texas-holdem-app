@@ -101,3 +101,20 @@ export const POS = {
     Object.entries(NEG_POS.ui).map(([k, v]) => [k, shift(v)])
   ),
 };
+
+// === チュートリアル用ポインタのセンター座標 ===
+const R = DIM.BET_D / 2; // 直径70px前提なら 35
+
+export const CENTERS = {
+  // ベット円
+  ante: { x: POS.bet.ante.left + R, y: POS.bet.ante.top + R },
+  bonus: { x: POS.bet.bonus.left + R, y: POS.bet.bonus.top + R },
+  jackpot: { x: POS.bet.jackpot.left + R, y: POS.bet.jackpot.top + R },
+  flop: { x: POS.bet.flop.left + R, y: POS.bet.flop.top + R },
+  turn: { x: POS.bet.turn.left + R, y: POS.bet.turn.top + R },
+  river: { x: POS.bet.river.left + R, y: POS.bet.river.top + R },
+
+  // チップ（必要に応じて）
+  chip5: { x: POS.ui.selector.left + R, y: POS.ui.selector.top + R },
+  chip25: { x: POS.ui.selector.left + 70 + 8 + R, y: POS.ui.selector.top + R },
+};
