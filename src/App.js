@@ -34,7 +34,7 @@ import useWallet from './hooks/useWallet';
 import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
 import sleep from './utils/sleep';
 import { initWallet } from './data/handHistoryRepo';
-import RefPointer from './components/Refpointer';
+import RefPointer from './components/RefPointer';
 
 /* 画面に合わせて “タイトル帯を除いた残りエリア” だけで拡縮 */
 /* 画面サイズ変化に合わせて --game-scale と --title-gap を更新 */
