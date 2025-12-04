@@ -561,7 +561,7 @@ function App() {
         style={POS.bet.river}
         isDisabled={wallet.chips === 0 || (showTutorial && tutorialStage !== 7)}
       />
-      {/* ===== 手アイコン（ステージ1ガイド） ===== */}
+      {/* ===== 矢印アイコン（チュートリアルステージ1ガイド） ===== */}
       {showTutorial && tutorialStage === 1 && (
         <>
           {/* ① まだ円を選んでいない → ANTE 円の上に表示 */}
@@ -574,7 +574,7 @@ function App() {
             )}
         </>
       )}
-      {/* ===== 手アイコン（ステージ2ガイド） ===== */}
+      {/* ===== 矢印アイコン（チュートリアルステージ2ガイド） ===== */}
       {showTutorial && tutorialStage === 2 && (
         <>
           {/* ① 円をまだ選んでいない ⇒ BONUS 円に表示 */}
@@ -587,7 +587,7 @@ function App() {
             )}
         </>
       )}
-      {/* ===== 手アイコン（ステージ3ガイド） ===== */}
+      {/* ===== 矢印アイコン（チュートリアルステージ3ガイド） ===== */}
       {showTutorial && tutorialStage === 3 && (
         <>
           {/* ① まだ円を選んでいない ⇒ JACKPOT 円に表示 */}
@@ -602,6 +602,7 @@ function App() {
             )}
         </>
       )}
+
       {/* チップ選択パネル */}
       <div className="chip-selector-panel" style={POS.ui.selector}>
         <ChipSelector
@@ -657,7 +658,7 @@ function App() {
         title="J A C K P O T"
         data={jackpotPayouts}
       />
-      {/* ========= ここで table-wrapper を閉じる ========= */}
+
       {/* 勝敗テキスト */}
       <ResultPanel
         showdown={showdown}
@@ -758,6 +759,7 @@ function App() {
       {showPlaceYourBets && (
         <div className="place-bets-overlay">PLACE YOUR BETS Please!</div>
       )}
+
       {/* 円形チェックボタン：flop または turn フェーズのみ */}
       {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (
         <button
