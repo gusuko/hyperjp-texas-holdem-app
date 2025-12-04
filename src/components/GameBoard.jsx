@@ -1,6 +1,4 @@
-// GameBoard.jsx
 import React, { useState, useEffect } from 'react';
-import CurrentChips from './CurrentChips';
 import CardSlot from './CardSlot';
 import CardGroup from './CardGroup';
 import BetCircle from './BetCircle';
@@ -10,6 +8,7 @@ import ResultPanel from './ResultPanel';
 import StatsPanel from './StatsPanel';
 import HandPointer from './HandPointer';
 import RefPointer from './RefPointer';
+import CurrentChips from './CurrentChips'; // ★ Import the CurrentChips component
 import { POS } from '../constants/layoutConfig';
 import { getTotalBet } from '../utils/chipHelpers';
 import { bonusPayouts, jackpotPayouts } from '../constants/payouts';
@@ -33,53 +32,37 @@ function GameBoard(props) {
     onFlopClick,
     onTurnClick,
     onRiverClick,
-    onTopUp,
-    onGameStart,
-    onFold,
-    onPlayAgain,
-    onCheck,
+    onTopUp, // イベントハンドラ（GameControls側でも使用）
+    onGameStart, // （同上）
+    onFold, // （同上）
+    onPlayAgain, // （同上）
+    onCheck, // （同上）
     showPlaceYourBets,
     history,
     resultText,
     folded,
+    // チュートリアル関連のprops:
+    showTutorial,
+    tutorialStage,
+    tutorialHidden,
+    // 各種カードロードのコールバック:
+    dealerCardLoadCallback,
+    boardCardLoadCallback,
+    playerCardLoadCallback,
+    // ★ flop円＆各ボタン要素へのref（親から受け取る）
     flopRef,
     foldRef,
     checkBtnRef,
     playAgainBtnRef,
     welcomeBtnRef,
-    showTutorial,
-    tutorialStage,
-    tutorialHidden,
-    dealerCardLoadCallback,
-    boardCardLoadCallback,
-    playerCardLoadCallback,
   } = props;
 
-  // Compute center points for tutorial HandPointer targets
-  const anteCenter = { x: POS.bet.ante.left + 35, y: POS.bet.ante.top + 35 };
-  const bonusCenter = { x: POS.bet.bonus.left + 35, y: POS.bet.bonus.top + 35 };
-  const jackpotCenter = {
-    x: POS.bet.jackpot.left + 35,
-    y: POS.bet.jackpot.top + 35,
-  };
-  const chip5Center = {
-    x: POS.ui.selector.left + 35,
-    y: POS.ui.selector.top + 35,
-  };
-  const chip25Center = {
-    x: POS.ui.selector.left + 70 + 8 + 35,
-    y: POS.ui.selector.top + 35,
-  };
-  const flopCenter = { x: POS.bet.flop.left + 35, y: POS.bet.flop.top + 35 };
-  const turnCenter = { x: POS.bet.turn.left + 35, y: POS.bet.turn.top + 35 };
-  const riverCenter = { x: POS.bet.river.left + 35, y: POS.bet.river.top + 35 };
-
-  // Nudge indices for blinking tutorial arrows (Stage5,6,7)
+  // チュートリアル用の矢印点滅インデックス
   const [nudgeIndex5, setNudgeIndex5] = useState(0);
   const [nudgeIndex6, setNudgeIndex6] = useState(0);
   const [nudgeIndex7, setNudgeIndex7] = useState(0);
 
-  // Effect to toggle FLOP/FOLD pointer (Stage5)
+  // チュートリアルStage5 (FLOP/FOLD) 矢印トグル
   useEffect(() => {
     const showStage5 =
       showTutorial &&
@@ -91,7 +74,7 @@ function GameBoard(props) {
     return () => clearInterval(id);
   }, [showTutorial, tutorialStage, gamePhase, tutorialHidden]);
 
-  // Effect to toggle TURN/CHECK pointer (Stage6)
+  // チュートリアルStage6 (TURN/CHECK) 矢印トグル
   useEffect(() => {
     const showStage6 =
       showTutorial &&
@@ -103,7 +86,7 @@ function GameBoard(props) {
     return () => clearInterval(id);
   }, [showTutorial, tutorialStage, gamePhase, tutorialHidden]);
 
-  // Effect to toggle RIVER/CHECK pointer (Stage7)
+  // チュートリアルStage7 (RIVER/CHECK) 矢印トグル
   useEffect(() => {
     const showStage7 =
       showTutorial &&
@@ -122,19 +105,38 @@ function GameBoard(props) {
     };
   }, [showTutorial, tutorialStage, gamePhase, tutorialHidden]);
 
+  // 各種座標ポイント計算（省略）
+  const anteCenter = { x: POS.bet.ante.left + 35, y: POS.bet.ante.top + 35 };
+  const bonusCenter = { x: POS.bet.bonus.left + 35, y: POS.bet.bonus.top + 35 };
+  const jackpotCenter = {
+    x: POS.bet.jackpot.left + 35,
+    y: POS.bet.jackpot.top + 35,
+  };
+  const chip5Center = {
+    x: POS.ui.selector.left + 35,
+    y: POS.ui.selector.top + 35,
+  };
+  const chip25Center = {
+    x: POS.ui.selector.left + 70 + 8 + 35,
+    y: POS.ui.selector.top + 35,
+  };
+  const flopCenter = { x: POS.bet.flop.left + 35, y: POS.bet.flop.top + 35 };
+  const turnCenter = { x: POS.bet.turn.left + 35, y: POS.bet.turn.top + 35 };
+  const riverCenter = { x: POS.bet.river.left + 35, y: POS.bet.river.top + 35 };
+
   return (
     <div ref={boardRef} className="game-board">
       <h1 className="title-in-board">
         🃏 Ultimate Texas Hold'em Poker Simulator
       </h1>
 
-      {/* Current chips display */}
+      {/* 現在のチップ残高表示 */}
       <CurrentChips
         chips={walletChips}
         style={{ position: 'absolute', ...POS.ui.chips }}
       />
 
-      {/* Card slots (dealer, player, community) */}
+      {/* カードスロット配置 */}
       {POS.cardSlot.dealer.map((pos, i) => (
         <CardSlot key={`slot-d${i}`} style={pos} />
       ))}
@@ -145,7 +147,7 @@ function GameBoard(props) {
         <CardSlot key={`slot-c${i}`} style={pos} />
       ))}
 
-      {/* Cards (dealer, community, player) */}
+      {/* 各カード描画 */}
       <CardGroup
         onCardLoad={dealerCardLoadCallback}
         cards={dealerCards}
@@ -163,8 +165,7 @@ function GameBoard(props) {
         positions={POS.cardSlot.player}
       />
 
-      {/* Betting circles (Ante, Bonus, Jackpot initial bets) */}
-      {/* ANTE always enabled if chips > 0 */}
+      {/* 初期ベット円 (Ante, Bonus, Jackpot) */}
       <BetCircle
         area="ante"
         total={getTotalBet(placedChips, 'ante')}
@@ -199,7 +200,7 @@ function GameBoard(props) {
         isDisabled={walletChips === 0 || (showTutorial && tutorialStage !== 3)}
       />
 
-      {/* Betting circles for in-game bets: Flop, Turn, River */}
+      {/* インゲームベット円 (Flop, Turn, River) */}
       <div ref={flopRef}>
         <BetCircle
           area="flop"
@@ -235,7 +236,7 @@ function GameBoard(props) {
         isDisabled={walletChips === 0 || (showTutorial && tutorialStage !== 7)}
       />
 
-      {/* Tutorial hand pointers for stages 1, 2, 3 (bet placement guidance) */}
+      {/* チュートリアル用ハンドポインタ (賭けチップ誘導 Stage1-3) */}
       {showTutorial && tutorialStage === 1 && (
         <>
           {!selectedArea && <HandPointer x={anteCenter.x} y={anteCenter.y} />}
@@ -266,7 +267,7 @@ function GameBoard(props) {
         </>
       )}
 
-      {/* Chip selection panel */}
+      {/* チップ選択パネル */}
       <div className="chip-selector-panel" style={POS.ui.selector}>
         <ChipSelector
           chips={walletChips}
@@ -288,41 +289,9 @@ function GameBoard(props) {
         />
       </div>
 
-      {/* Top-up (recharge) button */}
-      <button
-        ref={welcomeBtnRef}
-        className="recharge-btn"
-        onClick={onTopUp}
-        style={{ position: 'absolute', ...POS.ui.recharge }}
-        disabled={showTutorial}
-      >
-        {!welcomeClaimed && walletChips === 0
-          ? 'WELCOME\n＋$1,000'
-          : '＋$1,000'}
-      </button>
-      {/* Pointer to WELCOME top-up button (only on first game) */}
-      {gamePhase === 'initial' &&
-        walletChips === 0 &&
-        !welcomeClaimed &&
-        !showTutorial && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 2600,
-            }}
-          >
-            <RefPointer
-              targetRef={welcomeBtnRef}
-              corner="NE"
-              durationMs={1600}
-            />
-          </div>
-        )}
+      {/* ★GameBoardではボタンUIを描画しない（GameControlsに任せる） */}
 
-      {/* Payout tables for Bonus and Jackpot */}
+      {/* ボーナス/ジャックポットの配当表 */}
       <PayoutTable uiKey="bonusTable" title="B O N U S" data={bonusPayouts} />
       <PayoutTable
         uiKey="jackpotTable"
@@ -330,7 +299,7 @@ function GameBoard(props) {
         data={jackpotPayouts}
       />
 
-      {/* Result text panel */}
+      {/* 結果表示パネル */}
       <ResultPanel
         showdown={showdown}
         folded={folded}
@@ -339,74 +308,19 @@ function GameBoard(props) {
         onPlayAgain={onPlayAgain}
       />
 
-      {/* Fold button (pre-flop only) */}
-      {!folded && gamePhase === 'preflop' && (
-        <button
-          ref={foldRef}
-          className="fold-btn"
-          onClick={onFold}
-          style={POS.ui.fold}
-        >
-          FOLD
-        </button>
-      )}
+      {/* ★フォールド/チェック/プレイアゲインのボタンは削除済 */}
 
-      {/* Check button (flop or turn phase) */}
-      {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (
-        <button
-          ref={checkBtnRef}
-          className="check-btn"
-          onClick={onCheck}
-          style={POS.ui.check}
-        >
-          チェック
-        </button>
-      )}
-
-      {/* Play Again button (shown at showdown) */}
-      {gamePhase === 'showdown' && (
-        <>
-          <button
-            ref={playAgainBtnRef}
-            className="playagain-btn"
-            onClick={onPlayAgain}
-            style={POS.ui.fold}
-          >
-            PLAY&nbsp;AGAIN
-          </button>
-          {/* Tutorial pointer to Play Again (if tutorial active during showdown) */}
-          {showTutorial && (
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'fixed',
-                inset: 0,
-                pointerEvents: 'none',
-                zIndex: 2600,
-              }}
-            >
-              <RefPointer
-                targetRef={playAgainBtnRef}
-                corner="NE"
-                durationMs={1600}
-              />
-            </div>
-          )}
-        </>
-      )}
-
-      {/* "Place Your Bets" overlay text after reset */}
+      {/* "Place Your Bets"オーバーレイ */}
       {showPlaceYourBets && (
         <div className="place-bets-overlay">PLACE YOUR BETS Please!</div>
       )}
 
-      {/* Tutorial pointer overlays for stages 5, 6, 7 */}
+      {/* チュートリアル用ポインタオーバーレイ (Stage5: FLOP⇄FOLD) */}
       {showTutorial &&
         tutorialStage === 5 &&
         gamePhase === 'preflop' &&
         !tutorialHidden && (
           <div
-            aria-hidden="true"
             style={{
               position: 'fixed',
               inset: 0,
@@ -414,7 +328,7 @@ function GameBoard(props) {
               zIndex: 2600,
             }}
           >
-            {/* Blink between pointing at FLOP circle and FOLD button */}
+            {/* FLOP円への指差し */}
             <div style={{ opacity: nudgeIndex5 === 0 ? 1 : 0.35 }}>
               <HandPointer
                 x={flopCenter.x}
@@ -423,17 +337,19 @@ function GameBoard(props) {
                 durationMs={1200}
               />
             </div>
+            {/* 外部のFOLDボタンへの指差し (GameControls内のボタン) */}
             <div style={{ opacity: nudgeIndex5 === 1 ? 1 : 0.35 }}>
               <RefPointer targetRef={foldRef} corner="NE" durationMs={1200} />
             </div>
           </div>
         )}
+
+      {/* チュートリアル用ポインタオーバーレイ (Stage6: TURN⇄CHECK) */}
       {showTutorial &&
         tutorialStage === 6 &&
         gamePhase === 'flop' &&
         !tutorialHidden && (
           <div
-            aria-hidden="true"
             style={{
               position: 'fixed',
               inset: 0,
@@ -441,7 +357,7 @@ function GameBoard(props) {
               zIndex: 2600,
             }}
           >
-            {/* Blink between pointing at TURN circle and CHECK button */}
+            {/* TURN円への指差し */}
             <div style={{ opacity: nudgeIndex6 === 0 ? 1 : 0.35 }}>
               <HandPointer
                 x={turnCenter.x}
@@ -450,6 +366,7 @@ function GameBoard(props) {
                 durationMs={1200}
               />
             </div>
+            {/* 外部のCHECKボタンへの指差し */}
             <div style={{ opacity: nudgeIndex6 === 1 ? 1 : 0.35 }}>
               <RefPointer
                 targetRef={checkBtnRef}
@@ -459,12 +376,13 @@ function GameBoard(props) {
             </div>
           </div>
         )}
+
+      {/* チュートリアル用ポインタオーバーレイ (Stage7: RIVER⇄CHECK) */}
       {showTutorial &&
         tutorialStage === 7 &&
         (gamePhase === 'turn' || gamePhase === 'river') &&
         !tutorialHidden && (
           <div
-            aria-hidden="true"
             style={{
               position: 'fixed',
               inset: 0,
@@ -472,7 +390,7 @@ function GameBoard(props) {
               zIndex: 2600,
             }}
           >
-            {/* Blink between pointing at RIVER circle and CHECK button */}
+            {/* RIVER円への指差し */}
             <div style={{ opacity: nudgeIndex7 === 0 ? 1 : 0.35 }}>
               <HandPointer
                 x={riverCenter.x}
@@ -481,6 +399,7 @@ function GameBoard(props) {
                 durationMs={1200}
               />
             </div>
+            {/* 外部のCHECKボタンへの指差し */}
             <div style={{ opacity: nudgeIndex7 === 1 ? 1 : 0.35 }}>
               <RefPointer
                 targetRef={checkBtnRef}
@@ -491,7 +410,25 @@ function GameBoard(props) {
           </div>
         )}
 
-      {/* Stats/History Panel */}
+      {/* チュートリアル用ポインタ (SHOWDOWN時のPlay Againボタン) */}
+      {showTutorial && gamePhase === 'showdown' && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            pointerEvents: 'none',
+            zIndex: 2600,
+          }}
+        >
+          <RefPointer
+            targetRef={playAgainBtnRef}
+            corner="NE"
+            durationMs={1600}
+          />
+        </div>
+      )}
+
+      {/* 統計/履歴パネル */}
       <StatsPanel
         history={history}
         style={{ position: 'absolute', ...POS.ui.statsPanel }}
