@@ -799,32 +799,6 @@ function App() {
         </div>
       )}
 
-      {showStage5Nudge && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2600,
-          }}
-        >
-          {/* FLOP を強調 / FOLD を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 0 ? 1 : 0.35 }}>
-            <HandPointer
-              x={flopCenter.x}
-              y={flopCenter.y}
-              corner="NE"
-              durationMs={1200}
-            />
-          </div>
-          {/* FOLD を強調 / FLOP を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 1 ? 1 : 0.35 }}>
-            <RefPointer targetRef={foldRef} corner="NE" durationMs={1200} />
-          </div>
-        </div>
-      )}
-
       {/* ===== Stage6: TURN / CHECK のピンポン矢印 ===== */}
       {showTutorial &&
         tutorialStage === 6 &&
