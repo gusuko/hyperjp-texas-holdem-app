@@ -2,7 +2,6 @@
 // 👉 アプリ全体の中枢コンポーネント。表示の切り替えやロジックの接着を担う
 
 import React, { useState, useReducer } from 'react';
-import HandPointer from './components/HandPointer';
 import { initialState, reducer } from './state';
 import useHandHistory from './hooks/useHandHistory';
 import ResultPanel from './components/ResultPanel';
@@ -34,41 +33,8 @@ import useWallet from './hooks/useWallet';
 import { playBetSound, playPlaceYourBetsSound } from './utils/sound';
 import sleep from './utils/sleep';
 import { initWallet } from './data/handHistoryRepo';
-import RefPointer from './components/Refpointer';
-
-/* 画面に合わせて “タイトル帯を除いた残りエリア” だけで拡縮 */
-/* 画面サイズ変化に合わせて --game-scale と --title-gap を更新 */
-/* 画面サイズに応じて
- *   ① --game-scale を更新
- *   ② 最小倍率を下回ったら <html> に too-small クラスを付ける
- */
-function useAutoScale() {
-  const BOARD_W = 1800,
-    BOARD_H = 1100;
-  const MIN_SCALE = 0.4; // ボードがこれ以下には縮まない
-  const MIN_PLAYABLE = 0.55; // 警告を出す閾値
-
-  React.useLayoutEffect(() => {
-    const upd = () => {
-      let s = Math.min(
-        window.innerWidth / BOARD_W,
-        window.innerHeight / BOARD_H
-      );
-      s = Math.max(s, MIN_SCALE);
-
-      //   document.documentElement.style.setProperty('--game-scale', s);
-      document.documentElement.style.setProperty('--game-scale', s);
-      if (s < MIN_PLAYABLE) {
-        document.documentElement.classList.add('too-small');
-      } else {
-        document.documentElement.classList.remove('too-small');
-      }
-    };
-    upd();
-    window.addEventListener('resize', upd);
-    return () => window.removeEventListener('resize', upd);
-  }, []);
-}
+import TutorialPointers from './components/TutorialPointers';
+import useAutoScale from './hooks/useAutoScale';
 
 function App() {
   useAutoScale();
@@ -150,50 +116,7 @@ function App() {
     x: POS.bet.river.left + 35,
     y: POS.bet.river.top + 35,
   };
-
-  // Stage5 の矢印表示条件（preflop 中のチュートリアルで、stage が 5）
-  const showStage5Nudge =
-    showTutorial === true &&
-    tutorialStage === 5 &&
-    gamePhase === 'preflop' &&
-    !tutorialHidden;
-
-  // 0 と 1 を交互に切替（0=FLOPを強調、1=FOLDを強調）
-  const [nudgeIndex5, setNudgeIndex5] = React.useState(0);
-  React.useEffect(() => {
-    if (!showStage5Nudge) return;
-    const id = setInterval(() => setNudgeIndex5((i) => (i ? 0 : 1)), 1000);
-    return () => clearInterval(id);
-  }, [showStage5Nudge]);
-
-  // Stage6 の矢印トグル（TURN / CHECK）
-  const [nudgeIndex6, setNudgeIndex6] = React.useState(0);
-  React.useEffect(() => {
-    const showStage6Nudge =
-      showTutorial === true && tutorialStage === 6 && gamePhase === 'flop';
-    if (!showStage6Nudge) return;
-    const id = setInterval(() => setNudgeIndex6((i) => (i ? 0 : 1)), 1000);
-    return () => clearInterval(id);
-  }, [showTutorial, tutorialStage, gamePhase]);
-
   const welcomeBtnRef = React.useRef(null);
-  const [nudgeIndex7, setNudgeIndex7] = React.useState(0);
-
-  React.useEffect(() => {
-    if (!(showTutorial && tutorialStage === 7 && gamePhase === 'turn')) return;
-    let alive = true;
-    let flag = 0;
-    const id = setInterval(() => {
-      if (!alive) return;
-      flag = flag ? 0 : 1;
-      setNudgeIndex7(flag);
-    }, 900);
-    return () => {
-      alive = false;
-      clearInterval(id);
-      setNudgeIndex7(0);
-    };
-  }, [showTutorial, tutorialStage, gamePhase]);
 
   // 初回だけ WELCOME ボタンに矢印（initial、残高0、welcome未受領、かつオーバーレイ非表示）
   const showWelcomePointer =
@@ -561,48 +484,6 @@ function App() {
         style={POS.bet.river}
         isDisabled={wallet.chips === 0 || (showTutorial && tutorialStage !== 7)}
       />
-      {/* ===== 矢印アイコン（チュートリアルステージ1ガイド） ===== */}
-      {showTutorial && tutorialStage === 1 && (
-        <>
-          {/* ① まだ円を選んでいない → ANTE 円の上に表示 */}
-          {!selectedArea && <HandPointer x={anteCenter.x} y={anteCenter.y} />}
-
-          {/* ② ANTE 円を選んだら → 25$ チップの上に表示 */}
-          {selectedArea === 'ante' &&
-            getTotalBet(placedChips, 'ante') === 0 && (
-              <HandPointer x={chip25Center.x} y={chip25Center.y} />
-            )}
-        </>
-      )}
-      {/* ===== 矢印アイコン（チュートリアルステージ2ガイド） ===== */}
-      {showTutorial && tutorialStage === 2 && (
-        <>
-          {/* ① 円をまだ選んでいない ⇒ BONUS 円に表示 */}
-          {!selectedArea && <HandPointer x={bonusCenter.x} y={bonusCenter.y} />}
-
-          {/* ② BONUS 円を選んだがチップ未配置 ⇒ 25$ チップに表示 */}
-          {selectedArea === 'bonus' &&
-            getTotalBet(placedChips, 'bonus') === 0 && (
-              <HandPointer x={chip25Center.x} y={chip25Center.y} />
-            )}
-        </>
-      )}
-      {/* ===== 矢印アイコン（チュートリアルステージ3ガイド） ===== */}
-      {showTutorial && tutorialStage === 3 && (
-        <>
-          {/* ① まだ円を選んでいない ⇒ JACKPOT 円に表示 */}
-          {!selectedArea && (
-            <HandPointer x={jackpotCenter.x} y={jackpotCenter.y} />
-          )}
-
-          {/* ② JACKPOT 円を選択・未ベット ⇒ 5$ チップに表示 */}
-          {selectedArea === 'jackpot' &&
-            getTotalBet(placedChips, 'jackpot') === 0 && (
-              <HandPointer x={chip5Center.x} y={chip5Center.y} />
-            )}
-        </>
-      )}
-
       {/* チップ選択パネル */}
       <div className="chip-selector-panel" style={POS.ui.selector}>
         <ChipSelector
@@ -636,20 +517,6 @@ function App() {
           ? 'WELCOME\n＋$1,000'
           : '＋$1,000'}
       </button>
-      {/* 初回だけ WELCOME を指す矢印（押すと自動で消える） */}
-      {showWelcomePointer && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2600,
-          }}
-        >
-          <RefPointer targetRef={welcomeBtnRef} corner="NE" durationMs={1600} />
-        </div>
-      )}
       {/* BONUS 払い戻し表 */}
       <PayoutTable uiKey="bonusTable" title="B O N U S" data={bonusPayouts} />
       {/* JACKPOT 払い戻し表 */}
@@ -703,24 +570,6 @@ function App() {
           >
             🎮 <br />S T A R T
           </button>
-
-          {showTutorial && showStartPointer && (
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'fixed',
-                inset: 0,
-                pointerEvents: 'none',
-                zIndex: 2600,
-              }}
-            >
-              <RefPointer
-                targetRef={startBtnRef}
-                corner="NE"
-                durationMs={1600}
-              />
-            </div>
-          )}
         </>
       )}
       {gamePhase === 'showdown' && (
@@ -733,25 +582,6 @@ function App() {
           >
             PLAY&nbsp;AGAIN
           </button>
-
-          {/* Tutorial中  → Play Again に矢印 */}
-          {showTutorial && (
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'fixed',
-                inset: 0,
-                pointerEvents: 'none',
-                zIndex: 2600,
-              }}
-            >
-              <RefPointer
-                targetRef={playAgainBtnRef}
-                corner="NE"
-                durationMs={1600}
-              />
-            </div>
-          )}
         </>
       )}
 
@@ -771,126 +601,33 @@ function App() {
           チェック
         </button>
       )}
-
-      {showStage5Nudge && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2600,
-          }}
-        >
-          {/* FLOP を強調 / FOLD を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 0 ? 1 : 0.35 }}>
-            {/* ← ここを RefPointer から HandPointer(x,y) に変更 */}
-            <HandPointer
-              x={flopCenter.x}
-              y={flopCenter.y}
-              corner="NE"
-              durationMs={1200}
-            />
-          </div>
-          {/* FOLD を強調 / FLOP を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 1 ? 1 : 0.35 }}>
-            <RefPointer targetRef={foldRef} corner="NE" durationMs={1200} />
-          </div>
-        </div>
-      )}
-
-      {showStage5Nudge && (
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 2600,
-          }}
-        >
-          {/* FLOP を強調 / FOLD を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 0 ? 1 : 0.35 }}>
-            <HandPointer
-              x={flopCenter.x}
-              y={flopCenter.y}
-              corner="NE"
-              durationMs={1200}
-            />
-          </div>
-          {/* FOLD を強調 / FLOP を薄く */}
-          <div style={{ opacity: nudgeIndex5 === 1 ? 1 : 0.35 }}>
-            <RefPointer targetRef={foldRef} corner="NE" durationMs={1200} />
-          </div>
-        </div>
-      )}
-
-      {/* ===== Stage6: TURN / CHECK のピンポン矢印 ===== */}
-      {showTutorial &&
-        tutorialStage === 6 &&
-        gamePhase === 'flop' &&
-        !tutorialHidden && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 2600,
-            }}
-          >
-            {/* TURN を強調 / CHECK を薄く */}
-            <div style={{ opacity: nudgeIndex6 === 0 ? 1 : 0.35 }}>
-              <HandPointer
-                x={turnCenter.x}
-                y={turnCenter.y}
-                corner="NE"
-                durationMs={1200}
-              />
-            </div>
-            {/* CHECK を強調 / TURN を薄く */}
-            <div style={{ opacity: nudgeIndex6 === 1 ? 1 : 0.35 }}>
-              <RefPointer
-                targetRef={checkBtnRef}
-                corner="NE"
-                durationMs={1200}
-              />
-            </div>
-          </div>
-        )}
-      {showTutorial &&
-        tutorialStage === 7 &&
-        (gamePhase === 'turn' || gamePhase === 'river') &&
-        !tutorialHidden && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 2600,
-            }}
-          >
-            {/* RIVER を強調 / CHECK を薄く */}
-            <div style={{ opacity: nudgeIndex7 === 0 ? 1 : 0.35 }}>
-              <HandPointer
-                x={riverCenter.x}
-                y={riverCenter.y}
-                corner="NE"
-                durationMs={1200}
-              />
-            </div>
-
-            {/* CHECK を強調 / RIVER を薄く */}
-            <div style={{ opacity: nudgeIndex7 === 1 ? 1 : 0.35 }}>
-              <RefPointer
-                targetRef={checkBtnRef}
-                corner="NE"
-                durationMs={1200}
-              />
-            </div>
-          </div>
-        )}
+      <TutorialPointers
+        showTutorial={showTutorial}
+        tutorialStage={tutorialStage}
+        gamePhase={gamePhase}
+        tutorialHidden={tutorialHidden}
+        selectedArea={selectedArea}
+        placedChips={placedChips}
+        centers={{
+          ante: anteCenter,
+          bonus: bonusCenter,
+          jackpot: jackpotCenter,
+          chip5: chip5Center,
+          chip25: chip25Center,
+          flop: flopCenter,
+          turn: turnCenter,
+          river: riverCenter,
+        }}
+        refs={{
+          foldRef,
+          checkBtnRef,
+          startBtnRef,
+          playAgainBtnRef,
+          welcomeBtnRef,
+        }}
+        showWelcomePointer={showWelcomePointer}
+        showStartPointer={showStartPointer}
+      />
 
       {/* ==== デバッグ: ハンド履歴テスト ==== */}
       <div style={{ marginTop: '1rem', borderTop: '1px dashed #ccc' }}>
