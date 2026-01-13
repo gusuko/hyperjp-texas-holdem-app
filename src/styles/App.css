@@ -1,24 +1,47 @@
-/* styles/App.css などグローバルに 1 回 */
-body {
+/* ========= Global (1回だけ) ========= */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
   margin: 0;
-  padding: 0;
-  /* 好みで単色 or ラジアルグラデーション */
-  /* background: #085e35; 深い緑１色 */
-  /* ふわっとさせたい場合↓ */
+}
+
+body {
+  overflow: hidden; /* はみ出しは画面外へ */
   background: radial-gradient(#0c753e 0%, #064d2c 100%);
   font-family: 'Inter', sans-serif;
 }
 
-/* 旧 .table-canvas を削除して  body に移す */
-body {
-  margin: 0;
-  overflow: hidden; /* ← はみ出し非表示 */
-  width: 100vw;
-  height: 100vh; /* 画面いっぱい */
-  background: radial-gradient(#0c753e 0%, #064d2c 100%);
-  font-family: 'Inter', sans-serif; /* もともと全体指定ならここへ */
+#root {
+  position: relative; /* absolute の基準 */
+  overflow: hidden;
 }
 
+/* ========= Board ========= */
+.game-board {
+  position: relative; /* absolute配置の基準に戻す */
+  width: 1100px; /* いまのBOARD_Wと合わせる */
+  height: 1100px; /* いまのBOARD_Hと合わせる */
+  transform: none; /* まず無効化 */
+  left: auto;
+  top: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* タイトル（ボード内座標） */
+.title-in-board {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font: 3rem/1 'Bebas Neue', sans-serif;
+  color: #ffd700;
+  text-shadow: 0 2px 4px #000;
+  pointer-events: none;
+}
+
+/* ========= Card Slots ========= */
 .card-slot-frame {
   position: absolute; /* 座標は inline style で与える */
   border: 1px solid rgba(255, 255, 255, 0.7);
@@ -26,9 +49,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 枠を調整するときは width/height を変える */
 }
 
+/* ========= Place Bets Overlay ========= */
 .place-bets-overlay {
   position: absolute;
   top: 30%;
@@ -59,68 +82,34 @@ body {
   }
 }
 
-/* ボード本体 ─ 左上原点 & 拡大縮小のみ */
-.game-board {
-  width: 1800px;
-  height: 1100px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: scale(var(--game-scale, 1));
-  transform-origin: top left;
+/* ========= History / Result Panel ========= */
+:root {
+  --result-panel-w: 420px;
 }
 
-/* タイトル（ボードの 10,10 に固定。ボードと一緒に縮む） */
-.title-in-board {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font: 3rem/1 'Bebas Neue', sans-serif;
-  color: #ffd700;
-  text-shadow: 0 2px 4px #000;
-  pointer-events: none;
-}
-
-/* 画面が小さ過ぎる警告（前のまま利用可） */
-html.too-small::after {
-  content: '画面が小さ過ぎます。\A ウィンドウを広げてください';
-  white-space: pre;
-  position: fixed;
-  inset: 0; /* 画面全体を覆う */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.75); /* 黒 75% 透過 */
-  color: #fff;
-  font: 1.4rem/1.4 sans-serif;
-  text-align: center;
-  z-index: 6000; /* 何よりも前面 */
-  pointer-events: all; /* クリックを遮断して操作不可に */
-}
-/* styles/App.css 等に追記 */
 .mini {
-  width: 32px; /* 好みの大きさに調整 */
+  width: 32px;
   height: auto;
   margin-right: 2px;
   vertical-align: middle;
-  filter: drop-shadow(0 0 2px #0006); /* ほんのり縁取り（任意） */
+  filter: drop-shadow(0 0 2px #0006);
 }
-/* HistoryList 内だけサイズ上書き */
+
 .history-list .mini {
-  width: 25px; /* 好きなサイズに */
+  width: 25px;
   height: auto;
   margin-right: 1px;
 }
-/* === HistoryList テーブル === */
+
 .history-list {
-  width: 400px; /* ← 横幅 +60 */
-  max-height: 560px; /* ← 縦幅 +80 */
+  width: 400px;
+  max-height: 560px;
   overflow-y: auto;
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
   border-radius: 8px;
   padding: 0.6rem;
-  font-size: 0.78rem; /* ← 字も少し大 */
+  font-size: 0.78rem;
 }
 
 .history-title {
@@ -129,10 +118,9 @@ html.too-small::after {
   text-align: center;
 }
 
-/* 罫線入りテーブル */
 .history-table {
   width: 100%;
-  border-collapse: collapse; /* ←線を一体化 */
+  border-collapse: collapse;
 }
 
 .history-table th,
@@ -140,7 +128,7 @@ html.too-small::after {
   padding: 3px 4px;
   text-align: center;
   white-space: nowrap;
-  border: 1px solid rgba(255, 255, 255, 0.2); /* ←格子線 */
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .history-table thead tr {
@@ -153,10 +141,11 @@ html.too-small::after {
 
 .plus {
   color: #2ecc71;
-} /* 緑 */
+}
 .minus {
   color: #e74c3c;
-} /* 赤 */
+}
+
 /* --- ResultPanel 共通 --- */
 .result-panel {
   width: var(--result-panel-w);
@@ -186,9 +175,7 @@ html.too-small::after {
 .tab-header button.active {
   background: #e67e22;
 }
-:root {
-  --result-panel-w: 420px; /* 好みの横幅 */
-}
+
 .stats-box {
   background: #222;
   color: #fff;
@@ -210,7 +197,7 @@ html.too-small::after {
   opacity: 0.4;
 }
 
-/* 手アイコン用アニメーション ------------------------------- */
+/* ========= Guide / Pointer ========= */
 @keyframes tapBounce {
   0%,
   100% {
@@ -220,11 +207,11 @@ html.too-small::after {
     transform: translate(-50%, -55%) scale(1.1);
   }
 }
-/* 親の軽い発光パルス（既存で入っていればそのままでOK） */
-/* 発光の軽い脈動 */
+
 .guide-arrow {
   animation: arrowPulse 1.1s ease-in-out infinite;
 }
+
 @keyframes arrowPulse {
   0% {
     filter: drop-shadow(0 0 2px #00eaff);
@@ -238,4 +225,28 @@ html.too-small::after {
     filter: drop-shadow(0 0 2px #00eaff);
     opacity: 0.95;
   }
+}
+
+/* ========= too-small（今は使わないなら残しても害はない） ========= */
+html.too-small::after {
+  content: '画面が小さ過ぎます。\A ウィンドウを広げてください';
+  white-space: pre;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font: 1.4rem/1.4 sans-serif;
+  text-align: center;
+  z-index: 6000;
+  pointer-events: all;
+}
+* {
+  outline: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+#root {
+  width: 100%;
 }

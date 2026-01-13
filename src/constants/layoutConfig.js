@@ -9,7 +9,7 @@
 export const TABLE_SCALE = 1;
 
 // ---------- 1) ゲームボード基準サイズ ----------
-export const BOARD_W = 1800; // .game-board の width と同じ
+export const BOARD_W = 1200; // .game-board の width と同じ
 export const BOARD_H = 1100; // .game-board の height と同じ
 const CENTER_X = BOARD_W / 2; // 900
 const CENTER_Y = BOARD_H / 2; // 550
@@ -66,9 +66,10 @@ const NEG_POS = {
     resultPanel: { top: -550, left: 0 },
     history: { top: -550, left: 0 }, // ★履歴パネルの基準位置
     historyToggle: { top: -600, left: 0 },
-    statsPanel: { top: -0, left: -800 },
-    bonusTable: { top: -550, left: -840 },
-    jackpotTable: { top: -250, left: -840 },
+    statsPanel: { top: 0, left: -600 },
+    bonusTable: { top: -550, left: -600 },
+    jackpotTable: { top: -250, left: -600 },
+
     chips: { top: -500, left: -200 },
   },
 };

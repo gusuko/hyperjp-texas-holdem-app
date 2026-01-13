@@ -649,20 +649,23 @@ function App() {
         </button>
         <span style={{ marginLeft: '1rem' }}>現在 {history.length} 件</span>
       </div>
+
       {/* Debug only */}
-      <button
-        onClick={() =>
-          setWallet({
-            id: 1,
-            chips: 0,
-            welcomeClaimed: false,
-            tutorialCompleted: false, // ←★ この行を追加
-          })
-        }
-        style={{ position: 'fixed', bottom: 8, right: 8 }}
-      >
-        RESET&nbsp;WALLET
-      </button>
+      {process.env.NODE_ENV === 'development' && (
+        <button
+          onClick={() =>
+            setWallet({
+              id: 1,
+              chips: 0,
+              welcomeClaimed: false,
+              tutorialCompleted: false,
+            })
+          }
+          style={{ position: 'absolute', top: 8, right: 800 }}
+        >
+          RESET&nbsp;WALLET
+        </button>
+      )}
       <StatsPanel
         history={history}
         style={{ position: 'absolute', ...POS.ui.statsPanel }}
