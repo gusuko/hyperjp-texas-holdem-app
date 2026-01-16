@@ -1,18 +1,17 @@
 // src/constants/layoutConfig.js
 // =============================================================
-// 🎛️ レイアウト関連の「数値だけ」をここに一本化
-//    – “NEG_POS” で中央±px を保持
-//    – “POS” で左上 (0,0) 基準に変換して export
+// 🎛️ レイアウト数値の一本化
+//  - NEG_POS: “中央(0,0)基準 ±px” を保持（昔の座標をそのまま保存）
+//  - POS    : NEG_POS を「左上(0,0)基準」に変換して export
 // =============================================================
 
-// ---------- 0) グローバル倍率（今は使わないが残しておく） ----------
 export const TABLE_SCALE = 1;
 
 // ---------- 1) ゲームボード基準サイズ ----------
-export const BOARD_W = 1200; // .game-board の width と同じ
-export const BOARD_H = 1100; // .game-board の height と同じ
-const CENTER_X = BOARD_W / 2; // 900
-const CENTER_Y = BOARD_H / 2; // 550
+export const BOARD_W = 1100; // .game-board の width と合わせる
+export const BOARD_H = 1100; // .game-board の height と合わせる
+const CENTER_X = BOARD_W / 2;
+const CENTER_Y = BOARD_H / 2;
 
 // ---------- 2) パーツ基準寸法 ----------
 export const DIM = {
@@ -25,7 +24,6 @@ export const DIM = {
    A) 旧来の “中央 (0,0) 基準 ±px” 座標を NEG_POS として保持
    ============================================================= */
 const NEG_POS = {
-  /* A-1) ベット円（6個） */
   bet: {
     ante: { top: -120, left: -410 },
     bonus: { top: -120, left: -330 },
@@ -35,7 +33,6 @@ const NEG_POS = {
     river: { top: -220, left: -560 },
   },
 
-  /* A-2) カード枠 */
   cardSlot: {
     dealer: [
       { top: -550, left: -415 },
@@ -54,7 +51,6 @@ const NEG_POS = {
     ],
   },
 
-  /* A-3) UI ボタン類 & テーブル類 */
   ui: {
     start: { top: 30, left: -150 },
     fold: { top: 30, left: -150 },
@@ -62,10 +58,12 @@ const NEG_POS = {
     selector: { top: 130, left: -600 },
     playAgain: { top: 30, left: -190 },
     check: { top: 30, left: -150 },
+
     resultText: { top: -550, left: 0 },
     resultPanel: { top: -550, left: 0 },
-    history: { top: -550, left: 0 }, // ★履歴パネルの基準位置
+    history: { top: -550, left: 0 },
     historyToggle: { top: -600, left: 0 },
+
     statsPanel: { top: 0, left: -600 },
     bonusTable: { top: -550, left: -600 },
     jackpotTable: { top: -250, left: -600 },
@@ -77,27 +75,29 @@ const NEG_POS = {
 /* =============================================================
    B) NEG_POS → 左上 (0,0) 基準へ変換して export する POS
    ============================================================= */
-const BOARD_PADDING_TOP = 150; // タイトル高さ＋余白（好きな数字）
+
+// タイトル分の上余白（必要なら後で調整）
+const BOARD_PADDING_TOP = 150;
+
+// 追加：全体を右に寄せる（まずはこれで重なりを解消）
+const GLOBAL_SHIFT_X = 260; // ← まずは 260 で試す（後で調整）
 
 const shift = ({ top, left }) => ({
   top: top + CENTER_Y + BOARD_PADDING_TOP,
-  left: left + CENTER_X,
+  left: left + CENTER_X + GLOBAL_SHIFT_X,
 });
 
 export const POS = {
-  // ベット円
   bet: Object.fromEntries(
     Object.entries(NEG_POS.bet).map(([k, v]) => [k, shift(v)])
   ),
 
-  // カード枠
   cardSlot: {
     dealer: NEG_POS.cardSlot.dealer.map(shift),
     player: NEG_POS.cardSlot.player.map(shift),
     community: NEG_POS.cardSlot.community.map(shift),
   },
 
-  // UI ボタン・テーブル
   ui: Object.fromEntries(
     Object.entries(NEG_POS.ui).map(([k, v]) => [k, shift(v)])
   ),

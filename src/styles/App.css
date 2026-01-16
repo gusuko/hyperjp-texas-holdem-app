@@ -19,15 +19,37 @@ body {
 }
 
 /* ========= Board ========= */
+
+.app-shell {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+}
+
+/* 縮小対象はこの箱 */
+.board-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* 盤面そのもの（設計サイズ） */
 .game-board {
-  position: relative; /* absolute配置の基準に戻す */
-  width: 1100px; /* いまのBOARD_Wと合わせる */
-  height: 1100px; /* いまのBOARD_Hと合わせる */
-  transform: none; /* まず無効化 */
-  left: auto;
-  top: auto;
-  margin-left: auto;
-  margin-right: auto;
+  position: relative;
+  width: 1100px;
+  height: 900px; /* ← いったん1100じゃなく900でOK */
+  transform: scale(var(--game-scale));
+  transform-origin: top left;
+}
+
+/* Web UI 側 */
+.side-ui {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* タイトル（ボード内座標） */

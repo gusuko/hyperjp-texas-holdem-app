@@ -369,307 +369,117 @@ function App() {
   };
 
   return (
-    <div className="game-board">
-      <h1 className="title-in-board">
-        🃏 Ultimate Texas Hold'em Poker Simulator
-      </h1>
-      <CurrentChips
-        chips={wallet.chips} // stateから渡す
-        style={{ position: 'absolute', ...POS.ui.chips }}
-      />
-      {/* ① 枠（CardSlot） */}
-      {POS.cardSlot.dealer.map((pos, i) => (
-        <CardSlot key={`slot-d${i}`} style={pos} />
-      ))}
-      {POS.cardSlot.player.map((pos, i) => (
-        <CardSlot key={`slot-p${i}`} style={pos} />
-      ))}
-      {POS.cardSlot.community.map((pos, i) => (
-        <CardSlot key={`slot-c${i}`} style={pos} />
-      ))}
-      {/* ② カード */}
-      <CardGroup
-        onCardLoad={dealerCardLoadCallback}
-        cards={cards.dealer}
-        positions={POS.cardSlot.dealer}
-        facedown={!showdown}
-      />
-      <CardGroup
-        onCardLoad={boardCardLoadCallback}
-        cards={cards.board}
-        positions={POS.cardSlot.community}
-      />
-      <CardGroup
-        onCardLoad={playerCardLoadCallback}
-        cards={cards.player}
-        positions={POS.cardSlot.player}
-      />
-      {/* ---------- ベット円（6個） ---------- */}
-      <BetCircle
-        area="ante"
-        total={getTotalBet(placedChips, 'ante')}
-        chips={placedChips.ante}
-        isActive={gamePhase === 'initial'}
-        isSelected={selectedArea === 'ante'}
-        onClick={() => setSelectedArea('ante')}
-        style={POS.bet.ante}
-        /* ステージ1だけ点滅させる */
-        tutorialActive={showTutorial && tutorialStage === 1}
-        /* ANTE は常にクリック可なので無効化しない */
-        isDisabled={isCircleDisabled('ante')}
-      />
-      <BetCircle
-        area="bonus"
-        total={getTotalBet(placedChips, 'bonus')}
-        chips={placedChips.bonus}
-        isActive={gamePhase === 'initial'}
-        isSelected={selectedArea === 'bonus'}
-        onClick={() => setSelectedArea('bonus')}
-        style={POS.bet.bonus}
-        /* ステージ1の間はクリック無効化（半透明） */
-        isDisabled={isCircleDisabled('bonus')}
-        /* ステージ2だけ点滅させる */
-        tutorialActive={showTutorial && tutorialStage === 2}
-      />
-      <BetCircle
-        area="jackpot"
-        total={getTotalBet(placedChips, 'jackpot')}
-        chips={placedChips.jackpot}
-        isActive={gamePhase === 'initial'}
-        isSelected={selectedArea === 'jackpot'}
-        onClick={() => setSelectedArea('jackpot')}
-        style={POS.bet.jackpot}
-        /* ステージ1・2 ではクリック無効。
-     ステージ3（JACKPOTの番）だけクリック可にする */
-        isDisabled={isCircleDisabled('jackpot')}
-        /* ステージ3 だけ点滅させる */
-        tutorialActive={showTutorial && tutorialStage === 3}
-      />
-      {/* FLOP */}
-      <div ref={flopRef}>
-        <BetCircle
-          area="flop"
-          total={getTotalBet(placedChips, 'flop')}
-          chips={placedChips.flop}
-          isActive={gamePhase === 'preflop'}
-          isSelected={false}
-          onClick={handleFlopCircleClick}
-          style={POS.bet.flop}
-          isDisabled={
-            wallet.chips === 0 || (showTutorial && tutorialStage !== 5)
-          }
+    <div className="app-shell">
+      {/* ===== 左：盤面（縮小・座標系の世界） ===== */}
+      <div className="board-wrap">
+        <div className="game-board">
+          {/* === ここに「盤面に残したいもの」だけ入れる === */}
+          {/* 例：タイトル、CurrentChips、CardSlot、CardGroup、BetCircle、ChipSelector、Welcome、FOLD/CHECK/START/PLAYAGAIN、TutorialPointers、overlay等 */}
+
+          {/* --- ここから下、君の既存の <div className="game-board"> の中身をコピペ --- */}
+          <h1 className="title-in-board">
+            🃏 Ultimate Texas Hold'em Poker Simulator
+          </h1>
+
+          <CurrentChips
+            chips={wallet.chips}
+            style={{ position: 'absolute', ...POS.ui.chips }}
+          />
+
+          {POS.cardSlot.dealer.map((pos, i) => (
+            <CardSlot key={`slot-d${i}`} style={pos} />
+          ))}
+          {POS.cardSlot.player.map((pos, i) => (
+            <CardSlot key={`slot-p${i}`} style={pos} />
+          ))}
+          {POS.cardSlot.community.map((pos, i) => (
+            <CardSlot key={`slot-c${i}`} style={pos} />
+          ))}
+
+          <CardGroup
+            onCardLoad={dealerCardLoadCallback}
+            cards={cards.dealer}
+            positions={POS.cardSlot.dealer}
+            facedown={!showdown}
+          />
+          <CardGroup
+            onCardLoad={boardCardLoadCallback}
+            cards={cards.board}
+            positions={POS.cardSlot.community}
+          />
+          <CardGroup
+            onCardLoad={playerCardLoadCallback}
+            cards={cards.player}
+            positions={POS.cardSlot.player}
+          />
+
+          {/* ベット円…（このまま全部ここに残してOK） */}
+          {/* ChipSelector / Welcome / Fold / Check / Start / PlayAgain / TutorialPointers もここ */}
+          {/* --- ここまで --- */}
+        </div>
+      </div>
+
+      {/* ===== 右：Web UI（普通のHTMLの世界） ===== */}
+      <aside className="side-ui">
+        {/* ここに「盤面の外に出したいもの」だけ置く */}
+
+        {/* BONUS / JACKPOT 払い戻し表 */}
+        <PayoutTable uiKey="bonusTable" title="B O N U S" data={bonusPayouts} />
+        <PayoutTable
+          uiKey="jackpotTable"
+          title="J A C K P O T"
+          data={jackpotPayouts}
         />
-      </div>
-      {/* TURN */}
-      <BetCircle
-        area="turn"
-        total={getTotalBet(placedChips, 'turn')}
-        chips={placedChips.turn}
-        isActive={gamePhase === 'flop'}
-        isSelected={false}
-        onClick={handleTurnCircleClick}
-        style={POS.bet.turn}
-        // Tutorial中は Stage6 のときだけ TURN を有効化
-        isDisabled={wallet.chips === 0 || (showTutorial && tutorialStage !== 6)}
-      />
 
-      {/* RIVER */}
-      <BetCircle
-        area="river"
-        total={getTotalBet(placedChips, 'river')}
-        chips={placedChips.river}
-        isActive={gamePhase === 'turn'}
-        isSelected={false}
-        onClick={handleRiverCircleClick}
-        style={POS.bet.river}
-        isDisabled={wallet.chips === 0 || (showTutorial && tutorialStage !== 7)}
-      />
-      {/* チップ選択パネル */}
-      <div className="chip-selector-panel" style={POS.ui.selector}>
-        <ChipSelector
-          chips={wallet.chips}
-          dispatch={dispatch}
-          placedChips={placedChips}
-          gamePhase={gamePhase}
-          onFlopClick={handleFlopCircleClick}
-          onTurnClick={handleTurnCircleClick}
-          onRiverClick={handleRiverCircleClick}
-          isFlopActive={gamePhase === 'preflop'}
-          isTurnActive={gamePhase === 'flop'}
-          isRiverActive={gamePhase === 'turn'}
-          selectedArea={selectedArea}
-          setSelectedArea={setSelectedArea}
-          credit={credit}
-          debit={debit}
-          tutorialActive={showTutorial}
-          tutorialStage={tutorialStage}
+        {/* 結果・履歴（ResultPanelがhistoryも持ってるならここに置くのが楽） */}
+        <ResultPanel
+          showdown={showdown}
+          folded={folded}
+          resultText={resultText}
+          history={history}
+          onPlayAgain={handlePlayAgain}
         />
-      </div>
-      {/* === 下段：補充ボタン === */}
-      <button
-        ref={welcomeBtnRef}
-        className="recharge-btn"
-        onClick={handleTopUp}
-        style={{ position: 'absolute', ...POS.ui.recharge }}
-        disabled={showTutorial}
-      >
-        {!wallet.welcomeClaimed && wallet.chips === 0
-          ? 'WELCOME\n＋$1,000'
-          : '＋$1,000'}
-      </button>
-      {/* BONUS 払い戻し表 */}
-      <PayoutTable uiKey="bonusTable" title="B O N U S" data={bonusPayouts} />
-      {/* JACKPOT 払い戻し表 */}
-      <PayoutTable
-        uiKey="jackpotTable"
-        title="J A C K P O T"
-        data={jackpotPayouts}
-      />
 
-      {/* 勝敗テキスト */}
-      <ResultPanel
-        showdown={showdown}
-        folded={folded}
-        resultText={resultText}
-        history={history}
-        onPlayAgain={handlePlayAgain}
-      />
-      {/* ① フォールド（preflop でのみ表示） */}
-      {!folded && gamePhase === 'preflop' && (
-        <button
-          ref={foldRef}
-          className="fold-btn"
-          onClick={() => {
-            handleFold({
-              dispatch,
-              deck: state.deck,
-              playerCards: state.playerCards,
-              dealerCards: state.dealerCards,
-              bets: state.bets,
-              onHandComplete: addHand,
-              onResult: setResultText,
-              debit,
-            });
-          }}
-          style={POS.ui.fold}
-        >
-          FOLD
-        </button>
-      )}
+        {/* Stats */}
+        <StatsPanel history={history} />
 
-      {/* ゲーム開始ボタンは初期フェーズだけ表示 */}
-      {gamePhase === 'initial' && (
-        <>
+        {/* Debug はここ（盤面外だから邪魔しない） */}
+        {process.env.NODE_ENV === 'development' && (
           <button
-            ref={startBtnRef}
-            className={`btn-start ${showTutorial ? 'disabled-btn' : ''}`}
-            onClick={handleGameStart}
-            // tutorial 中は stage 3 未満なら押せない。3 以上になれば押せる。
-            disabled={showTutorial ? tutorialStage < 4 : false}
-            style={{ position: 'absolute', ...POS.ui.start }}
+            onClick={() =>
+              setWallet({
+                id: 1,
+                chips: 0,
+                welcomeClaimed: false,
+                tutorialCompleted: false,
+              })
+            }
           >
-            🎮 <br />S T A R T
+            RESET&nbsp;WALLET
           </button>
-        </>
-      )}
-      {gamePhase === 'showdown' && (
-        <>
+        )}
+
+        {/* Dummy/Clear もここに逃がすと盤面が汚れない */}
+        <div style={{ borderTop: '1px dashed #ccc', paddingTop: 8 }}>
           <button
-            ref={playAgainBtnRef}
-            className="playagain-btn"
-            onClick={handlePlayAgain}
-            style={POS.ui.fold}
+            onClick={() =>
+              addHand({
+                playerCards: ['Ah', 'Kd'],
+                dealerCards: ['7c', '7d'],
+                community: ['2h', '5s', '9d', 'Qs', 'Jc'],
+                resultText: 'Demo Save',
+                payout: 0,
+              })
+            }
           >
-            PLAY&nbsp;AGAIN
+            + Dummy Hand
           </button>
-        </>
-      )}
-
-      {/* 再プレイボタン押した後の文字 */}
-      {showPlaceYourBets && (
-        <div className="place-bets-overlay">PLACE YOUR BETS Please!</div>
-      )}
-
-      {/* 円形チェックボタン：flop または turn フェーズのみ */}
-      {!folded && (gamePhase === 'flop' || gamePhase === 'turn') && (
-        <button
-          ref={checkBtnRef}
-          className="check-btn"
-          onClick={handleCheckClick}
-          style={POS.ui.check}
-        >
-          チェック
-        </button>
-      )}
-      <TutorialPointers
-        showTutorial={showTutorial}
-        tutorialStage={tutorialStage}
-        gamePhase={gamePhase}
-        tutorialHidden={tutorialHidden}
-        selectedArea={selectedArea}
-        placedChips={placedChips}
-        centers={{
-          ante: anteCenter,
-          bonus: bonusCenter,
-          jackpot: jackpotCenter,
-          chip5: chip5Center,
-          chip25: chip25Center,
-          flop: flopCenter,
-          turn: turnCenter,
-          river: riverCenter,
-        }}
-        refs={{
-          foldRef,
-          checkBtnRef,
-          startBtnRef,
-          playAgainBtnRef,
-          welcomeBtnRef,
-        }}
-        showWelcomePointer={showWelcomePointer}
-        showStartPointer={showStartPointer}
-      />
-
-      {/* ==== デバッグ: ハンド履歴テスト ==== */}
-      <div style={{ marginTop: '1rem', borderTop: '1px dashed #ccc' }}>
-        <button
-          onClick={() =>
-            addHand({
-              playerCards: ['Ah', 'Kd'],
-              dealerCards: ['7c', '7d'],
-              community: ['2h', '5s', '9d', 'Qs', 'Jc'],
-              resultText: 'Demo Save',
-              payout: 0,
-            })
-          }
-        >
-          + Dummy Hand
-        </button>
-        <button onClick={wipe} style={{ marginLeft: '0.5rem' }}>
-          Clear History
-        </button>
-        <span style={{ marginLeft: '1rem' }}>現在 {history.length} 件</span>
-      </div>
-
-      {/* Debug only */}
-      {process.env.NODE_ENV === 'development' && (
-        <button
-          onClick={() =>
-            setWallet({
-              id: 1,
-              chips: 0,
-              welcomeClaimed: false,
-              tutorialCompleted: false,
-            })
-          }
-          style={{ position: 'absolute', top: 8, right: 800 }}
-        >
-          RESET&nbsp;WALLET
-        </button>
-      )}
-      <StatsPanel
-        history={history}
-        style={{ position: 'absolute', ...POS.ui.statsPanel }}
-      />
+          <button onClick={wipe} style={{ marginLeft: 8 }}>
+            Clear History
+          </button>
+          <span style={{ marginLeft: 12 }}>現在 {history.length} 件</span>
+        </div>
+      </aside>
     </div>
   );
 }

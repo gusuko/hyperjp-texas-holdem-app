@@ -7,10 +7,11 @@ export default function useAutoScale() {
     const upd = () => {
       const s = Math.min(
         window.innerWidth / BOARD_W,
-        window.innerHeight / BOARD_H
+        window.innerHeight / BOARD_H,
+        1
       );
-
       document.documentElement.style.setProperty('--game-scale', s);
+      document.documentElement.classList.remove('too-small');
     };
 
     upd();
