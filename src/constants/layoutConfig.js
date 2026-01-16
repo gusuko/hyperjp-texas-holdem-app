@@ -58,16 +58,6 @@ const NEG_POS = {
     selector: { top: 130, left: -600 },
     playAgain: { top: 30, left: -190 },
     check: { top: 30, left: -150 },
-
-    resultText: { top: -550, left: 0 },
-    resultPanel: { top: -550, left: 0 },
-    history: { top: -550, left: 0 },
-    historyToggle: { top: -600, left: 0 },
-
-    statsPanel: { top: 0, left: -600 },
-    bonusTable: { top: -550, left: -600 },
-    jackpotTable: { top: -250, left: -600 },
-
     chips: { top: -500, left: -200 },
   },
 };

@@ -2,18 +2,20 @@
 import React from 'react';
 import { POS } from '../constants/layoutConfig';
 
-export default function PayoutTable({ uiKey, title, data }) {
-  const { top, left } = POS.ui[uiKey]; // bonusTable / jackpotTable
-  const rows = Object.entries(data); // [["Royal Flush",500], …]
+export default function PayoutTable({ uiKey, title, data, inBoard = false }) {
+  const rows = Object.entries(data);
+
+  // ✅ 盤面内で使うときだけ POS から座標を取る
+  const pos = inBoard && uiKey ? POS.ui?.[uiKey] : null;
 
   return (
     <table
       className="payout-board"
-      style={{
-        position: 'absolute', // ← ボード内で自由配置したいので残す
-        top: top, // ← 受け取った px をそのまま
-        left: left,
-      }}
+      style={
+        inBoard && pos
+          ? { position: 'absolute', top: pos.top, left: pos.left }
+          : undefined
+      }
     >
       <thead>
         <tr>

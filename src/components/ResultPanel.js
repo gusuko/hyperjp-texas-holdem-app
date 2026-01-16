@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import ShowdownResult from './ShowdownResult';
 import HistoryList from './HistoryList';
-import StatsPanel from './StatsPanel';
-import { POS } from '../constants/layoutConfig'; // 位置指定
 
 export default function ResultPanel({
   showdown,
@@ -20,10 +18,7 @@ export default function ResultPanel({
   }, [showdown]);
 
   return (
-    <div
-      className="result-panel"
-      style={{ position: 'absolute', ...POS.ui.resultText }}
-    >
+    <div className="result-panel">
       {/* --- タブヘッダー --- */}
       <div className="tab-header">
         <button
