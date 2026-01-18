@@ -55,7 +55,12 @@ function App() {
   const [showTutorial, setShowTutorial] = useState(false);
 
   // Stage5: FLOP/FOLD ピンポン用
+  const anteRef = React.useRef(null);
+  const jackpotRef = React.useRef(null);
+  const bonusRef = React.useRef(null);
   const flopRef = React.useRef(null);
+  const turnRef = React.useRef(null);
+  const riverRef = React.useRef(null);
   const foldRef = React.useRef(null);
   const playAgainBtnRef = React.useRef(null);
   // Stage6: TURN/CHECK ピンポン用
@@ -63,6 +68,9 @@ function App() {
   const [tutorialHidden, setTutorialHidden] = React.useState(false);
   const welcomeBtnRef = React.useRef(null);
   const startBtnRef = React.useRef(null);
+
+  // --- ChipSelector panel ref ---
+  const selectorRef = React.useRef(null);
 
   /* ------------------- 円がクリック不可かどうか ------------------- */
   const isCircleDisabled = (area) => {
@@ -129,6 +137,17 @@ function App() {
       credit(1000);
     }
   };
+
+  React.useEffect(() => {
+    const update = () => {
+      const tooSmall = window.innerWidth < 1200 || window.innerHeight < 700;
+      document.documentElement.classList.toggle('too-small', tooSmall);
+    };
+
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   /* -------------------  チュートリアル自動進行  ------------------- */
   React.useEffect(() => {
@@ -384,6 +403,7 @@ function App() {
           {/* ---------- ベット円（6個） ---------- */}
           <BetCircle
             area="ante"
+            innerRef={anteRef}
             total={getTotalBet(placedChips, 'ante')}
             chips={placedChips.ante}
             isActive={gamePhase === 'initial'}
@@ -396,6 +416,7 @@ function App() {
 
           <BetCircle
             area="bonus"
+            innerRef={bonusRef}
             total={getTotalBet(placedChips, 'bonus')}
             chips={placedChips.bonus}
             isActive={gamePhase === 'initial'}
@@ -408,6 +429,7 @@ function App() {
 
           <BetCircle
             area="jackpot"
+            innerRef={jackpotRef}
             total={getTotalBet(placedChips, 'jackpot')}
             chips={placedChips.jackpot}
             isActive={gamePhase === 'initial'}
@@ -419,24 +441,25 @@ function App() {
           />
 
           {/* FLOP */}
-          <div ref={flopRef}>
-            <BetCircle
-              area="flop"
-              total={getTotalBet(placedChips, 'flop')}
-              chips={placedChips.flop}
-              isActive={gamePhase === 'preflop'}
-              isSelected={false}
-              onClick={handleFlopCircleClick}
-              style={POS.bet.flop}
-              isDisabled={
-                wallet.chips === 0 || (showTutorial && tutorialStage !== 5)
-              }
-            />
-          </div>
+
+          <BetCircle
+            area="flop"
+            innerRef={flopRef}
+            total={getTotalBet(placedChips, 'flop')}
+            chips={placedChips.flop}
+            isActive={gamePhase === 'preflop'}
+            isSelected={false}
+            onClick={handleFlopCircleClick}
+            style={POS.bet.flop}
+            isDisabled={
+              wallet.chips === 0 || (showTutorial && tutorialStage !== 5)
+            }
+          />
 
           {/* TURN */}
           <BetCircle
             area="turn"
+            innerRef={turnRef}
             total={getTotalBet(placedChips, 'turn')}
             chips={placedChips.turn}
             isActive={gamePhase === 'flop'}
@@ -451,6 +474,7 @@ function App() {
           {/* RIVER */}
           <BetCircle
             area="river"
+            innerRef={riverRef}
             total={getTotalBet(placedChips, 'river')}
             chips={placedChips.river}
             isActive={gamePhase === 'turn'}
@@ -463,7 +487,11 @@ function App() {
           />
 
           {/* チップ選択パネル */}
-          <div className="chip-selector-panel" style={POS.ui.selector}>
+          <div
+            ref={selectorRef}
+            className="chip-selector-panel"
+            style={POS.ui.selector}
+          >
             <ChipSelector
               chips={wallet.chips}
               dispatch={dispatch}

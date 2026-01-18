@@ -67,23 +67,27 @@ export default function HandPointer({
   const headLen = 18;
   const headW = 14;
 
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
   return (
     <div
       className="guide-arrow"
       style={{
-        position: 'absolute',
+        position: 'fixed', // ★ absolute → fixed
         inset: 0,
         pointerEvents: 'none',
         zIndex: 2600,
       }}
     >
       <svg
-        viewBox="0 0 1800 1100"
+        viewBox={`0 0 ${vw} ${vh}`} // ★ 1800x1100 固定をやめる
         width="100%"
         height="100%"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
+        {/* 以下同じ */}
         <defs>
           <filter id="hp_glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="1.5" result="b" />

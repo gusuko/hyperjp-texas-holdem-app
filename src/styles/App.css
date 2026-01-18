@@ -182,16 +182,6 @@ body {
   }
 }
 
-/* ===== mini cards (共通) ===== */
-.mini-cards {
-  display: flex;
-  flex-wrap: nowrap; /* 縦に折り返さない */
-  gap: 0; /* 余白殺す */
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
-}
-
 .mini {
   width: 32px; /* Result側の標準サイズ */
   height: auto;
@@ -200,39 +190,37 @@ body {
   vertical-align: middle;
   filter: drop-shadow(0 0 2px #0006);
 }
+/* ========= Result Panel（整理・最小） ========= */
+/* 目的：右カラム幅に必ず収める／右切れを発生させない */
 
-/* ========= Result Panel ========= */
 .result-panel {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  box-sizing: border-box; /* ← padding込みでもはみ出さない */
 
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
   border-radius: 10px;
   padding: 0.6rem;
-
   font-size: 0.8rem;
 
-  /* 右にはみ出すのを防ぐ */
-  overflow-x: hidden;
+  overflow-x: hidden; /* 横スクロールは出さない */
 }
 
-/* タブ */
 .tab-header {
   display: flex;
   gap: 4px;
   margin-bottom: 6px;
 
   width: 100%;
-  max-width: 100%;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .tab-header button {
   flex: 1 1 0;
   min-width: 0;
-
   padding: 4px 0;
   background: #444;
   color: #fff;
@@ -245,105 +233,45 @@ body {
   background: #e67e22;
 }
 
-/* Result 内のテキストは基本折返しOK（FOLDとか長文対策） */
-.result-panel p,
-.result-panel .result-text,
-.result-panel .message,
-.result-panel .desc {
-  margin: 0.35rem 0;
-  line-height: 1.25;
-  white-space: normal;
-  overflow-wrap: anywhere; /* 長い文字列でも枠内で折る */
-}
-
-/* 「あなた：」「ディーラー：」の “ミニカード列” を必ず折り返す */
-.result-panel .mini-cards,
-.result-panel .hand-cards,
-.result-panel .cards {
-  display: flex;
-  flex-wrap: wrap; /* ←これが要 */
-  gap: 4px;
-  align-items: center;
-  justify-content: flex-start;
-
+/* ShowdownResult の箱（className="result-box"）も右切れ防止 */
+.result-box {
+  width: 100%;
   min-width: 0;
-  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* Result側の mini は history と分離してサイズ指定 */
-.result-panel .mini-cards .mini,
-.result-panel img.mini {
-  width: 26px; /* 24〜28で好み調整 */
-  height: auto;
-  display: block;
-  margin: 0;
-  flex: 0 0 auto;
-}
-
-/* 払い戻し詳細の“表っぽい行”を 2カラムで枠内に収める
-   （クラス名が違っても効くように候補多め） */
-.result-panel .payout-row,
-.result-panel .row,
-.result-panel .line,
-.result-panel .kv,
-.result-panel .breakdown-row {
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-
-  min-width: 0;
-  max-width: 100%;
-}
-
-/* 左ラベル：縮む・省略OK */
-.result-panel .payout-row > :first-child,
-.result-panel .row > :first-child,
-.result-panel .line > :first-child,
-.result-panel .kv > :first-child,
-.result-panel .breakdown-row > :first-child {
-  flex: 1 1 auto;
-  min-width: 0;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 右金額：常に右寄せで切れない */
-.result-panel .payout-row > :last-child,
-.result-panel .row > :last-child,
-.result-panel .line > :last-child,
-.result-panel .kv > :last-child,
-.result-panel .breakdown-row > :last-child {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  text-align: right;
-}
-
-/* table を使ってる場合も枠内固定 */
-.result-panel table {
+/* 払い戻しテーブル（className="payout" にだけ当てる） */
+.result-box table.payout {
   width: 100%;
   max-width: 100%;
-  table-layout: fixed;
+  box-sizing: border-box;
   border-collapse: collapse;
+  table-layout: auto; /* ← fixed だと列が潰れて切れやすい */
+}
+/* 払い戻し表：行が2段になっても見た目が崩れにくい */
+.payout td {
+  vertical-align: top;
 }
 
-.result-panel th,
-.result-panel td {
+.result-box table.payout th,
+.result-box table.payout td {
+  padding: 2px 4px;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-/* “払い戻し詳細” ボックスがあるなら枠内に収める保険 */
-.result-panel .payout-detail,
-.result-panel .detail-box,
-.result-panel .breakdown,
-.result-panel .payout-box {
-  max-width: 100%;
-  min-width: 0;
-  overflow-x: hidden;
+/* 左：折り返してOK（長いラベル救済） */
+.result-box table.payout td.cell-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* 右：右寄せ、でも“切れない”ように折り返し許可（$100+...対策） */
+.result-box table.payout td.val {
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ========= History (div+grid / 横スクロールゼロ / 切れない) ========= */
@@ -422,10 +350,6 @@ body {
   opacity: 0.9;
 }
 
-.history-list .mini {
-  width: 15px;
-}
-
 /* payout */
 .h-pay {
   text-align: right;
@@ -441,24 +365,40 @@ body {
   color: #e74c3c;
 }
 
-/* 行カラー */
-.history-row.win {
-  background: rgba(46, 204, 113, 0.12);
+/* 行カラー（important不要版：history-list配下に限定して強くする） */
+.history-list .history-row.win {
+  background: rgba(231, 76, 60, 0.22); /* 赤 */
 }
-.history-row.lose {
-  background: rgba(52, 152, 219, 0.12);
+.history-list .history-row.lose {
+  background: rgba(52, 152, 219, 0.22); /* 青 */
 }
-.history-row.fold {
-  background: rgba(241, 196, 15, 0.14);
+.history-list .history-row.tie {
+  background: rgba(241, 196, 15, 0.22); /* 黄 */
 }
-.history-row.tie {
-  background: rgba(189, 195, 199, 0.12);
+.history-list .history-row.fold {
+  background: rgba(189, 195, 199, 0.18); /* 灰 */
 }
 
 /* 右カラムの横スクロール事故を保険で潰す */
 .right-ui,
 .right-top {
   overflow-x: hidden;
+}
+/* ===== History mini (衝突回避：History専用クラス) ===== */
+
+.history-mini-cards {
+  display: flex;
+  gap: 0; /* 余白殺す */
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap; /* 横に並べる */
+}
+
+.history-mini {
+  width: 15px;
+  height: auto;
+  margin: 0;
+  display: inline-block; /* blockにしない（縦積みの原因になりやすい） */
 }
 
 /* ========= Stats ========= */
@@ -506,7 +446,18 @@ body {
   }
 }
 
-/* ========= too-small ========= */
+/* ========= Responsive safety (PC寄り：崩れ防止) ========= */
+@media (max-width: 1200px) {
+  :root {
+    --side-width: 320px;
+  }
+}
+@media (max-width: 1060px) {
+  :root {
+    --side-width: 280px;
+  }
+}
+
 html.too-small::after {
   content: '画面が小さ過ぎます。\A ウィンドウを広げてください';
   white-space: pre;
@@ -521,16 +472,4 @@ html.too-small::after {
   text-align: center;
   z-index: 6000;
   pointer-events: all;
-}
-
-/* ========= Responsive safety (PC寄り：崩れ防止) ========= */
-@media (max-width: 1200px) {
-  :root {
-    --side-width: 320px;
-  }
-}
-@media (max-width: 1060px) {
-  :root {
-    --side-width: 280px;
-  }
 }

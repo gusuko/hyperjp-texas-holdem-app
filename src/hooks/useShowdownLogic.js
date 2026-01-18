@@ -156,12 +156,12 @@ const useShowdownLogic = ({
       payout += anteWin + betWin;
       anteText = `$${bets.ante}+ 0(x0)`;
     } else {
-      anteText = `$0（敗北 → ANTE没収）`;
+      anteText = `$0（没収）`;
     }
 
     let flopTurnRiverText = '';
     if (folded) {
-      flopTurnRiverText = '$0（降りたため没収）';
+      flopTurnRiverText = '$0（没収）';
     } else if (playerWins) {
       flopTurnRiverText =
         betWin > 0
@@ -170,7 +170,7 @@ const useShowdownLogic = ({
     } else if (tie) {
       flopTurnRiverText = betWin > 0 ? `$${betWin}` : '$0'; // 引き分けは返金のみ
     } else {
-      flopTurnRiverText = '$0（敗北 → 没収）';
+      flopTurnRiverText = '$0（没収）';
     }
 
     // --- チップと結果表示を反映 ---
@@ -186,7 +186,7 @@ const useShowdownLogic = ({
       payoutRows: [
         { label: 'TOTAL BET', value: `$${totalBetAmount}` },
         { label: 'ANTE', value: anteText },
-        { label: 'FLOP/TURN/RIVER', value: flopTurnRiverText },
+        { label: 'F/T/R', value: flopTurnRiverText },
 
         {
           label: 'BONUS',
