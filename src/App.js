@@ -72,6 +72,10 @@ function App() {
   // --- ChipSelector panel ref ---
   const selectorRef = React.useRef(null);
 
+  // ChipSelector button refs
+  const chip5BtnRef = React.useRef(null);
+  const chip25BtnRef = React.useRef(null);
+
   /* ------------------- 円がクリック不可かどうか ------------------- */
   const isCircleDisabled = (area) => {
     if (wallet.chips === 0) return true; // Welcome 前は全部ロック
@@ -497,6 +501,8 @@ function App() {
               dispatch={dispatch}
               placedChips={placedChips}
               gamePhase={gamePhase}
+              chip5BtnRef={chip5BtnRef}
+              chip25BtnRef={chip25BtnRef}
               onFlopClick={handleFlopCircleClick}
               onTurnClick={handleTurnCircleClick}
               onRiverClick={handleRiverCircleClick}
@@ -613,6 +619,15 @@ function App() {
               startBtnRef,
               playAgainBtnRef,
               welcomeBtnRef,
+              anteRef,
+              bonusRef,
+              jackpotRef,
+              flopRef,
+              turnRef,
+              riverRef,
+              selectorRef,
+              chip5BtnRef,
+              chip25BtnRef,
             }}
             showWelcomePointer={showWelcomePointer}
             showStartPointer={showStartPointer}

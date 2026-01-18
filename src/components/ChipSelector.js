@@ -23,6 +23,7 @@ const chipOptions = [
  * ─ dispatch, credit, debit
  * ─ tutorialActive : boolean
  * ─ tutorialStage  : 1 | 2 | 3
+ * ─ chip5BtnRef / chip25BtnRef : TutorialPointers用（RefPointerで追う）
  */
 export default function ChipSelector({
   chips,
@@ -32,6 +33,8 @@ export default function ChipSelector({
   dispatch,
   credit,
   debit,
+  chip5BtnRef,
+  chip25BtnRef,
   tutorialActive = false,
   tutorialStage = 1,
 }) {
@@ -118,8 +121,17 @@ export default function ChipSelector({
             (tutorialActive && chip.value !== allowedValue) ||
             (tutorialActive && tutorialStage === 1 && !selectedArea);
 
+          // ★ここがポイント：5 と 25 の Chip だけ ref を渡す
+          const forwardedRef =
+            chip.value === 5
+              ? chip5BtnRef
+              : chip.value === 25
+              ? chip25BtnRef
+              : null;
+
           return (
             <Chip
+              ref={forwardedRef}
               key={chip.value}
               value={chip.value}
               imageSrc={chip.src}
