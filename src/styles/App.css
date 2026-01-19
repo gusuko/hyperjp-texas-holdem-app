@@ -32,16 +32,38 @@ body {
   position: relative;
   overflow: hidden;
 }
+.board-title-img {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 100%;
+  width: min(900px, 100%);
+  height: auto;
+  pointer-events: none; /* クリック邪魔しない */
+  user-select: none;
+}
+/* 画面の高さが低いとき：タイトルを上に寄せて被りを回避 */
+@media (max-height: 820px) {
+  .board-title-img {
+    top: 10px;
+  }
+}
+
+/* ちょうど境界付近で被るのを避ける保険 */
+@media (max-height: 780px) {
+  .board-title-img {
+    top: 6px;
+  }
+}
 
 /* ========= 3-column shell ========= */
 .app-shell {
   display: grid;
-  grid-template-columns: var(--side-width) minmax(0, 1fr) var(--side-width);
-  gap: var(--shell-gap);
-  padding: 16px;
-
+  grid-template-columns: 320px 1fr 320px; /* 左右固定・中央可変 */
+  width: 100%;
   height: 100vh;
-  align-items: start;
+  overflow: hidden;
 }
 
 /* ========= Side panels ========= */
@@ -105,11 +127,8 @@ body {
   grid-column: 2;
   position: relative;
 
-  /* 盤面以外のクリックを拾わない（固定盤面へ渡す） */
-  pointer-events: none;
-
-  /* 固定盤面が存在する前提で高さを確保（見た目安定） */
-  min-height: calc(var(--board-size) * var(--game-scale));
+  display: flex;
+  justify-content: center; /* 視覚的ど真ん中 */
 }
 
 /* ========= Game board (fixed + centered + scaled) ========= */
@@ -117,28 +136,15 @@ body {
   width: var(--board-size);
   height: var(--board-size);
 
-  position: fixed;
+  position: absolute; /* ★ fixed をやめる */
   left: 50%;
   top: 16px;
 
   transform-origin: top center;
   transform: translateX(-50%) scale(var(--game-scale));
 
-  /* board-wrap が pointer-events:none なので盤面で復活 */
   pointer-events: auto;
-
   z-index: 10;
-}
-
-/* タイトル（ボード内座標） */
-.title-in-board {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font: 3rem/1 'Bebas Neue', sans-serif;
-  color: #ffd700;
-  text-shadow: 0 2px 4px #000;
-  pointer-events: none;
 }
 
 /* ========= Card Slots ========= */
@@ -160,7 +166,9 @@ body {
   font-size: 3rem;
   font-weight: bold;
   color: #ffd700;
-  text-shadow: 0 0 16px #000, 0 2px 6px #333;
+  text-shadow:
+    0 0 16px #000,
+    0 2px 6px #333;
   white-space: nowrap;
   padding: 0.2em 1em;
   border-radius: 1em;
@@ -472,4 +480,69 @@ html.too-small::after {
   text-align: center;
   z-index: 6000;
   pointer-events: all;
+}
+/* STARTボタン画像化 */
+.btn-start-img {
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 0; /* 余計な高さを消す */
+}
+
+.start-btn-img {
+  width: 140px; /* まず仮。あとで微調整 */
+  height: auto;
+  display: block;
+  pointer-events: none; /* imgがクリックを奪わない */
+  user-select: none;
+}
+
+.recharge-btn {
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative; /* ←これ必須 */
+}
+/* 画像版の補充ボタン */
+.recharge-btn img {
+  display: block;
+  width: 180px; /* 好きに調整 */
+  height: auto;
+}
+
+/* 背景画像 */
+.welcome-btn-img {
+  width: 180px;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+/* 文字を画像の上に重ねる */
+.recharge-label {
+  position: absolute;
+  inset: 0; /* 上下左右0 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 900;
+  font-size: 22px; /* 大きく */
+  line-height: 1.1;
+  color: #fff;
+
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(255, 255, 255, 0.4);
+
+  pointer-events: none; /* クリックは下のボタンへ */
+}
+/* 通常時の文字（WELCOME済みのとき） */
+.recharge-text {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
 }

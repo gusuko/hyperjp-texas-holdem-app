@@ -122,13 +122,13 @@ function App() {
 
   const [showPlaceYourBets, setShowPlaceYourBets] = useState(false);
   const [playerCardLoadCallback, setPlayerCardLoadCallback] = useState(
-    () => () => {}
+    () => () => {},
   );
   const [dealerCardLoadCallback, setDealerCardLoadCallback] = useState(
-    () => () => {}
+    () => () => {},
   );
   const [boardCardLoadCallback, setBoardCardLoadCallback] = useState(
-    () => () => {}
+    () => () => {},
   );
 
   const handleTopUp = async () => {
@@ -241,7 +241,7 @@ function App() {
       wallet.chips >= betAmount
     ) {
       const chipsToPlace = convertToChips(betAmount).sort(
-        (a, b) => a.value - b.value
+        (a, b) => a.value - b.value,
       );
       debit(betAmount);
       dispatch({ type: 'SET_PLACED_CHIPS', area: 'flop', chips: chipsToPlace });
@@ -298,7 +298,7 @@ function App() {
 
       debit(betAmount);
       const chipsToPlace = convertToChips(betAmount).sort(
-        (a, b) => a.value - b.value
+        (a, b) => a.value - b.value,
       );
       dispatch({ type: 'SET_PLACED_CHIPS', area: 'turn', chips: chipsToPlace });
       playBetSound();
@@ -328,7 +328,7 @@ function App() {
     if (gamePhase === 'turn' && bets.river === 0 && wallet.chips >= betAmount) {
       debit(betAmount);
       const chipsToPlace = convertToChips(betAmount).sort(
-        (a, b) => a.value - b.value
+        (a, b) => a.value - b.value,
       );
 
       dispatch({
@@ -365,11 +365,12 @@ function App() {
 
       {/* ===== 中央：盤面（固定＋スケール） ===== */}
       <div className="board-wrap">
+        <img
+          className="board-title-img"
+          src={process.env.PUBLIC_URL + '/ui/texas_title.png'}
+          alt="Ultimate Texas Hold'em Poker Simulator"
+        />
         <div className="game-board">
-          <h1 className="title-in-board">
-            🃏 Ultimate Texas Hold&apos;em Poker Simulator
-          </h1>
-
           <CurrentChips
             chips={wallet.chips}
             style={{ position: 'absolute', ...POS.ui.chips }}
@@ -526,9 +527,29 @@ function App() {
             style={{ position: 'absolute', ...POS.ui.recharge }}
             disabled={showTutorial}
           >
-            {!wallet.welcomeClaimed && wallet.chips === 0
-              ? 'WELCOME\n＋$1,000'
-              : '＋$1,000'}
+            {/* 背景画像 */}
+            <img
+              src={`${process.env.PUBLIC_URL}/ui/texas_welcome.png`}
+              alt="welcome"
+              className="welcome-btn-img"
+            />
+
+            {/* 文字レイヤー */}
+            <div className="recharge-label">
+              {!wallet.welcomeClaimed && wallet.chips === 0 ? (
+                <>
+                  WELCOME
+                  <br />
+                  ＋$1,000
+                </>
+              ) : (
+                <>
+                  RECHARGE
+                  <br />
+                  ＋$1,000
+                </>
+              )}
+            </div>
           </button>
 
           {/* フォールド（preflop でのみ表示） */}
@@ -558,12 +579,17 @@ function App() {
           {gamePhase === 'initial' && (
             <button
               ref={startBtnRef}
-              className={`btn-start ${showTutorial ? 'disabled-btn' : ''}`}
+              className={`btn-start btn-start-img ${showTutorial ? 'disabled-btn' : ''}`}
               onClick={handleGameStart}
               disabled={showTutorial ? tutorialStage < 4 : false}
               style={{ position: 'absolute', ...POS.ui.start }}
             >
-              🎮 <br />S T A R T
+              <img
+                src={process.env.PUBLIC_URL + '/ui/texas_startbutton.png'}
+                alt="START"
+                draggable={false}
+                className="start-btn-img"
+              />
             </button>
           )}
 

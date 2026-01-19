@@ -39,8 +39,8 @@ const NEG_POS = {
       { top: -550, left: -310 },
     ],
     player: [
-      { top: -20, left: -415 },
-      { top: -20, left: -310 },
+      { top: -15, left: -415 },
+      { top: -15, left: -310 },
     ],
     community: [
       { top: -370, left: -140 },
@@ -52,9 +52,9 @@ const NEG_POS = {
   },
 
   ui: {
-    start: { top: 30, left: -150 },
+    start: { top: 0, left: -150 },
     fold: { top: 30, left: -150 },
-    recharge: { top: 30, left: -600 },
+    recharge: { top: -25, left: -600 },
     selector: { top: 130, left: -600 },
     playAgain: { top: 30, left: -190 },
     check: { top: 30, left: -150 },
@@ -70,7 +70,7 @@ const NEG_POS = {
 const BOARD_PADDING_TOP = 150;
 
 // 追加：全体を右に寄せる（まずはこれで重なりを解消）
-const GLOBAL_SHIFT_X = 260; // ← まずは 260 で試す（後で調整）
+const GLOBAL_SHIFT_X = 300; // ← まずは 260 で試す（後で調整）
 
 const shift = ({ top, left }) => ({
   top: top + CENTER_Y + BOARD_PADDING_TOP,
@@ -79,7 +79,7 @@ const shift = ({ top, left }) => ({
 
 export const POS = {
   bet: Object.fromEntries(
-    Object.entries(NEG_POS.bet).map(([k, v]) => [k, shift(v)])
+    Object.entries(NEG_POS.bet).map(([k, v]) => [k, shift(v)]),
   ),
 
   cardSlot: {
@@ -89,6 +89,6 @@ export const POS = {
   },
 
   ui: Object.fromEntries(
-    Object.entries(NEG_POS.ui).map(([k, v]) => [k, shift(v)])
+    Object.entries(NEG_POS.ui).map(([k, v]) => [k, shift(v)]),
   ),
 };
